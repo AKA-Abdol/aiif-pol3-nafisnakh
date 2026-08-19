@@ -1,0 +1,6 @@
+{
+  // Without this, VS Code emits the widget but never loads its JavaScript,
+  // so ipywidgets controls render as an empty output area with no error.
+  "jupyter.widgetScriptSources": ["jsdelivr.com", "unpkg.com"],
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+}
