@@ -1,0 +1,17 @@
+{
+  "mechanism": "M03_mass_count_deviation",
+  "mechanism_confidence": 0.95,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "تولید",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [
+    "1178210000"
+  ],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری از وجود تلرانس دنیر در نخ همبافت ۱۱۷۸۲۱۰۰۰۰ شکایت کرده است."
+}

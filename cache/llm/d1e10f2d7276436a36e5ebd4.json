@@ -1,0 +1,15 @@
+{
+  "mechanism": "M02_filament_damage",
+  "mechanism_confidence": 0.85,
+  "proposed_new_category_fa": null,
+  "churn_threat": true,
+  "churn_threat_quote_fa": "درصورت تکرار قطع همکاری میکند",
+  "repeat_claim": true,
+  "financial_demand": false,
+  "escalation_level": "بحرانی",
+  "attributed_fault": "تولید",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری با ارسال عکس نسبت به پرز شدید و سیمی بودن تکراری نخ معترض بوده و تهدید به قطع همکاری در صورت تکرار کرده است."
+}

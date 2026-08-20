@@ -1,0 +1,15 @@
+{
+  "mechanism": "M02_filament_damage",
+  "mechanism_confidence": 0.95,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "نامشخص",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "بر اساس تصاویر ارسالی مشتری، در سطح نخ فیلامنت باز و پرز موضعی مشاهده شده است."
+}

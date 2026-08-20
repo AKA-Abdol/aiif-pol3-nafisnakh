@@ -1,0 +1,19 @@
+{
+  "mechanism": "M08_tube_packaging",
+  "mechanism_confidence": 0.8,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "تولید",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [
+    "1178710000",
+    "1182810000",
+    "1188110000"
+  ],
+  "affected_quantity_kg": null,
+  "summary_fa": "بررسی خرابی دوک و بسته‌بندی نامناسب در همبافت‌های ارسالی."
+}

@@ -1,0 +1,17 @@
+{
+  "mechanism": "M10_mechanical_properties",
+  "mechanism_confidence": 0.9,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "تولید",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [
+    "1320500562"
+  ],
+  "affected_quantity_kg": null,
+  "summary_fa": "جمع‌شدگی نخ در همبافت 1320500562 خارج از محدوده است و نیاز به بررسی علت در تولید دارد."
+}

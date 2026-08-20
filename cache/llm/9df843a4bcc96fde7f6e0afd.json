@@ -1,0 +1,15 @@
+{
+  "mechanism": "M04_dye_shade",
+  "mechanism_confidence": 0.98,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "نامشخص",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری از مشاهده اختلاف شید و راه‌راهی در محصول تک‌رنگ پس از فرآیند رنگرزی گزارش داده است."
+}

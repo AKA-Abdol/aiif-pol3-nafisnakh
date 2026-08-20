@@ -1,0 +1,15 @@
+{
+  "mechanism": "M10_mechanical_properties",
+  "mechanism_confidence": 0.95,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "نامشخص",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری با ارائه تصویر اعلام کرده نخ در کاربرد صنعتی تحمل کشش لازم را نداشته و دچار پارگی می‌شود."
+}

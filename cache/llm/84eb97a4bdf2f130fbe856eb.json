@@ -1,0 +1,17 @@
+{
+  "mechanism": "M02_filament_damage",
+  "mechanism_confidence": 0.98,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "پیگیری",
+  "attributed_fault": "تولید",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [
+    "1331101939"
+  ],
+  "affected_quantity_kg": null,
+  "summary_fa": "اعلام پرز و پارگی فیلامنت در همبافت 1331101939 که موجب توقف مکرر دستگاه بافندگی مشتری شده است."
+}

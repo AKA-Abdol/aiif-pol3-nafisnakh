@@ -1,0 +1,15 @@
+{
+  "title_fa": "تماس فوری جهت فعال‌سازی مجدد و معرفی محصولات مکمل",
+  "rationale_fa": "مشتری با حاشیه سود ریسک‌تعدیل‌شده 9.0 درصد [EV-C_565612-riskadj-001]، به مدت 191 روز خرید نداشته [EV-C_565612-cadence-last-001] که معادل 27.29 برابر میانه ریتم 7 روزه اوست [EV-C_565612-cadence-median-001][EV-C_565612-cadence-ratio-001] و حجم خرید ماهانه -100.0 درصد افت کرده است [EV-C_565612-volume-001]. آخرین ارتباط CRM نیز 292 روز پیش ثبت شده [EV-C_565612-crm-001]، در حالی که امکان فروش سه خانواده کالایی Product_Family_01، Product_Family_03 و Product_Family_04 وجود دارد [EV-C_565612-crosssell-001].",
+  "recommended_step_fa": "تماس تلفنی با مشتری برای بررسی علل توقف خرید و ارسال پیش‌فاکتور پیشنهادی برای خانواده‌های کالایی Product_Family_01، Product_Family_03 و Product_Family_04.",
+  "owner": "کارشناس فروش",
+  "evidence_ids": [
+    "EV-C_565612-riskadj-001",
+    "EV-C_565612-cadence-last-001",
+    "EV-C_565612-cadence-median-001",
+    "EV-C_565612-cadence-ratio-001",
+    "EV-C_565612-volume-001",
+    "EV-C_565612-crm-001",
+    "EV-C_565612-crosssell-001"
+  ]
+}

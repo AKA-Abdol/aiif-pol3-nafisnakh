@@ -1,0 +1,14 @@
+{
+  "title_fa": "تماس فنی پیشگیرانه بابت همبافت پرریسک و احیای ریتم خرید",
+  "rationale_fa": "این مشتری 2000 کیلوگرم کالا از همبافت 9900000001 دریافت کرده که مشتری دیگری روی آن شکایت ثبت کرده است [EV-FIX-006-hembaft-risk-001]. هم‌زمان آخرین خرید 40 روز پیش بوده [EV-FIX-006-cadence-last-001] که نسبت به ریتم 10 روزه، 4 برابر سکوت نشان می‌دهد [EV-FIX-006-cadence-median-001] [EV-FIX-006-cadence-ratio-001] و حجم خرید ماهانه در 3 ماه اخیر -23.8 درصد تغییر کرده است [EV-FIX-006-volume-001].",
+  "recommended_step_fa": "تماس فوری واحد فنی و فروش با مشتری جهت پایش کیفیت مصرف همبافت 9900000001 پیش از ثبت شکایت و دریافت سفارش جدید با معرفی Product_Family_05 [EV-FIX-006-hembaft-risk-001] [EV-FIX-006-crosssell-001].",
+  "owner": "کارشناس خدمات فنی و فروش",
+  "evidence_ids": [
+    "EV-FIX-006-hembaft-risk-001",
+    "EV-FIX-006-cadence-last-001",
+    "EV-FIX-006-cadence-median-001",
+    "EV-FIX-006-cadence-ratio-001",
+    "EV-FIX-006-volume-001",
+    "EV-FIX-006-crosssell-001"
+  ]
+}

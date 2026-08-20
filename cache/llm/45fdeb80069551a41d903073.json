@@ -1,0 +1,18 @@
+{
+  "title_fa": "رسیدگی فوری به شکایت آسیب فیلامنت و جلوگیری از قطع همکاری",
+  "rationale_fa": "مشتری صراحتاً تهدید کرده است: «درصورت تکرار قطع همکاری میکند» [EV-FIX-001-llm-churn-001]. قدیمی‌ترین شکایت باز به مدت 200 روز بلاتکلیف مانده [EV-FIX-001-complaint-age-001] و 1 شکایت تکراری در 180 روز گذشته ثبت شده [EV-FIX-001-complaint-repeat-001] که هر دو به مکانیزم «آسیب فیلامنت» مربوط هستند [EV-FIX-001-llm-mechanism-001] [EV-FIX-001-llm-mechanism-002]. آخرین خرید 40 روز پیش بوده در حالی که میانه ریتم 20 روز است (نسبت سکوت 2 برابر) [EV-FIX-001-cadence-last-001] [EV-FIX-001-cadence-median-001] [EV-FIX-001-cadence-ratio-001] و حجم خرید ماهانه -27.3 درصد تغییر کرده است [EV-FIX-001-volume-001]. وضعیت رابطه نیز «بحرانی» ارزیابی شده است [EV-FIX-001-relationship-001].",
+  "recommended_step_fa": "اعزام فوری کارشناس فنی جهت بازدید از کارخانه مشتری برای بررسی مشکل آسیب فیلامنت و تعیین تکلیف قطعی شکایت باز 200 روزه به همراه جلسه حضوری مدیر فروش برای دلجویی و احیای سفارش‌گذاری.",
+  "owner": "مدیر خدمات فنی و مدیر فروش",
+  "evidence_ids": [
+    "EV-FIX-001-llm-churn-001",
+    "EV-FIX-001-complaint-age-001",
+    "EV-FIX-001-complaint-repeat-001",
+    "EV-FIX-001-llm-mechanism-001",
+    "EV-FIX-001-llm-mechanism-002",
+    "EV-FIX-001-cadence-last-001",
+    "EV-FIX-001-cadence-median-001",
+    "EV-FIX-001-cadence-ratio-001",
+    "EV-FIX-001-volume-001",
+    "EV-FIX-001-relationship-001"
+  ]
+}

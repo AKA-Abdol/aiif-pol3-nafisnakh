@@ -1,0 +1,17 @@
+{
+  "mechanism": "M07_twist_ply",
+  "mechanism_confidence": 0.98,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "پیگیری",
+  "attributed_fault": "تولید",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [
+    "1350403809"
+  ],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری با ارسال عکس، نسبت به نوسان و عدم یکنواختی تعداد تاب نخ در همبافت 1350403809 و تأثیر منفی آن بر ظاهر پارچه اعلام شکایت کرده است."
+}

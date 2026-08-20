@@ -1,0 +1,19 @@
+{
+  "mechanism": "M10_mechanical_properties",
+  "mechanism_confidence": 0.95,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "پیگیری",
+  "attributed_fault": "تولید",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [
+    "116811",
+    "118141",
+    "118351"
+  ],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری نسبت به نامناسب بودن زیردست در همبافت‌های ۱۱۸۱۴۱ و ۱۱۸۳۵۱ نسبت به همبافت ۱۱۶۸۱۱ اعلام نارضایتی کرده و خواهان افزایش رنج دنیر است."
+}

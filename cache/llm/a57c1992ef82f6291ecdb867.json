@@ -1,0 +1,15 @@
+{
+  "mechanism": "M04_dye_shade",
+  "mechanism_confidence": 0.98,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "پیگیری",
+  "attributed_fault": "تولید",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری با ارسال تصاویر گزارش داده که یکی از لاهای نخ اختلاف شید داشته و در بافت خط رنگی ایجاد کرده است."
+}
