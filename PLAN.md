@@ -263,7 +263,7 @@ nafisnakh/
     taxonomy.py        10-mechanism taxonomy + deterministic 45→10 map
     blocks/
       complaint.py     structured extraction from complaint text
-      relationship.py  per-customer relationship-quality synthesis (Phase 2)
+      relationship.py  per-customer relationship-quality synthesis
     graph.py           LangGraph orchestration
   aggregate/
     quadrant.py        grow / protect / fix / reduce
@@ -273,7 +273,11 @@ nafisnakh/
     golden.py          loader + scorer for the 40 real complaints
     golden_labels.yaml the labels themselves (user-reviewable)
     fixture.py         the golden-sample end-to-end fixture (§6)
-  cli.py               typer: build · signals · brief · eval · label
+  feedback.py          ★ manager decisions → detector ranking weights
+  report.py            self-contained RTL HTML artifact for the sales manager
+  api.py               FastAPI surface over the same library calls
+  cli.py               typer: build · signals · calibrate · brief · report ·
+                       eval · label · fixture · feedback · serve
 tests/
 ```
 
@@ -501,60 +505,314 @@ re-runs during development cost nothing.
 
 ## 4. TODO
 
-### Phase 0 — scaffolding
-- [ ] `pyproject.toml` — deps: `langchain`, `langgraph`, `langchain-openai`, `pydantic`,
+### Phase 0 — scaffolding ✅ **DONE**
+- [x] `pyproject.toml` — deps: `langchain`, `langgraph`, `langchain-openai`, `pydantic`,
       `pydantic-settings`, `typer`, `pandas`, `pyarrow`, `openpyxl`, `httpx`, `pyyaml`, `pytest`
-- [ ] `nafisnakh/config.py` — Settings (§7 parameter list)
-- [ ] `.env.example` — `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, `OLLAMA_HOST`, model names
-- [ ] `io/schema.py` — every sheet and column name as a constant (§5.1)
-- [ ] `io/loader.py` — load + parquet cache + metadata contract parse
-- [ ] `io/normalize.py` — `normalize_fa` (port from `main.ipynb` §2), **Jalali→Gregorian (§1.5)**,
+- [x] `nafisnakh/config.py` — Settings (§7 parameter list)
+- [x] `.env.example` — `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, `OLLAMA_HOST`, model names
+- [x] `io/schema.py` — every sheet and column name as a constant (§5.1)
+- [x] `io/loader.py` — load + parquet cache + metadata contract parse
+- [x] `io/normalize.py` — `normalize_fa` (port from `main.ipynb` §2), **Jalali→Gregorian (§1.5)**,
       customer-ID namespace unification
-- [ ] `core/evidence.py` — `Evidence` + `EvidenceRegistry`
-- [ ] `core/spine.py` — invoice-grain-safe spine, as-of filter (**integration rule #2**)
-- [ ] `core/cohort.py` — peer cohorts (segment × family × month)
-- [ ] tests: loader round-trip, Jalali conversion, spine row count = 52,987, rule-2 non-fanout
+- [x] `core/evidence.py` — `Evidence` + `EvidenceRegistry`
+- [x] `core/spine.py` — invoice-grain-safe spine, as-of filter (**integration rule #2**)
+- [x] `core/cohort.py` — peer cohorts (segment × family × month)
+- [x] tests: loader round-trip, Jalali conversion, spine row count = 52,987, rule-2 non-fanout
 
-### Phase 1a — minimal metric layer *(prerequisite; not user-selected but required)*
-- [ ] `metrics/cadence.py`
-- [ ] `metrics/economics.py` — incl. **risk-adjusted margin** (§3.5)
-- [ ] `metrics/payment.py`
-- [ ] `metrics/mix.py` — incl. **deflated price position** (§1.7)
-- [ ] `metrics/quality.py` — incl. همبافت blast-radius traversal (**integration rule #7**)
-- [ ] `metrics/wallet.py` — leakage caveat encoded in `provenance`, not hidden
-- [ ] `metrics/engagement.py`
-- [ ] tests: every metric emits well-formed Evidence with traceable `source_rows`
+> **Phase 0 verification (all reproduce PLAN §5.5 exactly):** spine 52,987 lines ·
+> 4,422.7M revenue · 644 customers · cost basis realised 32.24% / planned 67.76% ·
+> blended GM 10.09% · 10,405 loss-making lines · 93 bounced cheques · median 23d late.
+> The 20 Jalali `Relationship_Start_Date` values now parse (`1395/08/12` → `2016-11-02`).
+> 28 tests green.
 
-### Phase 1b — signal engine ★ user-selected
-- [ ] `signals/base.py` — `Signal`, `Detector` protocol, registry
-- [ ] 22 detectors in `signals/detectors/` (§3.4)
-- [ ] `signals/engine.py` — run · dedupe · severity score · `value_at_stake` ranking
-- [ ] **Calibration pass** — no detector fires on >60% or <2% of the book at `as_of=2021-06-30`
-- [ ] Emit `outputs/signals_<as_of>.json`
+### Phase 1a — minimal metric layer ✅ **DONE** *(prerequisite; not user-selected but required)*
+- [x] `metrics/base.py` — `MetricContext`, table registry, dependency `BUILD_ORDER`, evidence helpers
+- [x] `metrics/cadence.py`
+- [x] `metrics/economics.py` — incl. **risk-adjusted margin** (§3.5)
+- [x] `metrics/payment.py`
+- [x] `metrics/mix.py` — incl. **deflated price position** (§1.7)
+- [x] `metrics/quality.py` — incl. همبافت blast-radius traversal (**integration rule #7**)
+- [x] `metrics/wallet.py` — leakage caveat encoded in `provenance`, not hidden
+- [x] `metrics/engagement.py`
+- [x] tests: every metric emits well-formed Evidence with traceable `source_rows`
 
-### Phase 1c — complaint LLM block ★ user-selected
-- [ ] `llm/embeddings.py` — Ollama, `bge-m3` default, `qwen3-8b` option
-- [ ] `llm/client.py` — LangChain → OpenRouter, gemini-flash, behind an interface, response cache
-- [ ] `llm/taxonomy.py` — the deterministic 45→10 map from §3.6
-- [ ] `llm/blocks/complaint.py` — `ComplaintExtraction` structured output
-- [ ] `eval/golden_labels.yaml` — **I propose labels for all 40, user reviews** (Q8)
-- [ ] `eval/golden.py` — scorer: mechanism accuracy, churn-threat P/R, repeat-claim P/R
-- [ ] Eval report; target ≥0.80 mechanism accuracy, ≥0.90 recall on `churn_threat`
+> **Phase 1a verification.** Whole layer builds in ~1 s for 526 customers and emits
+> ~7.4k Evidence objects. Reproduces the anchor figures: 257 customers eligible at
+> `as_of=2021-06-30`, median own-gap 14 days, deflated price position centred on 1.0.
+>
+> **Two deviations from §1.6 / §1.2, both deliberate:**
+> 1. `cadence_ratio` uses an **effective gap** (median, falling back to the mean,
+>    floored at 1 day). 33 customers place several invoices on one day, so their
+>    median gap is 0; §1.6 implicitly treated them as an infinite ratio. Counting
+>    them properly gives **115 breaches** at the anchor, not 134 — the fastest-cadence
+>    accounts are now scored rather than divided by zero.
+> 2. `سهم_سبد` has **zero rows visible at the anchor** (its `Available_At` starts
+>    2021-08-05). Headroom therefore falls back to a **peer-capacity estimate**
+>    (segment p75 of revenue per active month), emitted at confidence 0.5 and
+>    labelled `peer_capacity_estimate`. Detector #21 stays alive without pretending
+>    the wallet sheet said something it cannot say at this date.
+>
+> **همبافت blast radius works and lands in universe B**, where the real complaint
+> prose is: 18 of the 20 `CUST-*` customers were shipped from a همبافت another
+> customer has already complained about (e.g. `CUST-003`: 7 lines, 40,120 kg across
+> 5 همبافت). This is the demo centrepiece and it is real, not constructed.
 
-### Phase 1d — aggregator & action queue ★ user-selected
-- [ ] `aggregate/quadrant.py` — grow/protect/fix/reduce on risk-adjusted margin × headroom
-- [ ] `aggregate/aggregator.py` — final LLM, evidence-ids only
-- [ ] `aggregate/validate.py` — citation enforcement (§3.1), retry-once-then-drop
-- [ ] `llm/graph.py` — LangGraph wiring
-- [ ] `eval/fixture.py` — the golden sample (§6)
-- [ ] `cli.py` — `build` · `signals` · `brief` · `eval` · `label`
-- [ ] End-to-end run → ranked JSON action queue + a readable Persian brief
+### Phase 1b — signal engine ✅ **DONE** ★ user-selected
+- [x] `signals/base.py` — `Signal`, `Detector` protocol, registry, severity `scale()`
+- [x] 22 detectors in `signals/detectors/` (§3.4) — behaviour · price_margin · payment · quality · opportunity
+- [x] `signals/engine.py` — run · dedupe · severity score · `value_at_stake` ranking
+- [x] **Calibration pass** — all 22 within the guard-rails at `as_of=2021-06-30`
+- [x] Emit `outputs/signals_<as_of>.json` + `outputs/calibration_<as_of>.csv`
 
-### Phase 2 — not started
-- [ ] `llm/blocks/relationship.py`
-- [ ] Presentation artifact for the sales manager
-- [ ] API surface
-- [ ] Feedback loop: sales manager marks actions done/dismissed → detector recalibration
+> **Phase 1b verification.** 1,661 signals over 518 customers, 2.8 s, no detector errors.
+> Ranking is `severity × log1p(value_at_stake/scale) × bucket_weight × category_weight`,
+> computed in Python — the LLM never orders the queue.
+>
+> **Calibration is measured against each detector's *eligible* population, not the whole
+> book.** A returns detector cannot fire on a customer with no returns; dividing by 526
+> would condemn a correctly-scoped detector as "too narrow". `BaseDetector.eligible()`
+> declares that population per detector. Final fire rates (fired/eligible):
+> `volume_decline` 56% · `discount_without_return` 55% · `cross_sell_peer_gap` 47% ·
+> `sku_narrowing` 46% · `cadence_breach` 44% (114/257) · `wallet_headroom` 38% ·
+> `late_interest_drag` 38% · `negative_risk_adj_margin` 27% · `dev_request_stalled` 30% ·
+> `unresolved_aging` 29% · `volume_surge` 26% · `price_erosion` 21% ·
+> `margin_below_peer_cohort` 20% · `first_order_no_repeat` 19% · `credit_exposure` 18% ·
+> `mix_downgrade` 14% · `dso_slippage` 11% · `return_rate_spike` 10% · `bounced_cheque` 9% ·
+> `complaint_recurrence` 7% · `churn_threat_language` 0 · `hembaft_blast_radius` 0.
+> The last two are correct zeros at this anchor: #16 needs the LLM block (Phase 1c) and
+> refuses to fall back to a keyword heuristic, and #18 has no cross-customer همبافت
+> complaint yet in universe A — it fires on 18 customers at the full horizon.
+>
+> **Threshold changes made during calibration, and why:**
+> - Age-based detectors (#17, #20) now fire above `max(config floor, p70 of the open
+>   population)`. At a mid-extract `as_of` later resolutions are not yet visible, so 94%
+>   of open complaints are older than the book median — a fixed floor was a tautology.
+> - `sku_narrowing` (#6) now requires the customer to still be buying. A customer who
+>   stopped entirely is a cadence breach; counting them twice charged one fact to two
+>   detectors.
+> - `discount_without_return` (#10) needs ≥4 price offers (median per customer is 1).
+> - `cross_sell_peer_gap` (#22) adoption threshold is 25%, not 60%. Customers in this
+>   book are strongly specialised by product family — no non-dominant family reaches 30%
+>   adoption inside a peer group, so a "most of your peers buy this" rule found nothing.
+>
+> **Two scale bugs found and fixed by looking at the output:**
+> - `cost_to_serve` was configured in absolute rials (5,000,000/complaint) while the
+>   median invoice in this file is ~72,800 units — the currency unit is never declared
+>   (§5.4). One complaint cost more than most customers' lifetime revenue and produced
+>   risk-adjusted margins of −3,249%. It is now expressed as a **multiple of the median
+>   invoice value**, which is scale-free. Risk-adjusted margin now has median +5.1% and
+>   144/526 customers negative.
+> - `effective_gap` is floored at 1 day. Sub-daily mean gaps were producing cadence
+>   ratios of 875×.
+
+### Phase 1c — complaint LLM block ✅ **DONE** ★ user-selected
+- [x] `llm/embeddings.py` — Ollama, `bge-m3` default, `qwen3-8b` option, disk cache
+- [x] `llm/client.py` — LangChain → OpenRouter, gemini-flash, behind an interface, response cache
+- [x] `llm/taxonomy.py` — the deterministic 45→10 map from §3.6 (all 45 titles map, 0 unmapped)
+- [x] `llm/blocks/complaint.py` — `ComplaintExtraction` structured output + offline rule path
+- [x] `eval/golden_labels.yaml` — **labels proposed for all 40, `reviewed: false`** (Q8)
+- [x] `eval/golden.py` — scorer: mechanism accuracy, per-field P/R, title baseline
+- [x] Eval report → `outputs/eval_complaints_golden.txt`
+
+> **Phase 1c verification.** No live model call was made — the key is still pending (Q14).
+> Everything around the call is built and tested: 83 tests green.
+>
+> **⚠️ The eval currently certifies nothing, and says so.** With no key the block runs a
+> narrow keyword extractor tagged `extraction_source="rules"`. Its mechanism accuracy is
+> **0.875 — identical to the title-lookup baseline**, because the rule path *is* the title
+> lookup. The report prints the baseline and the lift (`+0.000`) next to the accuracy and
+> refuses to mark the run as a pass. That is the honest reading: the model's real value is
+> on the rows where the text disagrees with the title, and those have not been tested yet.
+>
+> Offline scores on the 40 (rule path): `churn_threat` P=1.00 R=1.00 · `repeat_claim`
+> P=0.67 R=1.00 · `evidence_supplied` P=1.00 R=1.00 · `escalation_level` 0.825 ·
+> `attributed_fault` **0.475** ← the field with the most headroom for the model.
+>
+> **`financial_demand` has zero positives in all 40 texts.** The scorer reports it as
+> unscoreable rather than printing a meaningless 0.0 or 1.0. Worth telling the client:
+> customers here describe defects, they do not ask for money in the complaint itself.
+>
+> **11 of the 40 are flagged `ambiguous: true`** — texts describing more than one
+> mechanism (e.g. CMP-0003 is both bobbin damage and ribbon winding; CMP-0021's text says
+> package-end breakage while the resolution traces it to a damaged tube edge). On the 29
+> unambiguous rows the title map is already 100% correct. **CMP-0033's complaint text is
+> nothing but two همبافت numbers** — a deliberate test that the model does not invent a
+> mechanism from an empty description.
+>
+> **The centrepiece works end-to-end.** Once the block has run, detector #16 fires exactly
+> once across the whole book — on CUST-003's «درصورت تکرار قطع همکاري ميکند» — at severity
+> 95 with the repeat claim attached.
+>
+> Ollama is **not installed on this machine**, so `bge-m3` was not re-benchmarked here;
+> `OllamaEmbeddings.available()` returns False and the class raises rather than returning
+> zero vectors, so "no backend" can never be mistaken for "these texts are unrelated".
+
+### Phase 1d — aggregator & action queue ✅ **DONE** ★ user-selected
+- [x] `aggregate/quadrant.py` — grow/protect/fix/reduce on risk-adjusted margin × headroom
+- [x] `aggregate/aggregator.py` — final LLM, evidence-ids only, deterministic offline composer
+- [x] `aggregate/validate.py` — citation enforcement (§3.1), retry-once-then-drop
+- [x] `llm/graph.py` — LangGraph wiring (6 nodes, also runnable sequentially for tests)
+- [x] `eval/fixture.py` — the golden sample (§6) + checked-in regression snapshot
+- [x] `cli.py` — `build` · `signals` · `brief` · `eval` · `label` · `fixture` · `calibrate`
+- [x] End-to-end run → ranked JSON action queue + a readable Persian brief
+
+> **Phase 1d verification.** 117 tests green. Full run at `as_of=2021-06-30`:
+> 1,663 signals → 518 triggered customers → quadrants **حفظ 204 · رشد 178 · کاهش 79 ·
+> اصلاح 65** → 25 actions, **0 dropped in validation**.
+> Outputs: `actions_2021-06-30.json` · `brief_2021-06-30.txt` ·
+> `signals_2021-06-30.json` · `evidence_2021-06-30.json` (7.7k evidence objects) ·
+> `calibration_2021-06-30.csv` · `eval_complaints_golden.txt`.
+>
+> **The validator earns its place.** On the first end-to-end run it rejected **every
+> action** — the offline composer was citing only the first four evidence ids while its
+> title quoted a number backed by the fifth. Two real bugs surfaced through it:
+> 1. Evidence ids were being read as numeric claims (`[EV-C_117580-cadence-001]` parsed
+>    as the numbers 117580 and 001). Identifiers are now stripped before numeral
+>    extraction and checked separately as citations.
+> 2. Rounding: the metric layer emits `11.34`, a signal headline says `11.3`. A numeral
+>    is now accepted when some cited value rounds to it **at the numeral's own
+>    precision** — a text may round a number it was given, but never invent precision.
+>
+> **The offline composer is held to the same standard as the model** and passes it: no
+> number appears in an action that is not in its cited evidence.
+>
+> **The golden-sample fixture fires all 22 detectors** and covers all four buckets.
+> §6 asked for 8–12 customers; it needed **16** to reach every detector — cross-sell
+> alone requires a peer group of 8. `nafisnakh/eval/fixture_snapshot.json` is checked in
+> as the regression baseline.
+>
+> **Three generalisable bugs the fixture caught** (each would have hit a real small book):
+> - `days_since_*` metrics crashed when a source sheet was empty (all-NaN float column
+>   minus a Timestamp). Now routed through `days_since()` and degrade to NaN.
+> - Percentile-based detectors (#17, #19, #20) could never fire when fewer than 5
+>   observations existed — a p70 of three values is just the largest of the three.
+>   Below `min_percentile_observations` they now use the configured floor.
+> - Priority bands were computed over the truncated top-N, so the same customer was
+>   labelled «پایین» at `--top 5` and «فوری» at `--top 50`. They are now computed over
+>   the whole book before truncation.
+>
+> **A data finding worth recording:** the generator seeded the real universe-B churn
+> complaint (CUST-003's «درصورت تکرار قطع همکاري ميکند») **verbatim into two universe-A
+> customers** (C_117580, C_180745). Detector #16 now detects when a complaint body is
+> shared across customers, **halves the severity** and appends a warning to the headline
+> — one copied string is not three customers threatening to leave. This is another
+> instance of the §5.4 duplication problem and another argument for evaluating NLP only
+> on the 40.
+
+### Phase 2 ✅ **DONE**
+- [x] `llm/blocks/relationship.py` — per-customer relationship synthesis
+- [x] `report.py` — presentation artifact for the sales manager (self-contained RTL HTML)
+- [x] `api.py` — FastAPI surface (`nafisnakh serve`)
+- [x] `feedback.py` — sales manager marks actions done/dismissed → ranking recalibration
+
+> **Phase 2 verification.** 117 tests still green; graph now has 8 nodes
+> (`load → metrics → complaint_llm → feedback → detect → quadrant → relationship → aggregate`).
+>
+> **`relationship.py`** reads the relationship rather than a document: CRM interaction mix
+> → dominant theme, repeated complaint mechanisms, open R&D requests and open complaints
+> → *unmet promises from our side*, and a recommended opening tone. It runs only for the
+> top-N triggered accounts (cost bounded by the queue, not the book) and is offline-safe
+> with a rule composer at confidence 0.5. On the real book at the anchor it puts
+> C_117580 at «بحرانی» and the rest of the top 10 at «در معرض خطر».
+>
+> **The feedback loop is deliberately shy, and that is the design.**
+> - Feedback is append-only JSONL; one decision credits every detector on that action.
+> - `done` vs `dismissed`/`wrong` becomes a **ranking weight**, never a threshold change
+>   and never a mute. A detector that stops firing could never earn its way back, and one
+>   bad month should not delete a signal that matters twice a year.
+> - Weights are shrunk toward 1.0 by a prior (`feedback_prior_strength=10`) and are
+>   **exactly 1.0 below `feedback_min_events=10`**. Three dismissals is an opinion, not
+>   evidence. Weights stay inside [0.65, 1.35].
+> - `snoozed` is excluded from the ratio — it is neither a yes nor a no. `wrong` is
+>   recorded separately because it means *the fact was not true*, which is a data problem,
+>   not a prioritisation one.
+>
+> **The artifact** (`outputs/report_<as_of>.html`, ~64 KB, no external assets) leads with
+> the four buckets, shows every evidence id inline rather than behind a tooltip, and marks
+> ⚠ on anything resting on Q7/Q11/Q12 — the sales manager should never discover in a
+> meeting that a number was a config default. If any action was dropped in validation, the
+> page says so.
+>
+> **The API adds no logic of its own** — every endpoint projects something the library
+> already computes, so there is no second ranking implementation to drift. The pipeline is
+> cached per `as_of`; `POST /feedback` is the only write and invalidates the cache, because
+> the next queue must be ranked with the verdict just given.
+> `GET /health · /summary · /actions · /customers/{id} · /evidence/{id} · /calibration ·
+> /feedback · /report` · `POST /feedback`.
+
+---
+
+## 4b. HOW TO RUN AND TEST — every block is independently runnable
+
+Install once: `.venv/bin/pip install -e .` — then `nafisnakh` is on the path.
+**Nothing here needs an API key.** Every command works offline today; the LLM
+blocks fall back to a labelled rule path and say so (Q14).
+
+### Test one layer at a time
+
+| What you want to check | Command | What you should see |
+|---|---|---|
+| Loader, Jalali fix, spine, metric layer | `nafisnakh build` | 526 customers · 36,880 visible lines · 7 metric tables · ~7.4k evidence |
+| The 22 detectors + calibration | `nafisnakh calibrate` | one row per detector with `fired / eligible / fire_rate / status`; exits non-zero if any is out of range |
+| Signal file only | `nafisnakh signals` | 1,663 signals over 518 customers → `outputs/signals_<as_of>.json` |
+| Complaint LLM block vs the 40 real complaints | `nafisnakh eval` | mechanism accuracy vs the title baseline, per-field P/R, and an explicit refusal to certify a rules-only run |
+| Golden labels for human review (Q8) | `nafisnakh label --show 5` | the proposed labels, one complaint at a time |
+| **The whole chain, on synthetic data, in ~5 s** | `nafisnakh fixture` | `آشکارسازهای فعال‌شده: 22 از 22` · all four buckets · `رد شده: 0` |
+| **The whole chain, on the real book** | `nafisnakh brief --top 25` | the ranked Persian brief + `outputs/actions_<as_of>.json` |
+| Sales-manager artifact (HTML) | `nafisnakh report --top 25` | `outputs/report_<as_of>.html` — opens in any browser, RTL, no assets |
+| Record what the manager did | `nafisnakh feedback --customer C_245948 --decision done` | the event, plus what it does (and does not yet) change |
+| Effect of feedback so far | `nafisnakh feedback --show` | per-detector acted/dismissed and the resulting weights |
+| HTTP API | `nafisnakh serve` | `http://127.0.0.1:8000/docs` |
+
+Any command takes `--as-of 2021-12-31` to move the anchor, and `-v` for logs.
+
+### Test a different point in time
+
+```bash
+nafisnakh calibrate --as-of 2021-12-31     # do the thresholds still hold?
+nafisnakh brief --as-of 2022-03-31 --top 10
+```
+
+### The test suite
+
+```bash
+.venv/bin/python -m pytest tests -q          # 117 tests, ~45 s
+.venv/bin/python -m pytest tests/test_spine.py -q      # Phase 0 regressions vs §5.5
+.venv/bin/python -m pytest tests/test_metrics.py -q    # Phase 1a
+.venv/bin/python -m pytest tests/test_signals.py -q    # Phase 1b + calibration
+.venv/bin/python -m pytest tests/test_llm.py -q        # Phase 1c + golden set
+.venv/bin/python -m pytest tests/test_aggregate.py -q  # Phase 1d + fixture + validator
+```
+
+### Use it as a library — each block standalone
+
+```python
+from datetime import date
+from nafisnakh.io.loader import load_dataset
+from nafisnakh.metrics.base import make_context, build_metrics
+from nafisnakh.signals.engine import run_detectors, calibrate
+
+ds  = load_dataset()                                   # parquet-cached, ~1 s after first read
+ctx = build_metrics(make_context(ds, as_of=date(2021, 6, 30)))
+ctx.table("payment").head()                            # any metric table on its own
+run = run_detectors(ctx, only=["cadence_breach"])      # one detector in isolation
+print(calibrate(run, ctx))
+```
+
+The pipeline is also a LangGraph, so a single stage can be run or replaced:
+
+```python
+from nafisnakh.llm.graph import run_pipeline
+state = run_pipeline(as_of=date(2021, 6, 30), top_n=10)   # or use_graph=False
+state["ctx"], state["signals"], state["quadrants"], state["queue"]
+```
+
+### What changes when the OpenRouter key arrives (Q14)
+
+Put `OPENROUTER_API_KEY=...` in `.env`. Nothing else changes: `llm/client.py`
+switches from `rules` to `live`, responses are cached by content hash so re-runs
+are free, and `nafisnakh eval` starts producing a verdict instead of refusing to
+issue one.
 
 ---
 
@@ -804,6 +1062,19 @@ random_state        = 42
 ---
 
 ## 11. CHANGELOG
+
+- **2026-08-19 (build)** — **Phases 0, 1a, 1b, 1c and 1d implemented and green.**
+  `nafisnakh/` package: 7 metric tables, 22 detectors, complaint LLM block with the
+  45→10 taxonomy, quadrant assignment, evidence-citation validator, LangGraph pipeline,
+  16-customer golden fixture firing all 22 detectors, Typer CLI, 117 tests.
+  Phase 0 reproduces every §5.5 baseline exactly. See the per-phase verification notes
+  in §4 for the deviations from this plan and the reasons for each.
+  **Still outstanding:** Q7, Q11, Q12, Q13, Q14, Q15; user review of
+  `eval/golden_labels.yaml`.
+- **2026-08-19 (Phase 2)** — Relationship synthesis block, sales-manager HTML artifact,
+  FastAPI surface and the feedback→ranking loop implemented. Pipeline graph grew to 8
+  nodes. Every checkbox in §4 is now ticked; what remains is not code but the six open
+  questions in §8 and the human review of the golden labels.
 
 - **2026-08-19** — Data investigation complete. Two-universe structure identified;
   Universe A confirmed synthetic by statistical test; three `PROCESSING.md` headline
