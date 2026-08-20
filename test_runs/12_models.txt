@@ -1,0 +1,32 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Model backends, live probe
+COMMAND: .venv/bin/nafisnakh models --test
+WHEN   : 2026-08-20 11:18:24
+════════════════════════════════════════════════════════════════════
+
+پروفایل فعال: gemini
+
+gemini         google/gemini-2.0-flash-001  https://openrouter.ai/api/v1
+               کلید OPENROUTER_API_KEY: خالی ◀ فعال
+               انتخاب مستندشده در Q3 — ارزان و کافی برای تست اولیه
+
+agentrouter    gpt-5.6-sol                  https://agentrouter.org/v1
+               کلید AGENTROUTER_API_KEY: موجود 
+               نیازمند مجوز کلاینت از سمت AgentRouter
+               ❌ HTTP 401 {"error":{"message":"unauthorized client detected, contact support for assistance at https://discord.gg/aYq5B4
+
+agentrouter-claude claude-opus-4-8              https://agentrouter.org/v1
+               کلید AGENTROUTER_CLAUDE_API_KEY: موجود 
+               ⚠ متن فارسی را با content-blocked رد می‌کند — برای این پروژه غیرقابل استفاده
+               ❌ HTTP 401 {"error":{"message":"unauthorized client detected, contact support for assistance at https://discord.gg/aYq5B4
+
+avalai         gpt-5.5                      https://api.avalai.ir/v1
+               کلید AVALAI_API_KEY: موجود 
+               کلید فقط به gpt-5.5 دسترسی دارد و اعتبار حساب کافی نیست — §8 Q18
+               ❌ HTTP 429 {
+  "error": {
+    "message": "You have insufficient credit to complete this request. Your remaining balance o
+
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 2.4s

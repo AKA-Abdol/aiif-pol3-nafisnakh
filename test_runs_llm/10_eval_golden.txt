@@ -1,0 +1,42 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Complaint eval, 40 golden
+COMMAND: .venv/bin/nafisnakh eval
+WHEN   : 2026-08-20 12:03:04
+════════════════════════════════════════════════════════════════════
+
+ارزیابی بلوک LLM شکایات — مجموعه طلایی ۴۰ شکایت واقعی
+==============================================================
+منبع استخراج          : cached
+تعداد ردیف            : 40
+بازبینی‌شده توسط کاربر : 0/40  ⚠️ برچسب‌ها هنوز تأیید نشده‌اند
+ردیف‌های مبهم          : 11
+
+دقت مکانیزم           : 0.900  (هدف ≥ 0.80)
+  بدون ردیف‌های مبهم   : 1.000
+  خط پایه نگاشت عنوان : 0.875
+  بهبود نسبت به خط پایه: +0.025
+
+فیلدهای دودویی:
+  churn_threat         P=1.00 R=1.00 (tp=1 fp=0 fn=0, مثبت در طلایی=1)
+  repeat_claim         P=1.00 R=1.00 (tp=2 fp=0 fn=0, مثبت در طلایی=2)
+  financial_demand     — no positive examples in the golden set — this field cannot be scored on 40 rows
+  evidence_supplied    P=1.00 R=1.00 (tp=4 fp=0 fn=0, مثبت در طلایی=4)
+
+فیلدهای دسته‌ای:
+  escalation_level     accuracy=0.750
+  attributed_fault     accuracy=0.900
+
+نتیجه: اهداف برآورده شد ✅
+
+خطاهای مکانیزم:
+                                   gold                 pred  ambiguous
+complaint_id                                                           
+CMP-0009      M10_mechanical_properties              UNKNOWN       True
+CMP-0021          M01_package_formation  M02_filament_damage       True
+CMP-0024          M01_package_formation  M02_filament_damage       True
+CMP-0037       M03_mass_count_deviation        M07_twist_ply       True
+
+نوشته شد: /Users/mehdi/Documents/project/POL-3/aiif-pol3-nafisnakh/outputs/eval_complaints_golden.txt
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 0.8s

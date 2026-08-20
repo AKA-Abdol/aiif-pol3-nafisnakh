@@ -69,17 +69,19 @@ class LLMClient:
             from langchain_openai import ChatOpenAI
 
             self._chat = ChatOpenAI(
-                model=self.settings.llm_model,
-                base_url=self.settings.llm_base_url,
-                api_key=self.settings.openrouter_api_key,
+                model=self.settings.active_model,
+                base_url=self.settings.active_base_url,
+                api_key=self.settings.active_api_key,
                 temperature=self.settings.llm_temperature,
                 max_retries=self.settings.llm_max_retries,
             )
         return self._chat
 
     def prompt_hash(self, system: str, user: str, schema_name: str) -> str:
+        # the model is part of the key, so switching profile does not serve a
+        # cached answer written by a different model
         payload = "|".join([
-            self.settings.llm_model, str(self.settings.llm_temperature),
+            self.settings.active_model, str(self.settings.llm_temperature),
             schema_name, system, user,
         ])
         return hashlib.sha256(payload.encode()).hexdigest()[:24]
@@ -120,7 +122,7 @@ class LLMClient:
             cached = self.read_cache(h)
             if cached is not None:
                 return LLMResult(schema.model_validate(cached), "cached",
-                                 self.settings.llm_model, h)
+                                 self.settings.active_model, h)
 
         if self.available:
             structured = self._client().with_structured_output(schema)
@@ -130,14 +132,15 @@ class LLMClient:
             )
             if use_cache:
                 self.write_cache(h, value.model_dump())
-            return LLMResult(value, "live", self.settings.llm_model, h)
+            return LLMResult(value, "live", self.settings.active_model, h)
 
         if fallback is not None:
             return LLMResult(fallback(), "rules", "rules", h)
 
         raise LLMUnavailable(
-            "OPENROUTER_API_KEY is not set and no recorded response exists for this "
-            "prompt (PLAN Q14). Pass an explicit fallback to run offline."
+            f"{self.settings.profile.api_key_env} is not set for profile "
+            f"{self.settings.llm_profile!r}, and no recorded response exists for "
+            "this prompt (PLAN Q14). Pass an explicit fallback to run offline."
         )
 
 

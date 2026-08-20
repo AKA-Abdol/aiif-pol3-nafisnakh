@@ -1,0 +1,34 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Detector calibration
+COMMAND: .venv/bin/nafisnakh calibrate
+WHEN   : 2026-08-20 11:58:50
+════════════════════════════════════════════════════════════════════
+
+                detector    category  fired  eligible  fire_rate  rare_by_design status note
+          volume_decline        risk    185       331     0.5589           False     ok     
+ discount_without_return  efficiency     35        64     0.5469           False     ok     
+     cross_sell_peer_gap opportunity    184       390     0.4718           False     ok     
+           sku_narrowing        risk     41        90     0.4556           False     ok     
+          cadence_breach        risk    114       257     0.4436           False     ok     
+         wallet_headroom opportunity    202       526     0.3840           False     ok     
+      late_interest_drag  efficiency    200       526     0.3802           False     ok     
+     dev_request_stalled        risk     25        84     0.2976           False     ok     
+        unresolved_aging        risk     15        51     0.2941           False     ok     
+            volume_surge opportunity     86       331     0.2598           False     ok     
+           price_erosion        risk     44       206     0.2136           False     ok     
+negative_risk_adj_margin  efficiency    111       526     0.2110           False     ok     
+margin_below_peer_cohort  efficiency    105       526     0.1996           False     ok     
+   first_order_no_repeat        risk    100       526     0.1901            True     ok     
+         credit_exposure        risk     94       526     0.1787           False     ok     
+           mix_downgrade        risk     28       206     0.1359           False     ok     
+            dso_slippage        risk     26       238     0.1092           False     ok     
+       return_rate_spike        risk      9        86     0.1047           False     ok     
+          bounced_cheque        risk     49       526     0.0932            True     ok     
+    complaint_recurrence        risk      8       109     0.0734           False     ok     
+   churn_threat_language        risk      2       109     0.0183            True     ok     
+    hembaft_blast_radius        risk      0       526     0.0000            True     ok     
+
+نوشته شد: /Users/mehdi/Documents/project/POL-3/aiif-pol3-nafisnakh/outputs/calibration_2021-06-30.csv
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 4.8s

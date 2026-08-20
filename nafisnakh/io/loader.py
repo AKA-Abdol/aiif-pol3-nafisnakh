@@ -23,6 +23,7 @@ from ..config import Settings, get_settings
 from . import schema as S
 from .normalize import (
     add_universe_column,
+    normalize_customer_id,
     fix_fraction_pct,
     normalize_fa,
     to_datetime_mixed,
@@ -151,6 +152,66 @@ class Dataset:
 
     def row_counts(self) -> dict[str, int]:
         return {k: len(v) for k, v in self.frames.items()}
+
+
+def subset_dataset(
+    ds: Dataset, customer_ids: list[str] | None = None, *, sample: int = 0,
+    seed: int | None = None, prefer_active: bool = True,
+) -> Dataset:
+    """A smaller Dataset containing only the named customers.
+
+    For trying the pipeline on a handful of real accounts without waiting for
+    the full book. Every customer-bearing sheet is filtered on ``Customer_ID``;
+    sheets without one (products, planned cost, the همبافت bridge) are kept
+    whole, because they are dimensions and filtering them would break joins.
+
+    ⚠️ **Peer-comparison detectors weaken on a small sample.** `margin_below_peer_cohort`
+    needs 5 customers in a cohort and `cross_sell_peer_gap` needs 8, so below
+    roughly 30 customers those two go quiet. That is correct behaviour — a
+    percentile over four customers is not a percentile — but it means a small
+    sample tests the plumbing, not the calibration. Use the full book for that.
+    """
+    frames = dict(ds.frames)
+    customers = frames[S.S_CUSTOMERS]
+
+    if customer_ids:
+        wanted = {normalize_customer_id(c) for c in customer_ids}
+        missing = wanted - set(customers[S.CUSTOMER_ID])
+        if missing:
+            raise KeyError(f"unknown customer ids: {sorted(missing)}")
+    else:
+        pool = customers
+        if prefer_active:
+            # customers with real trading history make a far more useful sample
+            # than the dormant tail, which triggers almost nothing
+            counts = frames[S.S_SALES][S.CUSTOMER_ID].value_counts()
+            busy = counts[counts >= 20].index
+            if len(busy) >= sample:
+                pool = customers.loc[customers[S.CUSTOMER_ID].isin(busy)]
+        wanted = set(
+            pool[S.CUSTOMER_ID].sample(
+                min(sample, len(pool)), random_state=seed or ds.settings.random_state
+            )
+        )
+
+    for sheet, frame in frames.items():
+        if S.CUSTOMER_ID in frame.columns and len(frame):
+            frames[sheet] = frame.loc[frame[S.CUSTOMER_ID].isin(wanted)].copy()
+
+    # keep the invoice/cost/collection tables consistent with the kept sales lines
+    kept_invoices = set(frames[S.S_SALES][S.INVOICE_NO])
+    kept_lines = set(frames[S.S_SALES][S.SALES_LINE_ID])
+    for sheet, key, keep in (
+        (S.S_COST_REAL, S.SALES_LINE_ID, kept_lines),
+        (S.S_COLLECTIONS, S.INVOICE_NO, kept_invoices),
+    ):
+        frame = frames[sheet]
+        if key in frame.columns and len(frame):
+            frames[sheet] = frame.loc[frame[key].isin(keep)].copy()
+
+    log.info("subset to %d customers, %d sales lines",
+             len(wanted), len(frames[S.S_SALES]))
+    return Dataset(frames=frames, settings=ds.settings, contract=ds.contract)
 
 
 def load_dataset(

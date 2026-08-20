@@ -195,6 +195,7 @@ Activity at as_of 2022-06-30 for reference: 172 active in 90d, 243 in 180d, 383 
 | **Q5** | Interruption handling | **"we may stop you for some reasons — create your plan with todos and checkmarks, include all Q&A, future questions, and anything needed"** | This file. Keep §4 checkboxes current as work proceeds. |
 | **Q6** | Demo strategy across two disjoint universes? | **"ببین روی هردوی اینها ترین کن. نکته اینه که نرخ‌های مالی فقط فیک شدن. تاریخ‌ها هم البته منطقی نیست. می‌تونی روی دیتایی که روی ناحیه ۲۰۲۲ هست کار کنی ولی یک نمونه طلایی هم برای تست آماده کنی. در واقع این دیتا دیتای نهایی ما است و باید روی این کار کنیم."** | Run the pipeline over **both** universes. Anchor commercial work in the ≤2022 region. Additionally build a **golden sample fixture** (§6) that exercises the full chain end-to-end for testing. This data is final. |
 | **Q8** | Who labels the 40 real complaints? | **I propose labels, user reviews and corrects** | Produce `eval/golden_labels.yaml` covering all 40, human-editable, with a `reviewed: false` flag per row that the user flips. |
+| **Q16** | Add a second model (`gpt-5.6-sol` via AgentRouter) without disturbing the Gemini choice? | **"in doc i say use gemeni, dont change it … add it as a new model but dont change previous configs for gemeni"** | Generation backends are now **named profiles** in `config.py`. `gemini` reproduces the Q3 decision byte-for-byte and stays the default; `agentrouter` is additive. Selected with `NN_LLM_PROFILE` or `--profile`. ⚠️ **AgentRouter is not usable yet — see §8 Q17.** |
 | **Q10** | Is the 4%/month late charge real? | **"بله، ۴٪ ماهانه روی مانده و واقعاً وصول می‌شود"** | The late charge is **compensating revenue**, not pure opportunity cost. Formula in §3.5 reflects this. Raises Q11. |
 
 ### Standing instruction from the user
@@ -763,6 +764,11 @@ blocks fall back to a labelled rule path and say so (Q14).
 | Record what the manager did | `nafisnakh feedback --customer C_245948 --decision done` | the event, plus what it does (and does not yet) change |
 | Effect of feedback so far | `nafisnakh feedback --show` | per-detector acted/dismissed and the resulting weights |
 | HTTP API | `nafisnakh serve` | `http://127.0.0.1:8000/docs` |
+| Which model backends exist, and do they answer? | `nafisnakh models --test` | one line per profile, its key status, and a live HTTP probe |
+
+Any command that calls a model takes `--profile gemini|agentrouter`
+(`nafisnakh eval --profile agentrouter`). The response cache keys on the model
+name, so switching profile never serves an answer written by the other model.
 
 Any command takes `--as-of 2021-12-31` to move the anchor, and `-v` for logs.
 
@@ -998,12 +1004,22 @@ complaint_recurrence_days = 180
 dev_request_stall_days    = 90
 late_interest_drag_pct    = 0.25
 
-# LLM
+# LLM — named profiles; `gemini` is the Q3 decision and must not be edited.
+# Adding a backend means adding a profile, never changing this one.
+llm_profile         = "gemini"           # | "agentrouter"
 llm_provider        = "openrouter"
 llm_model           = "google/gemini-2.0-flash-001"   # or -lite; upgradeable
 llm_base_url        = "https://openrouter.ai/api/v1"
 llm_temperature     = 0.0
 llm_cache           = True
+
+# LLM_PROFILES in config.py
+#   gemini      google/gemini-2.0-flash-001  https://openrouter.ai/api/v1  OPENROUTER_API_KEY
+#   agentrouter        gpt-5.6-sol      https://agentrouter.org/v1  AGENTROUTER_API_KEY
+#   agentrouter-claude claude-opus-4-8  https://agentrouter.org/v1  AGENTROUTER_CLAUDE_API_KEY
+#   avalai             gpt-5.5          https://api.avalai.ir/v1    AVALAI_API_KEY
+#   ⚠ agentrouter profiles blocked by the provider — §8 Q17
+#   ⚠ avalai blocked by account credit/key scope — §8 Q18
 
 # embeddings
 embed_backend       = "ollama"
@@ -1028,6 +1044,8 @@ random_state        = 42
 | **Q13** | Should the **10-mechanism taxonomy** in §3.6 be reviewed by a Nafis Nakh QC person before it becomes the system's backbone? | Phase 1c | It is my mapping of their 45 titles. Getting it wrong propagates into every complaint signal. Cheap to validate, expensive to fix later. |
 | **Q14** | OpenRouter **API key** — user said it comes later. | Phase 1c live calls | Until then LLM blocks are written and unit-tested against recorded fixtures; no live calls. |
 | **Q15** | Who is the **actual end user** — one sales manager, or several reps with their own books? | aggregate/ output shape | Determines whether the queue is one global ranked list or partitioned by `Sales_Rep_ID` (8 distinct reps exist in the data). |
+| **Q17** | **AgentRouter blocks non-whitelisted API clients. The keys are fine; the client is the problem.** Verified: `GET /v1/dashboard/billing/subscription` returns **200** with both keys (valid, payment method present, $50 limit) — so authentication works. But `/v1/chat/completions` and `/v1/models` are gated. Enforcement is **layered and intermittent**: the same key/model/prompt returns `401 unauthorized_client_error` in one minute and `400 content-blocked` the next. Decisive proof it is not our request: **a deliberately nonexistent model name (`definitely-not-a-real-model`) returns the same 401**, so the gate fires *before* model resolution — nothing about model, prompt or language reaches it. Tested across 2 keys × 4+ models × 2 languages. AgentRouter whitelists specific coding-agent clients (OmniRoute, OpenCode, ForgeCode all hit this). → **Need a key for a provider without client gating**: OpenRouter (the Q3 choice), OpenAI, or an Iranian gateway (AvalAI, Metis). | all live runs | ⚠️ **Correction to an earlier note in this file:** I previously recorded that Persian prompts specifically were content-blocked while English passed. That was wrong — it was an artifact of the intermittent enforcement. A clean 2×2×2 matrix showed language makes no difference. | 
+| **Q18** | **AvalAI works — the account does not.** `https://api.avalai.ir/v1` authenticates cleanly (no client gating): `GET /v1/models` returns **385 models**, and errors are specific and actionable. Two account-side blocks, both fixable by the user: (1) the key is **restricted to `gpt-5.5`** — every other model, including cheap ones, returns `403 model_access_limited`; AvalAI's own message says *"consider creating a new key without 'Advanced settings' to grant access to all models"*; (2) `gpt-5.5` itself returns `429 insufficient_quota` — **balance 0.132 UNIT does not cover one call**, let alone 348. → Add credit at https://ava.al/billing, and ideally issue an unrestricted key so a cheap model (`gemini-2.5-flash-lite`) can carry the bulk run. | all live runs | This is the first provider where the block is entirely on the user's side of the account rather than a wall we cannot pass. The `avalai` profile is wired and verified end-to-end through `LLMClient`; the 429 arrives from our own client code path, which proves the plumbing is correct. |
 
 ---
 
@@ -1071,6 +1089,10 @@ random_state        = 42
   in §4 for the deviations from this plan and the reasons for each.
   **Still outstanding:** Q7, Q11, Q12, Q13, Q14, Q15; user review of
   `eval/golden_labels.yaml`.
+- **2026-08-19 (profiles)** — Second generation backend added as a **named profile**
+  (`agentrouter` / `gpt-5.6-sol`) alongside the untouched `gemini` default; `nafisnakh
+  models --test` probes both. AgentRouter currently rejects all direct API clients
+  (Q17), so no live run has been made yet.
 - **2026-08-19 (Phase 2)** — Relationship synthesis block, sales-manager HTML artifact,
   FastAPI surface and the feedback→ranking loop implemented. Pipeline graph grew to 8
   nodes. Every checkbox in §4 is now ticked; what remains is not code but the six open

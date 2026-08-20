@@ -1,0 +1,13 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Golden fixture (synthetic)
+COMMAND: .venv/bin/nafisnakh fixture
+WHEN   : 2026-08-20 11:18:08
+════════════════════════════════════════════════════════════════════
+
+مشتریان نمونه: 16
+آشکارسازهای فعال‌شده: 22 از 22
+دسته‌بندی‌ها: {'FIX-001': 'protect', 'FIX-002': 'fix', 'FIX-003': 'protect', 'FIX-004': 'grow', 'FIX-005': 'protect', 'FIX-006': 'protect', 'FIX-007': 'protect', 'FIX-008': 'protect', 'FIX-009': 'protect', 'FIX-010': 'reduce', 'FIX-011': 'protect', 'FIX-012': 'protect', 'FIX-013': 'protect', 'FIX-014': 'protect', 'FIX-015': 'protect', 'FIX-016': 'reduce'}
+اقدام‌ها: 16 · رد شده: 0
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 0.6s

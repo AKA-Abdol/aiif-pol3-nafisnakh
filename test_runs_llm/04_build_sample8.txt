@@ -1,0 +1,18 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Metric layer, 8 customers
+COMMAND: .venv/bin/nafisnakh build --sample 8
+WHEN   : 2026-08-20 11:58:50
+════════════════════════════════════════════════════════════════════
+
+زیرمجموعه: 8 مشتری، 574 ردیف فروش
+
+تاریخ مبنا: 2021-06-30
+مشتریان با سابقه فروش: 8
+ردیف‌های فروش قابل‌مشاهده: 433
+پوشش بهای تمام‌شده: {'estimated': 0.6882, 'realized': 0.3118}
+جدول‌های سنجه: cadence, payment, quality, engagement, mix, economics, wallet
+شواهد تولیدشده: 130
+شواهد نوشته شد: /Users/mehdi/Documents/project/POL-3/aiif-pol3-nafisnakh/outputs/evidence_2021-06-30.json
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 0.5s

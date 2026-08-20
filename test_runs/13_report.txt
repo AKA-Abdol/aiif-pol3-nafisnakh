@@ -1,0 +1,11 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Sales-manager HTML report
+COMMAND: .venv/bin/nafisnakh report --top 25
+WHEN   : 2026-08-20 11:18:27
+════════════════════════════════════════════════════════════════════
+
+گزارش نوشته شد: /Users/mehdi/Documents/project/POL-3/aiif-pol3-nafisnakh/outputs/report_2021-06-30.html
+اقدام‌ها: 25 · دسته‌بندی: {'protect': 204, 'grow': 178, 'reduce': 79, 'fix': 65}
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 4.1s

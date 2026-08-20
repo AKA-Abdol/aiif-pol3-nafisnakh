@@ -1,0 +1,67 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Golden labels needing review
+COMMAND: .venv/bin/nafisnakh label --only-ambiguous --show 11
+WHEN   : 2026-08-20 12:03:05
+════════════════════════════════════════════════════════════════════
+
+بازبینی‌نشده: 11 از 40 — مبهم: 11
+----------------------------------------------------------------------
+CMP-0003 · CUST-019 · دوک دست دوم / خرابی دوک · کم
+متن: نخ poy كه در فروردين  ارسال شده، اشكالات زير را داشته:بوبين ها آسيب ديده هستندحالت پيچش نخ روي بوبين زاويه دار نبوده و اصطلاحا ريبوني شده(روي هم پيچيده شده) اين باعث برآمدگي بوبين در آن ناحيه شده و هنگامي كه بسته بندي شده  اين نقاط سايش روي يكديگر به وجو
+برچسب پیشنهادی: {"mechanism": "M01_package_formation", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "عادی", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "پیچش ریبونی و برآمدگی بوبین که باعث سایش و آسیب بسته شده است."}
+یادداشت: متن هم آسیب بوبین (M08) و هم ریبونی شدن پیچش (M01) را می‌گوید؛ عیب غالب توصیف‌شده ریبونی است.
+----------------------------------------------------------------------
+CMP-0007 · CUST-016 · فیلامنت و پرز · کم
+متن: طبق اعلام مشتري اين پارت ارسال شده نخ فيلامنت پارگي و پليسه دار بودن دوک.
+برچسب پیشنهادی: {"mechanism": "M02_filament_damage", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "عادی", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "فیلامنت پارگی و پلیسه‌دار بودن دوک در پارت ارسالی."}
+یادداشت: هم فیلامنت پارگی (M02) و هم پلیسه دوک (M08)؛ عنوان و ترتیب متن به M02 وزن می‌دهد.
+----------------------------------------------------------------------
+CMP-0009 · CUST-012 · بازشدن نخ درجه C · زیاد
+متن: کارکرد نامناسب نخ درجات
+برچسب پیشنهادی: {"mechanism": "M10_mechanical_properties", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "پیگیری", "attributed_fault": "نامشخص", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "کارکرد نامناسب نخ درجات در فرآیند مشتری."}
+یادداشت: متن («کارکرد نامناسب نخ درجات») بسیار مبهم است؛ عنوان به M09 و کارکرد به M10 اشاره دارد.
+----------------------------------------------------------------------
+CMP-0018 · CUST-011 · نوسان دنیر · کم
+متن: نوسان در نخ به طوري كه متراژي از نخ بدون مشكل كار ميكند مجدد به حالت خام مي شود.
+برچسب پیشنهادی: {"mechanism": "M03_mass_count_deviation", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "عادی", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "نوسان در نخ به‌طوری که بخشی از متراژ به حالت خام برمی‌گردد."}
+یادداشت: «به حالت خام می‌شود» می‌تواند نوسان دنیر (M03) یا خاصیت مکانیکی (M10) باشد.
+----------------------------------------------------------------------
+CMP-0021 · CUST-015 · پیچش بسته/ تنشن پیچش · زیاد
+متن: انتهاي بسته ها پارگي شديد داشته و باعث شده است كه راندمان مشتري به شدت كاهش يافته است.
+برچسب پیشنهادی: {"mechanism": "M01_package_formation", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "پیگیری", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "پارگی شدید در انتهای بسته‌ها و افت شدید راندمان مشتری."}
+یادداشت: متن پارگی انتهای بسته را می‌گوید (M01/M02)؛ ریشه در پاسخ، خرابی لبه دوک (M08) بوده است.
+----------------------------------------------------------------------
+CMP-0024 · CUST-003 · فیلامنت و پرز · متوسط
+متن: بد پيچي بر روي بعضي از دوک ها و فيلامنت پارگي و پرزدار بودن در نخ هاي مات.بنابه فرموده مشتري: به نظر ميرسد نحوه شيرينگ و بسته بندي اين نخها نيز باعث بخشي از آسيب هاي مربوطه بوده است.
+برچسب پیشنهادی: {"mechanism": "M01_package_formation", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "عادی", "attributed_fault": "بسته‌بندی", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "بدپیچی روی بعضی دوک‌ها و فیلامنت پارگی در نخ مات؛ مشتری شیرینگ را هم مؤثر می‌داند."}
+یادداشت: بدپیچی (M01) و فیلامنت پارگی (M02) با هم؛ بدپیچی اول متن آمده است.
+----------------------------------------------------------------------
+CMP-0027 · CUST-013 · پیچش بسته/ تنشن پیچش · زیاد
+متن: قبل از رسيدن به رزرو تمامي نخ ها پاره ميشود و موجب افت راندمان شديد ميگردد.
+برچسب پیشنهادی: {"mechanism": "M01_package_formation", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "پیگیری", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "پارگی تمام نخ‌ها پیش از رسیدن به رزرو و افت شدید راندمان."}
+یادداشت: پارگی پیش از رسیدن به رزرو؛ ریشه در تنشن پیچش (M01) اما ظهور آن پارگی (M02) است.
+----------------------------------------------------------------------
+CMP-0032 · CUST-019 · فیلامنت و پرز · کم
+متن: فيلامنت پارگي،پرزدار بودن،پيچش نامنظم
+برچسب پیشنهادی: {"mechanism": "M02_filament_damage", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "عادی", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "فیلامنت پارگی، پرزدار بودن و پیچش نامنظم."}
+یادداشت: فیلامنت پارگی و پرز (M02) به‌همراه پیچش نامنظم (M01).
+----------------------------------------------------------------------
+CMP-0033 · CUST-003 · آسیب دیدگی در حمل و نقل · زیاد
+متن: 1270110000 1263010000
+برچسب پیشنهادی: {"mechanism": "M09_labelling_logistics", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "عادی", "attributed_fault": "حمل", "evidence_supplied": false, "hembaft_mentioned": ["1270110000", "1263010000"], "affected_quantity_kg": null, "summary_fa": "شکایت بدون متن توصیفی؛ فقط دو شماره همبافت ثبت شده است."}
+یادداشت: متن شکایت فقط دو شماره همبافت است و هیچ توصیفی ندارد؛ مکانیزم تنها از عنوان قابل استخراج است. تست خوبی برای اینکه مدل چیزی از خودش نسازد.
+----------------------------------------------------------------------
+CMP-0037 · CUST-003 · کم شدن لای نخ · متوسط
+متن: در نخ نمره 500 ، نخ با نمره خيلي پايين تر ( حدودا 250 ) مشاهده شد كه هم نخ سيمي شده است و هم پرزدار.
+برچسب پیشنهادی: {"mechanism": "M03_mass_count_deviation", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "پیگیری", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": [], "affected_quantity_kg": null, "summary_fa": "مشاهده نخ با نمره حدود ۲۵۰ در محموله نمره ۵۰۰، همراه با سیمی و پرزدار بودن."}
+یادداشت: نمره بسیار پایین‌تر از ۵۰۰ (M03) همراه با سیمی و پرزدار بودن (M02/M10).
+----------------------------------------------------------------------
+CMP-0039 · CUST-014 · بازشدن نخ درجه C · متوسط
+متن: مشتري در حال خريد نخ درجه c مي باشد ولي با اين تفاسير نخ ظاهربسيار بهم ريخته دارد. 111911100 96410000
+برچسب پیشنهادی: {"mechanism": "M01_package_formation", "churn_threat": false, "churn_threat_quote_fa": null, "repeat_claim": false, "financial_demand": false, "escalation_level": "عادی", "attributed_fault": "تولید", "evidence_supplied": false, "hembaft_mentioned": ["111911100", "96410000"], "affected_quantity_kg": null, "summary_fa": "ظاهر بهم‌ریخته نخ درجه C خریداری‌شده."}
+یادداشت: «ظاهر بهم‌ریخته» نخ درجه C؛ عنوان به M09 نگاشت شده اما توصیف به شکل بسته (M01) نزدیک‌تر است.
+----------------------------------------------------------------------
+برای تأیید، در nafisnakh/eval/golden_labels.yaml مقدار reviewed را true کنید.
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 0.6s

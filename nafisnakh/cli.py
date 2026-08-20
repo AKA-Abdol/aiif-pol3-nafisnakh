@@ -21,12 +21,16 @@ app = typer.Typer(add_completion=False, help="دستیار هوشمند CRM — 
 log = logging.getLogger(__name__)
 
 
-def _settings(as_of: Optional[str], dataset: Optional[Path]) -> Settings:
+def _settings(
+    as_of: Optional[str], dataset: Optional[Path], profile: Optional[str] = None
+) -> Settings:
     overrides: dict = {}
     if as_of:
         overrides["as_of"] = date.fromisoformat(as_of)
     if dataset:
         overrides["dataset_path"] = dataset
+    if profile:
+        overrides["llm_profile"] = profile
     st = get_settings(**overrides) if overrides else get_settings()
     st.ensure_dirs()
     return st
@@ -49,13 +53,19 @@ def build(
     as_of: Optional[str] = typer.Option(None, help="تاریخ مبنا، مثلاً 2021-06-30"),
     dataset: Optional[Path] = typer.Option(None),
     refresh: bool = typer.Option(False, help="نادیده گرفتن کش parquet"),
+    sample: int = typer.Option(0, help="فقط روی N مشتری تصادفی اجرا کن"),
+    customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
     """Load the workbook, build the metric layer, report what came out."""
-    from .io.loader import load_dataset
+    from .io.loader import load_dataset, subset_dataset
     from .metrics.base import build_metrics, make_context
 
     st = _settings(as_of, dataset)
     ds = load_dataset(st, refresh=refresh)
+    ids = [c.strip() for c in customers.split(",")] if customers else None
+    if ids or sample:
+        ds = subset_dataset(ds, ids, sample=sample)
+        _echo(f"زیرمجموعه: {len(ds.customers)} مشتری، {len(ds.sales)} ردیف فروش\n")
     ctx = build_metrics(make_context(ds, as_of=st.as_of, settings=st))
 
     _echo(f"تاریخ مبنا: {st.as_of.isoformat()}")
@@ -118,13 +128,21 @@ def brief(
     dataset: Optional[Path] = typer.Option(None),
     top: int = typer.Option(25, help="چند اقدام در خروجی"),
     skip_llm: bool = typer.Option(False),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل: gemini | agentrouter"),
+    sample: int = typer.Option(0, help="فقط روی N مشتری تصادفی اجرا کن — برای تست سریع"),
+    customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
     """End-to-end run: ranked action queue as JSON plus a readable Persian brief."""
     from .llm.graph import run_pipeline
 
-    st = _settings(as_of, dataset)
+    st = _settings(as_of, dataset, profile)
+    ids = [c.strip() for c in customers.split(",")] if customers else None
+    if ids or sample:
+        _echo("⚠️ اجرای نمونه‌ای: آشکارسازهای مبتنی بر همتایان روی نمونه کوچک "
+              "خاموش می‌مانند (نیازمند ۵ تا ۸ همتا).\n")
     state = run_pipeline(
-        settings=st, as_of=st.as_of, top_n=top, skip_llm=skip_llm, use_graph=False
+        settings=st, as_of=st.as_of, top_n=top, skip_llm=skip_llm, use_graph=False,
+        customers=ids, sample=sample,
     )
     queue = state["queue"]
 
@@ -142,16 +160,53 @@ def brief(
 
 
 @app.command()
+def models(
+    test: bool = typer.Option(False, "--test", help="یک درخواست واقعی به هر پروفایل بزن"),
+):
+    """List the generation profiles and, with --test, check which ones answer."""
+    import httpx
+
+    from .config import LLM_PROFILES
+
+    st = get_settings()
+    _echo(f"پروفایل فعال: {st.llm_profile}\n")
+    for name, profile in LLM_PROFILES.items():
+        s = get_settings(llm_profile=name)
+        mark = "◀ فعال" if name == st.llm_profile else ""
+        _echo(f"{name:14s} {profile.model:28s} {profile.base_url}")
+        _echo(f"{'':14s} کلید {profile.api_key_env}: "
+              f"{'موجود' if s.llm_available else 'خالی'} {mark}")
+        if profile.note:
+            _echo(f"{'':14s} {profile.note}")
+        if test and s.llm_available:
+            try:
+                r = httpx.post(
+                    f"{s.active_base_url}/chat/completions",
+                    headers={"Authorization": f"Bearer {s.active_api_key}"},
+                    json={"model": s.active_model,
+                          "messages": [{"role": "user", "content": "ping"}],
+                          "max_tokens": 5},
+                    timeout=40,
+                )
+                ok = "✅" if r.status_code == 200 else "❌"
+                _echo(f"{'':14s} {ok} HTTP {r.status_code} {r.text[:110]}")
+            except Exception as exc:
+                _echo(f"{'':14s} ❌ {type(exc).__name__}: {str(exc)[:90]}")
+        _echo("")
+
+
+@app.command()
 def report(
     as_of: Optional[str] = typer.Option(None),
     dataset: Optional[Path] = typer.Option(None),
     top: int = typer.Option(25),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل: gemini | agentrouter"),
 ):
     """Render the sales-manager artifact: one self-contained RTL HTML file."""
     from .llm.graph import run_pipeline
     from .report import write_report
 
-    st = _settings(as_of, dataset)
+    st = _settings(as_of, dataset, profile)
     state = run_pipeline(settings=st, as_of=st.as_of, top_n=top, use_graph=False)
     path = write_report(
         state["queue"], state["ctx"], state["quadrants"],
@@ -225,11 +280,12 @@ def serve(
 def eval_cmd(
     dataset: Optional[Path] = typer.Option(None),
     labels: Optional[Path] = typer.Option(None, help="مسیر فایل برچسب‌های طلایی"),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل: gemini | agentrouter"),
 ):
     """Score the complaint block against the 40 real complaints."""
     from .eval.golden import run_eval
 
-    st = _settings(None, dataset)
+    st = _settings(None, dataset, profile)
     report = run_eval(st, path=labels)
     text = report.to_text()
     if len(report.confusions):

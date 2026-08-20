@@ -11,10 +11,71 @@ from datetime import date
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+class LLMProfile(BaseModel):
+    """One named generation backend.
+
+    Profiles exist so a second model can be added without disturbing the first.
+    Q3 chose Gemini Flash over OpenRouter and PLAN §7 documents it; that decision
+    stands and the ``gemini`` profile below reproduces it exactly. Anything else
+    is an *additional* profile, selected with ``NN_LLM_PROFILE`` or ``--profile``.
+    """
+
+    name: str
+    model: str
+    base_url: str
+    api_key_env: str
+    note: str = ""
+
+
+# The documented default (Q3) — do not change these values; add a profile instead.
+PROFILE_GEMINI = LLMProfile(
+    name="gemini",
+    model="google/gemini-2.0-flash-001",
+    base_url="https://openrouter.ai/api/v1",
+    api_key_env="OPENROUTER_API_KEY",
+    note="انتخاب مستندشده در Q3 — ارزان و کافی برای تست اولیه",
+)
+
+# Added on request. AgentRouter restricts its API to whitelisted coding-agent
+# clients and answers generic callers with `unauthorized_client_error`; a token
+# alone is not enough until they authorise the client.
+PROFILE_AGENTROUTER = LLMProfile(
+    name="agentrouter",
+    model="gpt-5.6-sol",
+    base_url="https://agentrouter.org/v1",
+    api_key_env="AGENTROUTER_API_KEY",
+    note="نیازمند مجوز کلاینت از سمت AgentRouter",
+)
+
+# Second AgentRouter profile (key "mehdi-claude"). Same gateway, different model.
+PROFILE_AGENTROUTER_CLAUDE = LLMProfile(
+    name="agentrouter-claude",
+    model="claude-opus-4-8",
+    base_url="https://agentrouter.org/v1",
+    api_key_env="AGENTROUTER_CLAUDE_API_KEY",
+    note="⚠ متن فارسی را با content-blocked رد می‌کند — برای این پروژه غیرقابل استفاده",
+)
+
+
+PROFILE_AVALAI = LLMProfile(
+    name="avalai",
+    model="gpt-5.5",
+    base_url="https://api.avalai.ir/v1",
+    api_key_env="AVALAI_API_KEY",
+    note="کلید فقط به gpt-5.5 دسترسی دارد و اعتبار حساب کافی نیست — §8 Q18",
+)
+
+LLM_PROFILES: dict[str, LLMProfile] = {
+    p.name: p
+    for p in (PROFILE_GEMINI, PROFILE_AGENTROUTER, PROFILE_AGENTROUTER_CLAUDE,
+              PROFILE_AVALAI)
+}
 
 
 class Settings(BaseSettings):
@@ -100,6 +161,9 @@ class Settings(BaseSettings):
     long_window_months: int = 12
 
     # ------------------------------------------------------------------- LLM
+    # `llm_profile` selects a backend from LLM_PROFILES. The fields below remain
+    # the gemini defaults so nothing that reads them changes behaviour.
+    llm_profile: str = "gemini"
     llm_provider: Literal["openrouter"] = "openrouter"
     llm_model: str = "google/gemini-2.0-flash-001"
     llm_base_url: str = "https://openrouter.ai/api/v1"
@@ -107,6 +171,11 @@ class Settings(BaseSettings):
     llm_cache: bool = True
     llm_max_retries: int = 2
     openrouter_api_key: str | None = Field(default=None, alias="OPENROUTER_API_KEY")
+    agentrouter_api_key: str | None = Field(default=None, alias="AGENTROUTER_API_KEY")
+    agentrouter_claude_api_key: str | None = Field(
+        default=None, alias="AGENTROUTER_CLAUDE_API_KEY"
+    )
+    avalai_api_key: str | None = Field(default=None, alias="AVALAI_API_KEY")
 
     # ------------------------------------------------------------ embeddings
     embed_backend: Literal["ollama"] = "ollama"
@@ -134,10 +203,46 @@ class Settings(BaseSettings):
             return date.fromisoformat(v.strip())
         return v
 
+    # ------------------------------------------------------- profile resolution
+    @property
+    def profile(self) -> LLMProfile:
+        if self.llm_profile not in LLM_PROFILES:
+            raise ValueError(
+                f"unknown llm_profile {self.llm_profile!r}; "
+                f"available: {sorted(LLM_PROFILES)}"
+            )
+        return LLM_PROFILES[self.llm_profile]
+
+    @property
+    def active_model(self) -> str:
+        """Explicit `NN_LLM_MODEL` wins; otherwise the profile decides.
+
+        The gemini profile's model *is* the field default, so overriding the
+        field for gemini is a no-op and the documented behaviour is preserved.
+        """
+        if self.llm_profile == "gemini":
+            return self.llm_model
+        return self.profile.model
+
+    @property
+    def active_base_url(self) -> str:
+        if self.llm_profile == "gemini":
+            return self.llm_base_url
+        return self.profile.base_url
+
+    @property
+    def active_api_key(self) -> str | None:
+        return {
+            "OPENROUTER_API_KEY": self.openrouter_api_key,
+            "AGENTROUTER_API_KEY": self.agentrouter_api_key,
+            "AGENTROUTER_CLAUDE_API_KEY": self.agentrouter_claude_api_key,
+            "AVALAI_API_KEY": self.avalai_api_key,
+        }.get(self.profile.api_key_env)
+
     @property
     def llm_available(self) -> bool:
-        """True only when a real key is present (Q14)."""
-        return bool(self.openrouter_api_key)
+        """True only when the active profile has a key (Q14)."""
+        return bool(self.active_api_key)
 
     def ensure_dirs(self) -> None:
         self.out_dir.mkdir(parents=True, exist_ok=True)

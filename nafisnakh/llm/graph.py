@@ -47,7 +47,15 @@ class PipelineState(TypedDict, total=False):
 # ------------------------------------------------------------------ the nodes
 def node_load(state: PipelineState) -> PipelineState:
     st = state["settings"]
-    return {"dataset": load_dataset(st)}
+    opts = state.get("options", {})
+    ds = load_dataset(st)
+    if opts.get("customers") or opts.get("sample"):
+        from ..io.loader import subset_dataset
+
+        ds = subset_dataset(
+            ds, opts.get("customers"), sample=opts.get("sample", 0) or 0
+        )
+    return {"dataset": ds}
 
 
 def node_metrics(state: PipelineState) -> PipelineState:

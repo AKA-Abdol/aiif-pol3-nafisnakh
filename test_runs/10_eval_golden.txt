@@ -1,0 +1,48 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Complaint eval, 40 golden
+COMMAND: .venv/bin/nafisnakh eval
+WHEN   : 2026-08-20 11:18:24
+════════════════════════════════════════════════════════════════════
+
+ارزیابی بلوک LLM شکایات — مجموعه طلایی ۴۰ شکایت واقعی
+==============================================================
+منبع استخراج          : rules
+تعداد ردیف            : 40
+بازبینی‌شده توسط کاربر : 0/40  ⚠️ برچسب‌ها هنوز تأیید نشده‌اند
+ردیف‌های مبهم          : 11
+
+دقت مکانیزم           : 0.875  (هدف ≥ 0.80)
+  بدون ردیف‌های مبهم   : 1.000
+  خط پایه نگاشت عنوان : 0.875
+  بهبود نسبت به خط پایه: +0.000
+
+فیلدهای دودویی:
+  churn_threat         P=1.00 R=1.00 (tp=1 fp=0 fn=0, مثبت در طلایی=1)
+  repeat_claim         P=0.67 R=1.00 (tp=2 fp=1 fn=0, مثبت در طلایی=2)
+  financial_demand     — no positive examples in the golden set — this field cannot be scored on 40 rows
+  evidence_supplied    P=1.00 R=1.00 (tp=4 fp=0 fn=0, مثبت در طلایی=4)
+
+فیلدهای دسته‌ای:
+  escalation_level     accuracy=0.825
+  attributed_fault     accuracy=0.475
+
+⚠️ این اجرا با مسیر قاعده‌محور (rules) انجام شده، نه با مدل.
+   مکانیزم در این مسیر مستقیماً از نگاشت ۴۵→۱۰ عنوان می‌آید، بنابراین دقت 0.875 دقیقاً همان خط پایه است و
+   هیچ چیزی درباره کیفیت مدل نمی‌گوید. ارزش واقعی مدل روی همان ردیف‌هایی است که متن با عنوان نمی‌خواند.
+   برای ارزیابی واقعی، OPENROUTER_API_KEY لازم است (سؤال Q14).
+
+نتیجه: قابل صدور نیست — هیچ مدلی اجرا نشده است.
+
+خطاهای مکانیزم:
+                                   gold                     pred  ambiguous
+complaint_id                                                               
+CMP-0003          M01_package_formation       M08_tube_packaging       True
+CMP-0009      M10_mechanical_properties  M09_labelling_logistics       True
+CMP-0024          M01_package_formation      M02_filament_damage       True
+CMP-0037       M03_mass_count_deviation            M07_twist_ply       True
+CMP-0039          M01_package_formation  M09_labelling_logistics       True
+
+نوشته شد: /Users/mehdi/Documents/project/POL-3/aiif-pol3-nafisnakh/outputs/eval_complaints_golden.txt
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 0.3s
