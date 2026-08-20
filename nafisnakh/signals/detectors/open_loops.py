@@ -45,10 +45,9 @@ def _family_revenue(ctx: MetricContext) -> pd.DataFrame:
     Cached on the context so four detectors and, later, the 360° page do not
     each rebuild it.
     """
-    key = "_family_revenue_annualised"
-    cached = getattr(ctx, "_cache", {}).get(key) if hasattr(ctx, "_cache") else None
-    if cached is not None:
-        return cached
+    key = "family_revenue_annualised"
+    if key in ctx.cache:
+        return ctx.cache[key]
     months = ctx.settings.long_window_months
     start = pd.Timestamp(ctx.window(months)[0])
     lines = ctx.spine.lines
@@ -58,9 +57,7 @@ def _family_revenue(ctx: MetricContext) -> pd.DataFrame:
         .unstack(fill_value=0.0)
         * (12.0 / months)
     )
-    if not hasattr(ctx, "_cache"):
-        ctx._cache = {}
-    ctx._cache[key] = out
+    ctx.cache[key] = out
     return out
 
 

@@ -1,4 +1,4 @@
-"""Command line: ``build · signals · brief · eval · label · fixture · calibrate``.
+"""Command line: ``build · signals · brief · customer · tools · evidence · eval · label · fixture · calibrate``.
 
 Q2 fixed the deliverable shape: a modular Python service with a CLI, JSON output,
 no UI, convertible to an API later. Every command is a thin wrapper over the same
@@ -266,6 +266,92 @@ def report(
     _echo(f"گزارش نوشته شد: {path}")
     _echo(f"اقدام‌ها: {len(state['queue'].actions)} · "
           f"دسته‌بندی: {state['quadrants'].counts()}")
+
+
+@app.command()
+def customer(
+    customer_id: str = typer.Argument(..., help="شناسه مشتری، مثلاً C_245948"),
+    as_of: Optional[str] = typer.Option(None),
+    dataset: Optional[Path] = typer.Option(None),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل"),
+    actions: bool = typer.Option(
+        False, help="مرحله تجمیع هم اجرا شود تا اقدام پیشنهادی نوشته شود (هزینه مدل دارد)"
+    ),
+    tools: bool = typer.Option(
+        True, help="هشت ابزار مشتری هم اجرا شوند و شواهد ردیف‌به‌ردیفشان در صفحه بیاید"
+    ),
+    rows: int = typer.Option(25, help="حداکثر ردیف نمایش‌داده‌شده از هر شاهد"),
+    output: Optional[Path] = typer.Option(None, help="مسیر فایل خروجی"),
+):
+    """The 360° page for one customer — every claim expandable to its rows.
+
+    Deliberately no ``--customers``/``--sample``: the bucket threshold is the
+    book's median revenue, RFM scores are quintiles of the book and the peer
+    cohorts are the book, so the pipeline runs on the whole thing and the page
+    narrows afterwards. A one-customer run would render numbers that are
+    individually true and collectively meaningless.
+    """
+    from .customer360 import build_state, write_customer_page
+
+    st = _settings(as_of, dataset, profile)
+    state = build_state(st, with_actions=actions, customer_id=customer_id,
+                        with_tools=tools)
+    try:
+        path = write_customer_page(
+            customer_id, state, settings=st, max_rows=rows, path=output
+        )
+    except KeyError as exc:
+        raise typer.BadParameter(str(exc).strip('"'), param_hint="customer_id") from None
+
+    ctx = state["ctx"]
+    sigs = [s for s in state["signals"].signals if s.customer_id == customer_id]
+    _echo(f"مشتری: {customer_id} · تاریخ مبنا {st.as_of.isoformat()}")
+    _echo(f"سیگنال‌ها: {len(sigs)} · شواهد: {len(ctx.evidence.for_customer(customer_id))}")
+    if not actions:
+        _echo("(بدون --actions اقدام پیشنهادی نوشته نمی‌شود)")
+    _echo(f"صفحه نوشته شد: {path}")
+
+
+@app.command("tools")
+def tools_cmd(
+    customer_id: str = typer.Argument(..., help="شناسه مشتری، مثلاً C_126481"),
+    tool: Optional[str] = typer.Option(None, help="فقط همین ابزار اجرا شود"),
+    as_of: Optional[str] = typer.Option(None),
+    dataset: Optional[Path] = typer.Option(None),
+    payload: bool = typer.Option(False, help="داده ساختاریافته هم چاپ شود"),
+):
+    """Run the customer tools and print exactly what an agent would be given.
+
+    The printed text *is* the prompt payload: Persian claims and evidence ids,
+    never a bare number. ``--payload`` shows the Python-side structure, which no
+    prompt ever receives.
+    """
+    from .customer360 import build_state, run_all_tools
+    from .tools import get_tool, run_tool
+
+    st = _settings(as_of, dataset)
+    state = build_state(st, with_actions=False)
+    ctx = state["ctx"]
+    if customer_id not in set(ctx.population):
+        raise typer.BadParameter(
+            f"{customer_id} در تاریخ {st.as_of.isoformat()} ردیف فروش قابل‌مشاهده ندارد",
+            param_hint="customer_id",
+        )
+    if tool:
+        try:
+            results = [run_tool(ctx, get_tool(tool).name, customer_id)]
+        except KeyError as exc:
+            raise typer.BadParameter(str(exc).strip('"'), param_hint="--tool") from None
+    else:
+        results = run_all_tools(ctx, customer_id)
+
+    for r in results:
+        _echo(r.to_model_text())
+        if payload:
+            _echo("payload: " + json.dumps(r.payload, ensure_ascii=False, default=str))
+        _echo("")
+    minted = sum(len(r.evidence_ids) for r in results)
+    _echo(f"{len(results)} ابزار · {minted} شاهد قابل نمایش با «nafisnakh evidence <ID>»")
 
 
 @app.command()

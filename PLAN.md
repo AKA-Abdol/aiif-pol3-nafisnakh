@@ -280,9 +280,11 @@ nafisnakh/
     mix.py             family mix, deflated price position, SKU breadth
     quality.py         complaints, returns, همبافت blast radius
     engagement.py      CRM, offers, dev requests
+    rfm.py             book-relative recency/frequency/monetary + typical order value
+    open_loops.py      ★ what WE left unfinished: samples, rejections, promises, offers
   signals/
     base.py            Signal dataclass, Detector protocol, registry
-    detectors/         the 22 detectors (§3.4), one module per group
+    detectors/         the 27 detectors (§3.4), one module per group
     engine.py          run all · dedupe · score · rank
   llm/
     client.py          LangChain ChatOpenAI → OpenRouter, behind an interface
@@ -290,6 +292,7 @@ nafisnakh/
     taxonomy.py        10-mechanism taxonomy + deterministic 45→10 map
     blocks/
       complaint.py     structured extraction from complaint text
+      resolution.py    what the investigation concluded (templates first, model second)
       relationship.py  per-customer relationship-quality synthesis
     graph.py           LangGraph orchestration
   aggregate/
@@ -300,7 +303,11 @@ nafisnakh/
     golden.py          loader + scorer for the 40 real complaints
     golden_labels.yaml the labels themselves (user-reviewable)
     fixture.py         the golden-sample end-to-end fixture (§6)
+  tools/
+    base.py            ToolResult + registry — claims and ids out, never numbers
+    customer.py        ★ the 8 customer tools (§3.9)
   feedback.py          ★ manager decisions → detector ranking weights
+  customer360.py       ★ one account, every claim expandable to its source rows
   report.py            self-contained RTL HTML artifact for the sales manager
   api.py               FastAPI surface over the same library calls
   cli.py               typer: build · signals · calibrate · brief · report ·
@@ -456,6 +463,36 @@ what was promised: جلسه قیمت 0.20 · ارسال نمونه 0.15 · با�
 **Detector #18 is the differentiator.** When one customer complains about a همبافت,
 every other customer shipped that همبافت is a complaint *in flight*. Nobody asked for
 this; it is unique to this domain (§5, integration rule #7) and is the strongest demo.
+
+### 3.9 The tool layer — what an agent may reach the data through
+
+Eight tools, one per question a sales manager actually asks before a meeting:
+`get_dev_requests` · `get_complaints` · `get_crm_promises` · `get_payment_state` ·
+`get_lab_band_position` · `get_market_context` · `get_peer_comparison` ·
+`get_offer_history`.
+
+**A tool does not return numbers.** It returns Persian claims that are already
+registered `Evidence` with locators, plus their ids. The agent reasons over
+sentences and cites ids; it never sees a bare figure it could restate, round, or
+combine into something nobody computed — and `aggregate/validate.py` still drops
+any action whose text carries a numeral absent from its cited evidence. The
+structured rows live in `ToolResult.payload` for Python (the 360° page, tests, a
+future API) and are **never rendered into a prompt**; a test asserts that every
+numeral in `to_model_text()` comes from inside a claim.
+
+Three further rules:
+
+* **Reuse before minting.** Where the metric layer already emitted the fact, the
+  tool cites that id. `get_payment_state` mints nothing at all. A second id for
+  one fact would list it twice on the 360° page.
+* **Memoised per (tool, customer, arguments).** `ctx.emit` mints a fresh id on
+  every call, so an unmemoised tool would hand the agent two ids for one fact.
+* **An empty answer is an answer.** `empty_reason_fa` says *why* nothing came
+  back; an agent handed an empty string invents a reason. **And coverage limits
+  travel with the data** in `note_fa`.
+
+Verified on 40 random customers × 8 tools: **886 cited evidence, 0 unresolvable,
+0 empty, 0 rows dated after `as_of`**, and tools idempotent.
 
 ### 3.5 Key metric definitions
 
@@ -1193,6 +1230,78 @@ random_state        = 42
 ---
 
 ## 11. CHANGELOG
+
+- **2026-08-21 (step 4/5 — the evidence-minting tool layer)** — `nafisnakh/tools/`,
+  eight tools, contract in §3.9. `nafisnakh tools <id> [--tool NAME]` prints exactly
+  what an agent would be handed; `nafisnakh customer <id>` now runs them by default so
+  their row-level claims appear on the 360° page as expandable blocks (C_126481: 40 → 74
+  evidence, all resolving). The page needed no knowledge of tools — they mint into the
+  same registry, which is what step 1 bought.
+
+  Two data facts were measured while building this and are encoded in the tools so
+  nobody has to rediscover them:
+
+  * **`سیگنال_بازار` is a family-level weekly report, not a customer signal.** 130 rows
+    across 7 families for 526 customers, and only **59 rows carry any `Customer_ID`**.
+    `get_market_context` therefore reports the market for the family the customer buys
+    and its `note_fa` says, in Persian, *do not attribute this to this customer*.
+  * **The lab measurements do not explain complaints.** Comparing the 169 lab records on
+    lines linked to a complaint against the other 13,696: Cohen's d is +0.03 (tensile),
+    −0.07 (elongation), +0.05 (oil pickup); evenness CV is −0.19 in the *wrong*
+    direction (complained-about lots measured slightly *better*) and is one of four
+    tests. `get_lab_band_position` therefore describes and refuses to explain.
+
+  **A real finding worth acting on, not yet built:** `Lab_Result = رد` is rare (12 of
+  13,865) and **perfectly predictive**. All 12 are Universe B, and every one was
+  measured `رد` **4–13 days before the customer bought it**, shipped anyway, and drew a
+  complaint 11–35 days later that was **upheld** (`پذیرفته‌شده`) — against a 1.2% base
+  rate of a line drawing any complaint at all. That is a preventable-escape chain of the
+  same shape as detector #18 (همبافت blast radius). It fires **zero times at the demo
+  anchor** — all 12 are dated 2025–2026 — so it would be `rare_by_design`. Proposed as
+  detector #28; not added, because step 4 is the tool layer. `get_lab_band_position`
+  surfaces it today and leads with it when a customer has one.
+
+  17 new tests in `tests/test_tools.py`, plus one in `test_customer360.py` and two in
+  `test_cli.py`; 188 passing.
+
+- **2026-08-21 (step 3/5 — the 360° customer page)** — `nafisnakh customer <id>`
+  writes one self-contained RTL HTML file per account (`nafisnakh/customer360.py`).
+  The page rests on a single mechanic: **every number on it is a link to the rows it
+  came from.** The last section lists every Evidence the customer has, each a
+  `<details>` that expands into a table of the actual workbook records resolved
+  through `core.evidence.resolve` — so the drill-down is gated at `as_of` by rule #4,
+  exactly as the calculation was. Every evidence id printed anywhere else on the page
+  is an anchor into that section, and a test asserts there are no citations without
+  anchors and no anchors without rows.
+
+  Five sections: **یک نگاه** (bucket · RFM cell · revenue and risk-adjusted margin ·
+  credit state · open loops · cadence · complaints), **تصمیم پیشنهادی**, **چه چیزی
+  فعال شده** (signals by severity, each carrying `stake_basis` and, where the claim is
+  unfalsifiable, saying so), **حلقه‌های باز از سمت ما**, **شواهد**. C_245948 renders 40
+  evidence blocks, 0 empty, 0 failures, in ~5s.
+
+  Three decisions worth recording:
+
+  * **The pipeline runs on the whole book and the page narrows afterwards.** The bucket
+    threshold is the book's median revenue, RFM scores are quintiles of the book, and
+    the peer cohorts are the book — a one-customer run would render numbers that are
+    individually true and collectively meaningless. `customer` deliberately has no
+    `--customers`/`--sample`.
+  * **`--actions` narrows the drafting, not the run.** `build_actions` and the
+    relationship block gained an `only` parameter. Without it the account usually gets
+    no action at all (the queue stops at the book's top 25); lifting the bound instead
+    would mean ~500 drafting calls to print one. The action still carries its
+    **book-wide rank** — `only` filters after numbering, so a one-account page cannot
+    announce itself as rank 1.
+  * **Closed loops are stated, not omitted.** "We owe this customer nothing right now"
+    is an answer the sales manager needs before a meeting, and the three ways a loop can
+    be closed (no CRM at all · no next action recorded · followed through by a later
+    offer or development request) read very differently.
+
+  One real bug found by building it: `np.bool_ + np.bool_` is **logical OR**, so the
+  open-loop tile summed the four kinds and saturated at 1 — C_126481, the one account
+  in the book with all four loops open, reported "1 of 4". 12 new tests in
+  `tests/test_customer360.py`, 2 in `tests/test_cli.py`; 168 passing.
 
 - **2026-08-21 (step 2/5 — open loops + RFM)** — Four detectors (#24–#27) and two
   metric tables (`rfm`, `open_loops`). The organising idea: detectors #1–#23 look at

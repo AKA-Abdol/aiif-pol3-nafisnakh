@@ -247,11 +247,14 @@ def attach_to_context(
     settings: Settings | None = None,
     allow_rules: bool = True,
     top_n: int | None = None,
+    only: list[str] | None = None,
 ):
     """Run the block for triggered customers and register ``relationship``.
 
     ``top_n`` bounds the cost the same way the aggregator does: the synthesis is
-    only useful for the accounts that are actually going to be worked.
+    only useful for the accounts that are actually going to be worked. ``only``
+    narrows it further to named customers — what the 360° page needs, since the
+    account it is about is usually not in the book's top 25.
     """
     st = settings or ctx.settings
     client = client or get_client(st)
@@ -263,7 +266,10 @@ def attach_to_context(
         key=lambda kv: max(priority_score(s, st) for s in kv[1]),
         reverse=True,
     )
-    if top_n:
+    if only is not None:
+        wanted = set(only)
+        ranked = [kv for kv in ranked if kv[0] in wanted]
+    elif top_n:
         ranked = ranked[:top_n]
 
     rows = []

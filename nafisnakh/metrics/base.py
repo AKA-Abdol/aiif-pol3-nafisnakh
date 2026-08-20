@@ -20,6 +20,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import date
+from typing import Any
 
 import pandas as pd
 
@@ -62,6 +63,10 @@ class MetricContext:
     as_of: date
     evidence: EvidenceRegistry = field(default_factory=EvidenceRegistry)
     tables: dict[str, pd.DataFrame] = field(default_factory=dict)
+    # Scratch space for things that are expensive to build and reused across
+    # detectors and tools (peer spend by family, tool results). Not part of the
+    # contract — anything a consumer may rely on belongs in `tables`.
+    cache: dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------------ accessors
     def table(self, name: str) -> pd.DataFrame:

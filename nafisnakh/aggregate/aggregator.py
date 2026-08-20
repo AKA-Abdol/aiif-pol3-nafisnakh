@@ -379,6 +379,7 @@ def build_actions(
     top_n: int | None = None,
     allow_offline: bool = True,
     weights: dict[str, float] | None = None,
+    only: list[str] | None = None,
 ) -> ActionQueue:
     st = ctx.settings
     client = client or get_client(st)
@@ -403,13 +404,21 @@ def build_actions(
         float(series.quantile(0.30)),
     )
 
-    limit = top_n if top_n is not None else st.top_n_actions
-    ranked = ranked[:limit] if limit else ranked
+    # Rank is assigned from the position in the WHOLE book, then the list is
+    # narrowed. `only` must not renumber: a page built for one account would
+    # otherwise announce it as rank 1 of the book.
+    numbered = list(enumerate(ranked, start=1))
+    if only is not None:
+        wanted = set(only)
+        scope = [(rank, kv) for rank, kv in numbered if kv[0] in wanted]
+    else:
+        limit = top_n if top_n is not None else st.top_n_actions
+        scope = numbered[:limit] if limit else numbered
 
     actions: list[Action] = []
     dropped: list[dict[str, Any]] = []
 
-    for rank, (cid, signals) in enumerate(ranked, start=1):
+    for rank, (cid, signals) in scope:
         signals = sorted(signals, key=lambda s: priority_score(s, st, weights), reverse=True)
         bucket = quadrants.bucket_of(cid) or "protect"
         bucket_reason = (

@@ -124,6 +124,7 @@ def node_relationship(state: PipelineState) -> PipelineState:
         state["ctx"], state["signals"], state["quadrants"],
         allow_rules=opts.get("allow_rules", True),
         top_n=opts.get("top_n") or state["settings"].top_n_actions,
+        only=opts.get("only"),
     )
     return {"ctx": state["ctx"]}
 
@@ -134,6 +135,7 @@ def node_aggregate(state: PipelineState) -> PipelineState:
         state["ctx"], state["signals"], state["quadrants"],
         top_n=opts.get("top_n"),
         allow_offline=opts.get("allow_rules", True),
+        only=opts.get("only"),
     )
     return {"queue": queue}
 

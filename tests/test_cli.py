@@ -50,3 +50,30 @@ def test_calibrate_exits_zero_when_every_detector_is_in_range():
     result = runner.invoke(app, ["calibrate"])
     assert result.exit_code == 0, result.stdout
     assert "fire_rate" in result.stdout
+
+
+def test_customer_command_writes_a_360_page(tmp_path):
+    out = tmp_path / "c.html"
+    result = runner.invoke(app, ["customer", "C_126481", "--output", str(out)])
+    assert result.exit_code == 0, result.stdout
+    assert out.exists()
+    text = out.read_text(encoding="utf-8")
+    assert "پرونده ۳۶۰ مشتری — C_126481" in text
+    assert '<details class="evd"' in text
+
+
+def test_customer_command_rejects_an_unknown_id():
+    result = runner.invoke(app, ["customer", "C_NOPE"])
+    assert result.exit_code != 0
+
+
+def test_tools_command_prints_claims_and_ids_only():
+    result = runner.invoke(app, ["tools", "C_126481", "--tool", "get_payment_state"])
+    assert result.exit_code == 0, result.stdout
+    assert "ابزار: get_payment_state" in result.stdout
+    assert "EV-C_126481-exposure-001" in result.stdout
+
+
+def test_tools_command_rejects_an_unknown_tool():
+    result = runner.invoke(app, ["tools", "C_126481", "--tool", "get_nothing"])
+    assert result.exit_code != 0
