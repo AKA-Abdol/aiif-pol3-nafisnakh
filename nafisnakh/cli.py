@@ -26,7 +26,13 @@ def _settings(
 ) -> Settings:
     overrides: dict = {}
     if as_of:
-        overrides["as_of"] = date.fromisoformat(as_of)
+        try:
+            overrides["as_of"] = date.fromisoformat(as_of)
+        except ValueError as exc:
+            raise typer.BadParameter(
+                f"تاریخ نامعتبر {as_of!r} — قالب درست YYYY-MM-DD است ({exc})",
+                param_hint="--as-of",
+            ) from None
     if dataset:
         overrides["dataset_path"] = dataset
     if profile:
@@ -38,6 +44,37 @@ def _settings(
 
 def _echo(text: str) -> None:
     typer.echo(text)
+
+
+def _subset(ds, customers: Optional[str], sample: int):
+    """Apply ``--customers`` / ``--sample``, and name what came out.
+
+    Returns the dataset and a filename suffix. Without the suffix an
+    8-customer run would overwrite the full book's artifact at the same
+    ``as_of`` — same path, 60× less content, no warning.
+    """
+    from .io.loader import subset_dataset
+
+    ids = [c.strip() for c in customers.split(",")] if customers else None
+    if not ids and not sample:
+        return ds, ""
+    try:
+        ds = subset_dataset(ds, ids, sample=sample)
+    except KeyError as exc:
+        raise typer.BadParameter(str(exc).strip('"'), param_hint="--customers") from None
+    _echo(f"زیرمجموعه: {len(ds.customers)} مشتری، {len(ds.sales)} ردیف فروش\n")
+    return ds, f"__{len(ds.customers)}c"
+
+
+def _fmt_coverage(coverage: dict) -> str:
+    """``{'realized': 0.3}`` → ``واقعی 30.2٪ · برآوردی 69.8٪``."""
+    label = {"realized": "واقعی", "estimated": "برآوردی", "none": "بدون بها"}
+    if not coverage:
+        return "—"
+    return " · ".join(
+        f"{label.get(k, k)} {v * 100:.1f}٪"
+        for k, v in sorted(coverage.items(), key=lambda kv: -kv[1])
+    )
 
 
 @app.callback()
@@ -57,24 +94,21 @@ def build(
     customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
     """Load the workbook, build the metric layer, report what came out."""
-    from .io.loader import load_dataset, subset_dataset
+    from .io.loader import load_dataset
     from .metrics.base import build_metrics, make_context
 
     st = _settings(as_of, dataset)
     ds = load_dataset(st, refresh=refresh)
-    ids = [c.strip() for c in customers.split(",")] if customers else None
-    if ids or sample:
-        ds = subset_dataset(ds, ids, sample=sample)
-        _echo(f"زیرمجموعه: {len(ds.customers)} مشتری، {len(ds.sales)} ردیف فروش\n")
+    ds, suffix = _subset(ds, customers, sample)
     ctx = build_metrics(make_context(ds, as_of=st.as_of, settings=st))
 
     _echo(f"تاریخ مبنا: {st.as_of.isoformat()}")
     _echo(f"مشتریان با سابقه فروش: {len(ctx.population)}")
     _echo(f"ردیف‌های فروش قابل‌مشاهده: {len(ctx.spine.lines)}")
-    _echo(f"پوشش بهای تمام‌شده: {ctx.spine.cost_coverage()}")
+    _echo(f"پوشش بهای تمام‌شده: {_fmt_coverage(ctx.spine.cost_coverage())}")
     _echo(f"جدول‌های سنجه: {', '.join(ctx.tables)}")
     _echo(f"شواهد تولیدشده: {len(ctx.evidence)}")
-    path = Path(st.out_dir) / f"evidence_{st.as_of.isoformat()}.json"
+    path = Path(st.out_dir) / f"evidence_{st.as_of.isoformat()}{suffix}.json"
     ctx.evidence.dump_json(path)
     _echo(f"شواهد نوشته شد: {path}")
 
@@ -84,15 +118,22 @@ def signals(
     as_of: Optional[str] = typer.Option(None),
     dataset: Optional[Path] = typer.Option(None),
     skip_llm: bool = typer.Option(False, help="بلوک شکایات اجرا نشود"),
+    sample: int = typer.Option(0, help="فقط روی N مشتری تصادفی اجرا کن"),
+    customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
     """Run the 22 detectors and write the ranked signal file."""
+    from .io.loader import load_dataset
     from .llm.graph import run_pipeline
 
     st = _settings(as_of, dataset)
-    state = run_pipeline(settings=st, as_of=st.as_of, skip_llm=skip_llm, use_graph=False)
+    ds, suffix = _subset(load_dataset(st), customers, sample)
+    # `detect` is the last node this command needs; everything after it is
+    # LLM work whose output would be thrown away here.
+    state = run_pipeline(settings=st, as_of=st.as_of, dataset=ds, skip_llm=skip_llm,
+                         use_graph=False, stop_after="detect")
     run, report = state["signals"], state["calibration"]
 
-    path = Path(st.out_dir) / f"signals_{st.as_of.isoformat()}.json"
+    path = Path(st.out_dir) / f"signals_{st.as_of.isoformat()}{suffix}.json"
     run.dump_json(path)
     _echo(f"سیگنال‌ها: {len(run.signals)} روی {len(run.triggered_customers())} مشتری")
     _echo(f"نوشته شد: {path}")
@@ -113,11 +154,18 @@ def calibrate(
     from .llm.graph import run_pipeline
 
     st = _settings(as_of, dataset)
-    state = run_pipeline(settings=st, as_of=st.as_of, use_graph=False)
+    state = run_pipeline(settings=st, as_of=st.as_of, use_graph=False,
+                         stop_after="detect")
     report = state["calibration"]
     path = Path(st.out_dir) / f"calibration_{st.as_of.isoformat()}.csv"
     path.write_text(report.rows.to_csv(index=False), encoding="utf-8")
     _echo(str(report))
+    if len(report.insufficient):
+        # a table with no failures is not a clean bill if half of it was never judged
+        _echo(
+            f"\nℹ️ {len(report.insufficient)} آشکارساز به دلیل کوچک بودن جمعیت واجد "
+            f"شرایط (کمتر از {st.calib_min_eligible}) داوری نشدند."
+        )
     _echo(f"\nنوشته شد: {path}")
     raise typer.Exit(code=1 if len(report.failures) else 0)
 
@@ -128,7 +176,7 @@ def brief(
     dataset: Optional[Path] = typer.Option(None),
     top: int = typer.Option(25, help="چند اقدام در خروجی"),
     skip_llm: bool = typer.Option(False),
-    profile: Optional[str] = typer.Option(None, help="پروفایل مدل: gemini | agentrouter"),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل (فعلاً فقط gemini — OpenRouter)"),
     sample: int = typer.Option(0, help="فقط روی N مشتری تصادفی اجرا کن — برای تست سریع"),
     customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
@@ -174,6 +222,7 @@ def models(
         s = get_settings(llm_profile=name)
         mark = "◀ فعال" if name == st.llm_profile else ""
         _echo(f"{name:14s} {profile.model:28s} {profile.base_url}")
+        _echo(f"{'':14s} provider: {', '.join(s.active_provider_only) or 'خودکار'}")
         _echo(f"{'':14s} کلید {profile.api_key_env}: "
               f"{'موجود' if s.llm_available else 'خالی'} {mark}")
         if profile.note:
@@ -184,6 +233,7 @@ def models(
                     f"{s.active_base_url}/chat/completions",
                     headers={"Authorization": f"Bearer {s.active_api_key}"},
                     json={"model": s.active_model,
+                          "provider": s.provider_routing,
                           "messages": [{"role": "user", "content": "ping"}],
                           "max_tokens": 5},
                     timeout=40,
@@ -200,7 +250,7 @@ def report(
     as_of: Optional[str] = typer.Option(None),
     dataset: Optional[Path] = typer.Option(None),
     top: int = typer.Option(25),
-    profile: Optional[str] = typer.Option(None, help="پروفایل مدل: gemini | agentrouter"),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل (فعلاً فقط gemini — OpenRouter)"),
 ):
     """Render the sales-manager artifact: one self-contained RTL HTML file."""
     from .llm.graph import run_pipeline
@@ -280,7 +330,7 @@ def serve(
 def eval_cmd(
     dataset: Optional[Path] = typer.Option(None),
     labels: Optional[Path] = typer.Option(None, help="مسیر فایل برچسب‌های طلایی"),
-    profile: Optional[str] = typer.Option(None, help="پروفایل مدل: gemini | agentrouter"),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل (فعلاً فقط gemini — OpenRouter)"),
 ):
     """Score the complaint block against the 40 real complaints."""
     from .eval.golden import run_eval

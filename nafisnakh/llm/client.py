@@ -1,9 +1,9 @@
 """Generation behind a swappable interface: LangChain → OpenRouter.
 
-Q3 fixed the shape of this: embeddings run locally on Ollama, generation goes
-through LangChain/LangGraph to OpenRouter on ``google/gemini-2.0-flash-001``,
-cheap first, upgradeable later. Q14 says the API key arrives later — so every
-call site here has to work without one.
+Every LLM call in this package goes to OpenRouter, on
+``google/gemini-3.7-flash`` pinned to the ``google-vertex/global`` endpoint, and
+nothing here may reach another gateway. Q14 said the API key arrives later — so
+every call site still has to work without one.
 
 Three modes, and which one produced an answer is always recorded on the answer
 itself. Nothing in this package is allowed to silently degrade:
@@ -68,12 +68,23 @@ class LLMClient:
         if self._chat is None:
             from langchain_openai import ChatOpenAI
 
+            routing = self.settings.provider_routing
             self._chat = ChatOpenAI(
                 model=self.settings.active_model,
                 base_url=self.settings.active_base_url,
                 api_key=self.settings.active_api_key,
                 temperature=self.settings.llm_temperature,
                 max_retries=self.settings.llm_max_retries,
+                # OpenRouter reads `provider` off the request body; ChatOpenAI
+                # forwards `extra_body` verbatim, so the pin survives the
+                # LangChain layer without a custom client.
+                extra_body={"provider": routing} if routing else None,
+            )
+            log.debug(
+                "chat client: %s via %s pinned to %s",
+                self.settings.active_model,
+                self.settings.active_base_url,
+                self.settings.active_provider_only or "<unpinned>",
             )
         return self._chat
 

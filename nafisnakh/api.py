@@ -112,7 +112,8 @@ def health() -> dict:
         "status": "ok",
         "as_of": st.as_of.isoformat(),
         "llm_available": st.llm_available,
-        "llm_model": st.llm_model,
+        "llm_model": st.active_model,
+        "llm_provider": st.active_provider_only or None,
         "cached_runs": sorted(_CACHE),
     }
 

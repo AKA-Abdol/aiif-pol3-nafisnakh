@@ -132,12 +132,15 @@ SYSTEM_PROMPT = """تو دستیار مدیر فروش شرکت نفیس نخ (�
 - به هر ادعا، شناسه شاهد مربوطه را به شکل [EV-...] بچسبان.
 - فقط از شناسه‌هایی استفاده کن که در همین ورودی آمده‌اند.
 - قدم پیشنهادی باید مشخص باشد (تماس، بازدید، بازنگری قرارداد، اقدام فنی)، نه توصیه کلی.
+- **قید اعتباری را رعایت کن:** اگر سقف اعتبار مشتری پر شده باشد، پیشنهاد افزایش حجم
+  بدون تعیین تکلیف سقف اعتبار بی‌فایده است؛ در آن حالت قدم اول باید بازنگری سقف باشد.
 - لحن: حرفه‌ای، کوتاه، بدون تعارف.
 """
 
 USER_TEMPLATE = """مشتری: {customer_id}
 دسته‌بندی: {bucket_label} — {bucket_meaning}
 دلیل دسته‌بندی: {bucket_reason}
+وضعیت اعتباری: {credit_note}
 
 سیگنال‌های فعال‌شده (به ترتیب اهمیت):
 {signal_block}
@@ -145,6 +148,50 @@ USER_TEMPLATE = """مشتری: {customer_id}
 شواهد در دسترس (فقط از همین‌ها استفاده کن):
 {evidence_block}
 """
+
+
+# ---------------------------------------------------------------- credit gate
+# A growth recommendation is only actionable if the customer is financially
+# *permitted* to buy more. Selling volume into a maxed-out credit limit produces
+# an order the finance department blocks, so credit room decides the shape of the
+# step, not the priority: ranking stays pure arithmetic over signals.
+#
+# Credit_Limit is NOT used as a capacity anchor for headroom — against lifetime
+# revenue it is spearman +0.900 / pearson −0.031, i.e. a monotone re-encoding of
+# what the customer already buys, which adds nothing to an estimate built from
+# the same quantity (PLAN §5.4). What it does carry is the *residual*: how much
+# more they are allowed to buy.
+CREDIT_NOTE_FA = {
+    "open": "فضای اعتباری باقی مانده است؛ پیشنهاد افزایش حجم قابل اجراست.",
+    "exhausted": (
+        "سقف اعتبار عملاً پر شده است؛ هر پیشنهاد رشد باید مشروط به بازنگری سقف "
+        "اعتبار باشد، وگرنه سفارش در واحد مالی متوقف می‌شود."
+    ),
+    "unknown": "دادهٔ سقف اعتبار برای این مشتری قابل اتکا نیست؛ روی آن حساب نکن.",
+}
+
+# Steps that replace the bucket default when credit is the binding constraint.
+CREDIT_BLOCKED_STEP_FA = {
+    "grow": (
+        "پیش از هر پیشنهاد حجم، افزایش سقف اعتبار با واحد مالی تعیین تکلیف شود؛ "
+        "سفارش جدید تا آن زمان ثبت نشود."
+    ),
+    "protect": (
+        "پیش از تمدید سفارش‌های جاری، وضعیت سقف اعتبار با واحد مالی تعیین تکلیف شود."
+    ),
+}
+
+
+def credit_state(ctx: MetricContext, customer_id: str) -> str:
+    """``open`` · ``exhausted`` · ``unknown`` — see :data:`CREDIT_NOTE_FA`."""
+    try:
+        row = ctx.row("payment", customer_id)
+    except KeyError:
+        return "unknown"
+    if row is None or "credit_room_state" not in row:
+        return "unknown"
+    state = row["credit_room_state"]
+    return state if state in CREDIT_NOTE_FA else "unknown"
 
 
 def _priority(score: float, thresholds: tuple[float, float, float]) -> Priority:
@@ -186,7 +233,7 @@ def _signal_block(signals: list[Signal]) -> str:
 
 def compose_offline(
     customer_id: str, signals: list[Signal], registry: EvidenceRegistry,
-    bucket: str, bucket_reason: str,
+    bucket: str, bucket_reason: str, credit: str = "unknown",
 ) -> ActionDraft:
     """Deterministic Persian composer used when no model is available.
 
@@ -212,13 +259,19 @@ def compose_offline(
         "fix": "بازنگری شرایط قرارداد (قیمت، شرایط پرداخت) با حضور مدیر فروش.",
         "reduce": "توقف پیشنهادهای ویژه؛ ادامه همکاری فقط با شرایط استاندارد.",
     }[bucket]
+    owner = _owner_for(signals)
+    # fix/reduce are unaffected: neither asks the customer to buy more, so credit
+    # room is not the lever there.
+    if credit == "exhausted" and bucket in CREDIT_BLOCKED_STEP_FA:
+        step = CREDIT_BLOCKED_STEP_FA[bucket]
+        owner = "واحد مالی و مدیر فروش"
 
     title = TITLE_BY_DETECTOR.get(top.detector, top.detector)
     return ActionDraft(
         title_fa=f"{BUCKET_LABEL_FA[bucket]} — {title}",
         rationale_fa=" ".join(claims) if claims else top.headline_fa,
         recommended_step_fa=step,
-        owner=_owner_for(signals),
+        owner=owner,
         evidence_ids=ordered,
     )
 
@@ -317,16 +370,19 @@ def build_actions(
             if cid in quadrants.table.index else ""
         )
         available_ids = [e.id for e in ctx.evidence.for_customer(cid)]
+        credit = credit_state(ctx, cid)
         user = USER_TEMPLATE.format(
             customer_id=cid,
             bucket_label=BUCKET_LABEL_FA[bucket],
             bucket_meaning=BUCKET_MEANING_FA[bucket],
             bucket_reason=bucket_reason,
+            credit_note=CREDIT_NOTE_FA[credit],
             signal_block=_signal_block(signals),
             evidence_block=_evidence_block(ctx.evidence, available_ids),
         )
         fallback = (
-            (lambda: compose_offline(cid, signals, ctx.evidence, bucket, bucket_reason))
+            (lambda: compose_offline(cid, signals, ctx.evidence, bucket,
+                                     bucket_reason, credit))
             if allow_offline else None
         )
 
@@ -344,7 +400,7 @@ def build_actions(
                 break
             draft, source = llm_result.value, llm_result.source
             candidate = _to_action(cid, rank, draft, bucket, signals, thresholds, st,
-                                   source, weights)
+                                   source, weights, credit)
             result = validate_action(candidate, ctx.evidence)
             if result.ok:
                 actions.append(candidate)
@@ -375,7 +431,7 @@ def build_actions(
 def _to_action(
     cid: str, rank: int, draft: ActionDraft, bucket: str, signals: list[Signal],
     thresholds, settings: Settings, source: str,
-    weights: dict[str, float] | None = None,
+    weights: dict[str, float] | None = None, credit: str = "unknown",
 ) -> Action:
     score = max(priority_score(s, settings, weights) for s in signals)
     return Action(
@@ -391,5 +447,5 @@ def _to_action(
         signals=[s.detector for s in signals],
         value_at_stake=float(max(s.value_at_stake for s in signals)),
         source=source,
-        detail={"priority_score": round(score, 2)},
+        detail={"priority_score": round(score, 2), "credit_room": credit},
     )

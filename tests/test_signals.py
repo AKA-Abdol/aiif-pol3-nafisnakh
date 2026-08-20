@@ -122,6 +122,29 @@ def test_scale_is_clamped():
     assert 10 <= scale(5, 0, 10) <= 100
 
 
+def test_tiny_eligible_population_is_not_judged(run, ctx):
+    """A rate over a handful of customers is not a rate.
+
+    Without this, every subset run produced a wall of "1 fired of 1 eligible =
+    100%, too_broad" — false alarms that train the reader to ignore the table.
+    """
+    from dataclasses import replace
+
+    small = replace(
+        run, eligible_counts={name: 3 for name in run.fire_rates},
+        fire_rates={name: 1.0 for name in run.fire_rates},
+    )
+    report = calibrate(small, ctx)
+    assert (report.rows["status"] == "insufficient").all()
+    assert report.failures.empty
+    assert len(report.insufficient) == len(report.rows)
+
+
+def test_insufficient_is_reported_but_never_a_failure(run, ctx):
+    report = calibrate(run, ctx)
+    assert "insufficient" not in set(report.failures["status"])
+
+
 def test_calibration_passes_for_every_detector(run, ctx):
     """PLAN §4, Phase 1b — no detector may fire on >60% or <2% of the customers
     it could possibly fire on. Detectors that are rare by design are exempt

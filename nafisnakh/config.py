@@ -20,62 +20,39 @@ ROOT = Path(__file__).resolve().parent.parent
 class LLMProfile(BaseModel):
     """One named generation backend.
 
-    Profiles exist so a second model can be added without disturbing the first.
-    Q3 chose Gemini Flash over OpenRouter and PLAN §7 documents it; that decision
-    stands and the ``gemini`` profile below reproduces it exactly. Anything else
-    is an *additional* profile, selected with ``NN_LLM_PROFILE`` or ``--profile``.
+    Every profile routes through **OpenRouter** — the standing instruction is
+    that any LLM call in this system goes there, so a profile varies the model
+    and the provider pin, never the gateway. ``provider_only`` is OpenRouter's
+    provider-routing pin: a comma-separated list of endpoint tags the request is
+    allowed to land on (`GET /models/{id}/endpoints` lists the valid tags).
     """
 
     name: str
     model: str
-    base_url: str
-    api_key_env: str
+    base_url: str = "https://openrouter.ai/api/v1"
+    api_key_env: str = "OPENROUTER_API_KEY"
+    provider_only: str = ""
     note: str = ""
 
 
-# The documented default (Q3) — do not change these values; add a profile instead.
+# The default and, since the OpenRouter-only ruling, the only profile.
+# Gemini 3.7 Flash pinned to Vertex `global`; verified against
+# `/models/google/gemini-3.7-flash/endpoints`, which offers google-vertex/global
+# (plus /flex and /priority) and google-ai-studio. Pinning keeps a run from
+# silently landing on a different serving stack mid-book.
 PROFILE_GEMINI = LLMProfile(
     name="gemini",
-    model="google/gemini-2.0-flash-001",
-    base_url="https://openrouter.ai/api/v1",
-    api_key_env="OPENROUTER_API_KEY",
-    note="انتخاب مستندشده در Q3 — ارزان و کافی برای تست اولیه",
+    model="google/gemini-3.7-flash",
+    provider_only="google-vertex/global",
+    note="OpenRouter → google-vertex/global — تنها مسیر مجاز فراخوانی مدل",
 )
 
-# Added on request. AgentRouter restricts its API to whitelisted coding-agent
-# clients and answers generic callers with `unauthorized_client_error`; a token
-# alone is not enough until they authorise the client.
-PROFILE_AGENTROUTER = LLMProfile(
-    name="agentrouter",
-    model="gpt-5.6-sol",
-    base_url="https://agentrouter.org/v1",
-    api_key_env="AGENTROUTER_API_KEY",
-    note="نیازمند مجوز کلاینت از سمت AgentRouter",
-)
-
-# Second AgentRouter profile (key "mehdi-claude"). Same gateway, different model.
-PROFILE_AGENTROUTER_CLAUDE = LLMProfile(
-    name="agentrouter-claude",
-    model="claude-opus-4-8",
-    base_url="https://agentrouter.org/v1",
-    api_key_env="AGENTROUTER_CLAUDE_API_KEY",
-    note="⚠ متن فارسی را با content-blocked رد می‌کند — برای این پروژه غیرقابل استفاده",
-)
-
-
-PROFILE_AVALAI = LLMProfile(
-    name="avalai",
-    model="gpt-5.5",
-    base_url="https://api.avalai.ir/v1",
-    api_key_env="AVALAI_API_KEY",
-    note="کلید فقط به gpt-5.5 دسترسی دارد و اعتبار حساب کافی نیست — §8 Q18",
-)
-
-LLM_PROFILES: dict[str, LLMProfile] = {
-    p.name: p
-    for p in (PROFILE_GEMINI, PROFILE_AGENTROUTER, PROFILE_AGENTROUTER_CLAUDE,
-              PROFILE_AVALAI)
-}
+# The AgentRouter and AvalAI profiles were removed here: every call goes through
+# OpenRouter now. Both were dead anyway — AgentRouter gates non-whitelisted API
+# clients (PLAN §8 Q17) and the AvalAI key was quota-blocked (Q18). Restoring one
+# means adding an LLMProfile with its own base_url and api_key_env; nothing else
+# in the package hard-codes a gateway.
+LLM_PROFILES: dict[str, LLMProfile] = {p.name: p for p in (PROFILE_GEMINI,)}
 
 
 class Settings(BaseSettings):
@@ -126,6 +103,14 @@ class Settings(BaseSettings):
     sku_narrowing_pct: float = -0.33
     dso_slippage_days: float = 15.0
     credit_exposure_ratio: float = 0.80
+    # Sanity guard on Credit_Limit before it is allowed to gate an action.
+    # A limit worth more than this many months of the customer's own purchasing
+    # cannot function as a constraint, so "credit is open" would be a vacuous
+    # claim. It also catches the scale defect in PLAN §5.4: Universe B limits are
+    # ~18,000× Universe A's while their trade differs by only 54×, which would
+    # otherwise read as unlimited room for all 20 of them.
+    # Book distribution at the demo anchor: median 2.3, p95 11.8, p99 50.0.
+    credit_room_max_months: float = 60.0
     margin_peer_percentile: float = 20.0
     complaint_recurrence_days: int = 180
     dev_request_stall_days: int = 90
@@ -165,21 +150,28 @@ class Settings(BaseSettings):
     # the gemini defaults so nothing that reads them changes behaviour.
     llm_profile: str = "gemini"
     llm_provider: Literal["openrouter"] = "openrouter"
-    llm_model: str = "google/gemini-2.0-flash-001"
+    llm_model: str = "google/gemini-3.7-flash"
     llm_base_url: str = "https://openrouter.ai/api/v1"
+    # OpenRouter provider routing. Comma-separated endpoint tags, most preferred
+    # first; empty means "let OpenRouter choose". Kept as a string rather than a
+    # list because pydantic-settings JSON-decodes list-typed env vars, which
+    # would make `NN_LLM_PROVIDER_ONLY=google-vertex/global` a parse error.
+    llm_provider_only: str = "google-vertex/global"
     llm_temperature: float = 0.0
     llm_cache: bool = True
     llm_max_retries: int = 2
     openrouter_api_key: str | None = Field(default=None, alias="OPENROUTER_API_KEY")
-    agentrouter_api_key: str | None = Field(default=None, alias="AGENTROUTER_API_KEY")
-    agentrouter_claude_api_key: str | None = Field(
-        default=None, alias="AGENTROUTER_CLAUDE_API_KEY"
-    )
-    avalai_api_key: str | None = Field(default=None, alias="AVALAI_API_KEY")
 
     # ------------------------------------------------------------ embeddings
-    embed_backend: Literal["ollama"] = "ollama"
-    embed_model: str = "bge-m3:567m"
+    # `NN_EMBED_BACKEND` picks where vectors come from. Both defaults are the
+    # *same* model — bge-m3, 1024-dim — so switching backends does not move the
+    # geometry and the PLAN §1.9 Persian benchmark still describes it. `ollama`
+    # is free and offline but needs a running daemon; `openrouter` needs only
+    # the key that generation already uses.
+    embed_backend: Literal["ollama", "openrouter"] = "openrouter"
+    embed_model: str = "bge-m3:567m"                    # ollama tag
+    openrouter_embed_model: str = "baai/bge-m3"         # openrouter model id
+    embed_base_url: str = "https://openrouter.ai/api/v1"
     ollama_host: str = "http://localhost:11434"
 
     # ---------------------------------------------------------------- output
@@ -195,6 +187,14 @@ class Settings(BaseSettings):
     # calibration guard-rails (§4 Phase 1b)
     calib_max_fire_rate: float = 0.60
     calib_min_fire_rate: float = 0.02
+    # A fire rate over a handful of eligible customers is not a rate. Below this
+    # count the verdict is `insufficient` — reported, but never counted as a
+    # failure, because "1 fired of 1 eligible = 100%, too_broad" says nothing
+    # about the threshold. Same reasoning as `min_percentile_observations`.
+    # 30 is the usual floor for a proportion estimate; on the full book the
+    # smallest eligible population is 51, so this changes no verdict there and
+    # only silences sample runs and the 16-customer fixture.
+    calib_min_eligible: int = 30
 
     @field_validator("as_of", "date_from", "date_to", mode="before")
     @classmethod
@@ -231,13 +231,39 @@ class Settings(BaseSettings):
         return self.profile.base_url
 
     @property
+    def active_provider_only(self) -> list[str]:
+        """The OpenRouter endpoint tags this run is allowed to land on."""
+        raw = (
+            self.llm_provider_only
+            if self.llm_profile == "gemini"
+            else self.profile.provider_only
+        )
+        return [tag.strip() for tag in raw.split(",") if tag.strip()]
+
+    @property
+    def provider_routing(self) -> dict | None:
+        """OpenRouter's ``provider`` request field, or None when unpinned.
+
+        Deliberately **not** part of the prompt cache key: routing decides which
+        datacentre serves a model, not which model answers, so a pinned and an
+        unpinned run may share a cached response.
+        """
+        only = self.active_provider_only
+        return {"only": only} if only else None
+
+    @property
+    def active_embed_model(self) -> str:
+        return (
+            self.openrouter_embed_model
+            if self.embed_backend == "openrouter"
+            else self.embed_model
+        )
+
+    @property
     def active_api_key(self) -> str | None:
-        return {
-            "OPENROUTER_API_KEY": self.openrouter_api_key,
-            "AGENTROUTER_API_KEY": self.agentrouter_api_key,
-            "AGENTROUTER_CLAUDE_API_KEY": self.agentrouter_claude_api_key,
-            "AVALAI_API_KEY": self.avalai_api_key,
-        }.get(self.profile.api_key_env)
+        return {"OPENROUTER_API_KEY": self.openrouter_api_key}.get(
+            self.profile.api_key_env
+        )
 
     @property
     def llm_available(self) -> bool:

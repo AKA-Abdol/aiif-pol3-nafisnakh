@@ -108,6 +108,30 @@ def build(ctx: MetricContext) -> pd.DataFrame:
     df["bad_debt_provision"] = df["bad_debt_rate_used"] * df["open_exposure"]
     df["net_finance_effect"] = df["late_charge_revenue"] - df["capital_cost"]
 
+    # ---- credit room: how much of the declared limit is still usable.
+    # `exposure_ratio` alone cannot gate an action, because a limit that is
+    # absurd relative to the customer's own trade produces a ratio near zero and
+    # would read as "plenty of room". `credit_room_state` therefore carries an
+    # explicit `unknown` for limits that fail the scale guard (PLAN §5.4).
+    months_active = (
+        ctx.spine.lines.groupby(S.CUSTOMER_ID)[S.D_MONTH].nunique()
+        .reindex(df.index).replace(0, np.nan)
+    )
+    revenue_total = (
+        ctx.spine.lines.groupby(S.CUSTOMER_ID)[S.D_REVENUE].sum().reindex(df.index)
+    )
+    df["credit_limit_months"] = limits / (revenue_total / months_active).replace(0, np.nan)
+    df["credit_room_value"] = (limits - df["open_exposure"]).clip(lower=0.0)
+    usable = limits.notna() & (limits > 0) & (
+        df["credit_limit_months"].isna()
+        | (df["credit_limit_months"] <= st.credit_room_max_months)
+    )
+    df["credit_room_state"] = np.where(
+        ~usable, "unknown",
+        np.where(df["exposure_ratio"].fillna(0.0) >= st.credit_exposure_ratio,
+                 "exhausted", "open"),
+    )
+
     invoice_ids = inv.groupby(S.CUSTOMER_ID)[S.INVOICE_NO].apply(list)
     bounced_inv = (
         inv.loc[inv["_bounces"] > 0].groupby(S.CUSTOMER_ID)[S.INVOICE_NO].apply(list)
@@ -142,6 +166,25 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 float(r.open_exposure), unit="ریال", window=window, source_rows=ref,
                 formula="Σ max(invoice_total - collected, 0)",
                 exposure_ratio=None if pd.isna(r.exposure_ratio) else round(float(r.exposure_ratio), 3),
+            )
+        if r.credit_room_state == "open" and r.credit_room_value > 0:
+            # Stated as a share of the limit, not in rials. 29% of these values
+            # are under 50,000 and the project-wide M scale (PLAN §5.4) would
+            # print them as "0.0M" — a claim that says "there is room" while
+            # showing zero. The share is scale-free and is the quantity that
+            # actually decides the action; the absolute stays in provenance.
+            free = max(0.0, 1.0 - float(r.exposure_ratio or 0.0))
+            ctx.emit(
+                cid, "credit-room",
+                f"{pct(free, 0)} درصد سقف اعتبار این مشتری هنوز آزاد است.",
+                round(free, 4), unit="درصد", kind="comparison",
+                window=window, source_rows=ref,
+                formula="1 − open_exposure / Credit_Limit",
+                room_value=round(float(r.credit_room_value), 0),
+                credit_limit=(None if pd.isna(r.credit_limit)
+                              else round(float(r.credit_limit), 0)),
+                credit_limit_months=(None if pd.isna(r.credit_limit_months)
+                                     else round(float(r.credit_limit_months), 1)),
             )
         if r.bounces > 0:
             ctx.emit(

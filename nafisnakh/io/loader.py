@@ -1,8 +1,9 @@
 """Dataset and metadata loading, with a parquet cache.
 
-Reading the 16-sheet workbook takes ~40 s; every module below this one wants
+Reading the 16-sheet workbook takes ~4.7 s; every module below this one wants
 the same frames, so the first read writes parquet into ``cache_dir`` keyed by
-the workbook's mtime+size and later runs load in well under a second.
+the workbook's **content hash** — portable across machines and clones — and
+later runs load in well under a second.
 
 Loading is where normalisation happens, once: dates coerced (Jalali included,
 PLAN §1.5), customer ids canonicalised and tagged with their universe,
@@ -80,10 +81,20 @@ def load_contract(path: Path | None = None, settings: Settings | None = None) ->
 
 # ------------------------------------------------------------------- dataset
 def _cache_key(path: Path) -> str:
-    stat = path.stat()
-    return hashlib.sha1(
-        f"{path.resolve()}|{stat.st_size}|{int(stat.st_mtime)}|v3".encode()
-    ).hexdigest()[:16]
+    """Content hash of the workbook.
+
+    Deliberately **not** keyed on the absolute path or the mtime. The parquet
+    cache is committed to the repo, and either of those makes the key
+    machine-local: a clone gets a fresh mtime and a different path, so the
+    shared cache would miss every time and sit there as dead weight. Hashing
+    12 MB costs under 10 ms against the ~4.7 s workbook re-read it saves
+    (measured: cold 4.7 s, warm 0.04 s).
+    """
+    h = hashlib.sha1(b"v4")
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
 
 
 def _normalize_sheet(sheet: str, df: pd.DataFrame) -> pd.DataFrame:

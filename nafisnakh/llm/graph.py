@@ -133,17 +133,35 @@ NODES = [
 ]
 
 
-def build_graph():
-    """Compile the LangGraph pipeline."""
+def nodes_upto(stop_after: str | None = None) -> list[tuple[str, Any]]:
+    """The node list truncated after ``stop_after`` (inclusive).
+
+    ``signals`` and ``calibrate`` need the pipeline only as far as ``detect``.
+    Running past it costs one relationship call per customer and one drafting
+    call per action — hundreds of paid requests whose output those two commands
+    then discard. Truncation is expressed here, once, rather than as a flag each
+    node checks.
+    """
+    if stop_after is None:
+        return list(NODES)
+    names = [n for n, _ in NODES]
+    if stop_after not in names:
+        raise ValueError(f"unknown node {stop_after!r}; available: {names}")
+    return list(NODES[: names.index(stop_after) + 1])
+
+
+def build_graph(stop_after: str | None = None):
+    """Compile the LangGraph pipeline, optionally ending early."""
     from langgraph.graph import END, START, StateGraph
 
+    nodes = nodes_upto(stop_after)
     g = StateGraph(PipelineState)
-    for name, fn in NODES:
+    for name, fn in nodes:
         g.add_node(name, fn)
-    g.add_edge(START, NODES[0][0])
-    for (a, _), (b, _) in zip(NODES, NODES[1:]):
+    g.add_edge(START, nodes[0][0])
+    for (a, _), (b, _) in zip(nodes, nodes[1:]):
         g.add_edge(a, b)
-    g.add_edge(NODES[-1][0], END)
+    g.add_edge(nodes[-1][0], END)
     return g.compile()
 
 
@@ -153,11 +171,17 @@ def run_pipeline(
     as_of: date | None = None,
     dataset: Dataset | None = None,
     use_graph: bool = True,
+    stop_after: str | None = None,
     **options,
 ) -> PipelineState:
     """Run the whole thing. ``use_graph=False`` runs the same nodes in sequence,
     which is what the tests use so a LangGraph version bump cannot silently
-    change what is being tested."""
+    change what is being tested.
+
+    ``stop_after`` ends the run after that node — see :func:`nodes_upto`. The
+    returned state then simply lacks the later keys, so a caller asking for one
+    of them gets a ``KeyError`` rather than a stale value.
+    """
     st = settings or get_settings()
     state: PipelineState = {
         "settings": st,
@@ -168,9 +192,9 @@ def run_pipeline(
         state["dataset"] = dataset
 
     if use_graph and dataset is None:
-        return dict(build_graph().invoke(state))
+        return dict(build_graph(stop_after).invoke(state))
 
-    for name, fn in NODES:
+    for name, fn in nodes_upto(stop_after):
         if name == "load" and "dataset" in state:
             continue
         state.update(fn(state))

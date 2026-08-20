@@ -174,7 +174,19 @@ class CalibrationReport:
 
     @property
     def failures(self) -> pd.DataFrame:
-        return self.rows.loc[self.rows["status"] != "ok"]
+        """Verdicts that mean something went wrong.
+
+        ``insufficient`` is deliberately not one of them: it says the population
+        was too small to judge, which is a fact about the run, not about the
+        detector.
+        """
+        return self.rows.loc[self.rows["status"].isin(
+            ("too_broad", "too_narrow", "error")
+        )]
+
+    @property
+    def insufficient(self) -> pd.DataFrame:
+        return self.rows.loc[self.rows["status"] == "insufficient"]
 
     def __str__(self) -> str:
         return self.rows.to_string(index=False)
@@ -186,14 +198,22 @@ def calibrate(run: SignalRun, ctx: MetricContext) -> CalibrationReport:
     The rate is ``fired / eligible``, not ``fired / whole book``: a returns
     detector cannot fire on a customer with no returns, and dividing by the
     whole book would condemn a correctly-scoped detector as "too narrow".
+
+    A detector whose eligible population is below ``calib_min_eligible`` is
+    reported ``insufficient`` rather than judged. Without that, any subset run
+    produces a wall of false alarms — "1 fired of 1 eligible = 100%, too_broad"
+    — which trains the reader to ignore the table.
     """
     st = ctx.settings
     by_name = {d.name: d for d in all_detectors()}
     rows = []
     for name, rate in sorted(run.fire_rates.items(), key=lambda kv: -kv[1]):
         det = by_name[name]
+        n_eligible = run.eligible_counts.get(name, run.population)
         if name in run.errors:
             status = "error"
+        elif n_eligible < st.calib_min_eligible:
+            status = "insufficient"
         elif rate > st.calib_max_fire_rate:
             status = "too_broad"
         elif rate < st.calib_min_fire_rate and not det.rare_by_design:
@@ -204,7 +224,7 @@ def calibrate(run: SignalRun, ctx: MetricContext) -> CalibrationReport:
             "detector": name,
             "category": det.category,
             "fired": run.fired_counts.get(name, 0),
-            "eligible": run.eligible_counts.get(name, run.population),
+            "eligible": n_eligible,
             "fire_rate": round(rate, 4),
             "rare_by_design": det.rare_by_design,
             "status": status,

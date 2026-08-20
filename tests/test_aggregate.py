@@ -4,7 +4,14 @@ from datetime import date
 
 import pytest
 
-from nafisnakh.aggregate.aggregator import Action, ActionDraft, build_actions, compose_offline
+from nafisnakh.aggregate.aggregator import (
+    CREDIT_BLOCKED_STEP_FA,
+    Action,
+    ActionDraft,
+    build_actions,
+    compose_offline,
+    credit_state,
+)
 from nafisnakh.aggregate.quadrant import BUCKET_LABEL_FA, assign_quadrants
 from nafisnakh.aggregate.validate import (
     strip_identifiers,
@@ -174,6 +181,51 @@ def test_offline_composer_writes_no_number_of_its_own(pipeline):
     assert validate_action(action, ctx.evidence).ok
 
 
+# ------------------------------------------------------------- credit gate
+def test_credit_room_state_is_one_of_three_values(pipeline):
+    states = pipeline["ctx"].table("payment")["credit_room_state"]
+    assert set(states) <= {"open", "exhausted", "unknown"}
+
+
+def test_absurd_credit_limit_is_marked_unknown_not_open(pipeline):
+    """A limit worth centuries of the customer's own trade cannot gate anything.
+
+    This is the Universe-B scale defect (PLAN §5.4) in miniature: a ratio near
+    zero would otherwise read as unlimited room.
+    """
+    pay = pipeline["ctx"].table("payment")
+    absurd = pay[pay["credit_limit_months"] > pipeline["ctx"].settings.credit_room_max_months]
+    assert (absurd["credit_room_state"] == "unknown").all()
+
+
+def test_exhausted_credit_replaces_the_growth_step(pipeline):
+    ctx, run = pipeline["ctx"], pipeline["run"]
+    by_customer = run.by_customer()
+    cid = next(iter(by_customer))
+    signals = by_customer[cid]
+    open_draft = compose_offline(cid, signals, ctx.evidence, "grow", "", "open")
+    blocked = compose_offline(cid, signals, ctx.evidence, "grow", "", "exhausted")
+    assert open_draft.recommended_step_fa != blocked.recommended_step_fa
+    assert blocked.recommended_step_fa == CREDIT_BLOCKED_STEP_FA["grow"]
+    assert "مالی" in blocked.owner
+
+
+def test_credit_gate_leaves_fix_and_reduce_alone(pipeline):
+    """Neither bucket asks the customer to buy more, so credit is not the lever."""
+    ctx, run = pipeline["ctx"], pipeline["run"]
+    cid, signals = next(iter(run.by_customer().items()))
+    for bucket in ("fix", "reduce"):
+        a = compose_offline(cid, signals, ctx.evidence, bucket, "", "open")
+        b = compose_offline(cid, signals, ctx.evidence, bucket, "", "exhausted")
+        assert a.recommended_step_fa == b.recommended_step_fa
+
+
+def test_every_action_records_the_credit_state_it_was_built_under(pipeline):
+    for a in pipeline["queue"].actions:
+        assert a.detail["credit_room"] in {"open", "exhausted", "unknown"}
+        assert a.detail["credit_room"] == credit_state(pipeline["ctx"], a.customer_id)
+
+
 def test_priority_bands_do_not_depend_on_how_many_rows_were_asked_for(ds, pipeline):
     ctx, run, q = pipeline["ctx"], pipeline["run"], pipeline["quadrants"]
     five = build_actions(ctx, run, q, top_n=5)
@@ -219,6 +271,34 @@ def test_graph_compiles_with_every_stage(ds):
         "load", "metrics", "complaint_llm", "feedback", "detect", "quadrant",
         "relationship", "aggregate",
     ]
+
+
+def test_stop_after_ends_the_run_and_omits_the_later_stages(ds):
+    """`signals` and `calibrate` must not pay for the LLM stages they discard."""
+    from nafisnakh.llm.graph import run_pipeline
+
+    state = run_pipeline(as_of=date(2021, 6, 30), dataset=ds, use_graph=False,
+                         stop_after="detect")
+    assert "signals" in state and "calibration" in state
+    # a stale value would be worse than a missing one, so these are absent
+    assert "queue" not in state
+    assert "quadrants" not in state
+
+
+def test_stop_after_produces_the_same_signals_as_a_full_run(ds):
+    from nafisnakh.llm.graph import run_pipeline
+
+    short = run_pipeline(as_of=date(2021, 6, 30), dataset=ds, use_graph=False,
+                         stop_after="detect")
+    full = run_pipeline(as_of=date(2021, 6, 30), dataset=ds, use_graph=False, top_n=5)
+    assert len(short["signals"].signals) == len(full["signals"].signals)
+
+
+def test_stop_after_rejects_an_unknown_node():
+    from nafisnakh.llm.graph import nodes_upto
+
+    with pytest.raises(ValueError, match="unknown node"):
+        nodes_upto("not_a_node")
 
 
 # --------------------------------------------------------------- the fixture

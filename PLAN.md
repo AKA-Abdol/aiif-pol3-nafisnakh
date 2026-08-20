@@ -196,6 +196,8 @@ Activity at as_of 2022-06-30 for reference: 172 active in 90d, 243 in 180d, 383 
 | **Q6** | Demo strategy across two disjoint universes? | **"ببین روی هردوی اینها ترین کن. نکته اینه که نرخ‌های مالی فقط فیک شدن. تاریخ‌ها هم البته منطقی نیست. می‌تونی روی دیتایی که روی ناحیه ۲۰۲۲ هست کار کنی ولی یک نمونه طلایی هم برای تست آماده کنی. در واقع این دیتا دیتای نهایی ما است و باید روی این کار کنیم."** | Run the pipeline over **both** universes. Anchor commercial work in the ≤2022 region. Additionally build a **golden sample fixture** (§6) that exercises the full chain end-to-end for testing. This data is final. |
 | **Q8** | Who labels the 40 real complaints? | **I propose labels, user reviews and corrects** | Produce `eval/golden_labels.yaml` covering all 40, human-editable, with a `reviewed: false` flag per row that the user flips. |
 | **Q16** | Add a second model (`gpt-5.6-sol` via AgentRouter) without disturbing the Gemini choice? | **"in doc i say use gemeni, dont change it … add it as a new model but dont change previous configs for gemeni"** | Generation backends are now **named profiles** in `config.py`. `gemini` reproduces the Q3 decision byte-for-byte and stays the default; `agentrouter` is additive. Selected with `NN_LLM_PROFILE` or `--profile`. ⚠️ **AgentRouter is not usable yet — see §8 Q17.** |
+| **Q19** | Which gateway and model for every LLM call? | **"for any llm api call use openrouter and use the google/gemini-3.7-flash model through the google-vertex/global provider"** | **Supersedes Q3's model and Q16's extra profiles.** One gateway: OpenRouter. One model: `google/gemini-3.7-flash`, pinned with OpenRouter provider routing to the `google-vertex/global` endpoint tag. The `agentrouter`, `agentrouter-claude` and `avalai` profiles were removed — both were already dead (§8 Q17, Q18). Embeddings became backend-selectable from env: `NN_EMBED_BACKEND=openrouter|ollama`, same bge-m3 model either way. |
+| **Q20** | Should `Credit_Limit` feed the wallet/headroom metric? | **"credit limit برای wallet نیست که سهم سبد در بیاریم. ولی رابطشون اگر منطق داره باید اضافه بشه… آره اینو اضافه کن به اکشن نهایی دادن ازونجایی که credit limit در پیشنهاد کاملا موثر است"** | **Not as a capacity anchor** — against lifetime revenue it is spearman +0.900 / pearson −0.031, a monotone re-encoding of what the customer already buys, so it adds nothing to a headroom estimate built from the same quantity. **Yes as a gate on the recommended action**: credit room decides whether a growth step is executable at all. Ranking is untouched — it stays pure arithmetic over signals. |
 | **Q10** | Is the 4%/month late charge real? | **"بله، ۴٪ ماهانه روی مانده و واقعاً وصول می‌شود"** | The late charge is **compensating revenue**, not pure opportunity cost. Formula in §3.5 reflects this. Raises Q11. |
 
 ### Standing instruction from the user
@@ -766,9 +768,11 @@ blocks fall back to a labelled rule path and say so (Q14).
 | HTTP API | `nafisnakh serve` | `http://127.0.0.1:8000/docs` |
 | Which model backends exist, and do they answer? | `nafisnakh models --test` | one line per profile, its key status, and a live HTTP probe |
 
-Any command that calls a model takes `--profile gemini|agentrouter`
-(`nafisnakh eval --profile agentrouter`). The response cache keys on the model
-name, so switching profile never serves an answer written by the other model.
+Any command that calls a model takes `--profile`, but `gemini` is the only
+profile now (Q19 — OpenRouter only). The response cache keys on the model name,
+so changing model never serves an answer written by the previous one. Provider
+routing is deliberately *not* in that key: a pin selects a datacentre, not a
+model.
 
 Any command takes `--as-of 2021-12-31` to move the anchor, and `-v` for logs.
 
@@ -925,6 +929,22 @@ issue one.
 - Complaints concentrate in large, active, long-tenured accounts (10× mean revenue,
   22.5% vs 63.4% dormancy). **Any "complaints cause churn" claim needs tenure controls.**
 - `سهم_سبد` covers only 2021-07 … 2022-06. Never trend across the gap.
+- **`Credit_Limit` mixes two incompatible scales across the universes.** Universe A:
+  5,000 … 11,700,000 (median 330,000). Universe B: 2,000,000,000 … 18,000,000,000
+  (median 6bn, only 6 distinct round values). That is a **~18,000× jump**, while the
+  two universes' median sales-line amounts differ by only 54× (10,680 vs 577,342).
+  Consequence: `open_balance / Credit_Limit` — the `credit_exposure` detector — is
+  structurally ~0 for every Universe-B customer, so the detector goes silent on them.
+  Harmless at `as_of = 2021-06-30` (Universe B has no visible sales then); it becomes a
+  real blind spot at any 2025–2026 anchor.
+- **`Credit_Limit` is monotone in revenue but not proportional to it.** Against lifetime
+  revenue: **spearman +0.900, pearson −0.031**. So it ranks customers by size almost
+  perfectly while carrying no usable level information (`Credit_Limit / lifetime revenue`
+  spans 0.072 … 2.53, median 0.615). Do not use it as a capacity anchor for
+  wallet/headroom — being a monotone function of what they already buy from us, it adds
+  nothing to a headroom estimate built from the same quantity. Its *residual* (limit
+  relative to own purchases) is the part that carries information, and it answers a
+  different question: how much more the customer is **permitted** to buy.
 - `Price_Index` correlates −0.545 *contemporaneously* with realised ASP and weakens with
   lag — a concurrent descriptor, **not a leading indicator**.
 
@@ -1004,27 +1024,27 @@ complaint_recurrence_days = 180
 dev_request_stall_days    = 90
 late_interest_drag_pct    = 0.25
 
-# LLM — named profiles; `gemini` is the Q3 decision and must not be edited.
-# Adding a backend means adding a profile, never changing this one.
-llm_profile         = "gemini"           # | "agentrouter"
+# LLM — OpenRouter only (Q19). Every call goes through this one gateway.
+llm_profile         = "gemini"
 llm_provider        = "openrouter"
-llm_model           = "google/gemini-2.0-flash-001"   # or -lite; upgradeable
+llm_model           = "google/gemini-3.7-flash"
 llm_base_url        = "https://openrouter.ai/api/v1"
+llm_provider_only   = "google-vertex/global"   # OpenRouter provider-routing pin
 llm_temperature     = 0.0
 llm_cache           = True
 
 # LLM_PROFILES in config.py
-#   gemini      google/gemini-2.0-flash-001  https://openrouter.ai/api/v1  OPENROUTER_API_KEY
-#   agentrouter        gpt-5.6-sol      https://agentrouter.org/v1  AGENTROUTER_API_KEY
-#   agentrouter-claude claude-opus-4-8  https://agentrouter.org/v1  AGENTROUTER_CLAUDE_API_KEY
-#   avalai             gpt-5.5          https://api.avalai.ir/v1    AVALAI_API_KEY
-#   ⚠ agentrouter profiles blocked by the provider — §8 Q17
-#   ⚠ avalai blocked by account credit/key scope — §8 Q18
+#   gemini   google/gemini-3.7-flash   https://openrouter.ai/api/v1   OPENROUTER_API_KEY
+#            pinned to endpoint tag google-vertex/global
+#   valid tags for a model: GET /api/v1/models/<model>/endpoints
+#   (gemini-3.7-flash: google-vertex/global[/flex|/priority], google-ai-studio)
 
-# embeddings
-embed_backend       = "ollama"
-embed_model         = "bge-m3:567m"      # or "qwen3-embedding:8b-q8_0"
-ollama_host         = "http://localhost:11434"
+# embeddings — same bge-m3 model either way, so the geometry does not move
+embed_backend          = "openrouter"        # | "ollama"
+openrouter_embed_model = "baai/bge-m3"       # 1024-dim, used when backend=openrouter
+embed_base_url         = "https://openrouter.ai/api/v1"
+embed_model            = "bge-m3:567m"       # ollama tag, used when backend=ollama
+ollama_host            = "http://localhost:11434"
 
 # output
 plot_lang           = "fa"
@@ -1080,6 +1100,61 @@ random_state        = 42
 ---
 
 ## 11. CHANGELOG
+
+- **2026-08-20 (calibrate review)** — Calibration used to pass a verdict on any
+  eligible population, however small, so every subset run produced a wall of false
+  alarms — "1 fired of 1 eligible = 100%, too_broad" — which trains the reader to
+  ignore the table. New status **`insufficient`** below `calib_min_eligible = 30`:
+  reported in the table, excluded from `failures`, and surfaced as a count by the CLI
+  so a quiet table is not misread as a clean bill. On the full book the smallest
+  eligible population is 51, so **no full-book verdict changed** (22/22 ok at
+  2021-06-30; still exit 1 with `cadence_breach` + `volume_decline` too_broad at
+  2021-12-31). 2 new tests; 127 passing.
+
+- **2026-08-20 (signals review)** — `nafisnakh signals` and `nafisnakh calibrate` were
+  running the **whole 8-node pipeline** and discarding everything past `detect`: with a
+  key present that is one relationship call per customer plus one drafting call per
+  action, for two commands whose only output is a signal file and a fire-rate table.
+  `llm/graph.py` gained `nodes_upto()` and `run_pipeline(stop_after=...)`; both commands
+  now stop at `detect`. Measured: 4.3 s with a live key, byte-identical 1,663 signals,
+  and no LLM call at all. `signals` also gained `--sample` / `--customers` with the same
+  subset filename suffix `build` uses, so a 12-customer run writes
+  `signals_<as_of>__12c.json` instead of overwriting the full book. 3 new tests; 125 passing.
+
+- **2026-08-20 (credit gate on actions)** — Q20 applied. `Credit_Limit` now shapes the
+  *recommended step*, never the ranking and never the headroom estimate.
+  `metrics/payment.py` gained `credit_room_value`, `credit_limit_months` and
+  `credit_room_state` ∈ {`open`, `exhausted`, `unknown`}, plus a `credit-room`
+  evidence for the 427 customers with room. `exhausted` is `exposure_ratio ≥
+  credit_exposure_ratio` (0.80); `unknown` is the scale guard —
+  `credit_room_max_months = 60`, which catches the 5 Universe-A outliers here and
+  every Universe-B customer at a late anchor (§5.4). `aggregate/aggregator.py`
+  gained `credit_state()`, `CREDIT_NOTE_FA` and `CREDIT_BLOCKED_STEP_FA`: on
+  `exhausted`, a **grow** or **protect** step becomes a credit-limit review owned
+  by «واحد مالی و مدیر فروش», while **fix** and **reduce** are left alone because
+  neither asks the customer to buy more. The model is told the credit state in the
+  prompt and instructed to respect it; the state is recorded on every action as
+  `detail.credit_room`. The credit-room claim is stated as a **share of the limit**,
+  not in rials: 29% of the values are under 50,000 and the project-wide M scale
+  would have printed them as "0.0M" — a claim asserting room while showing zero.
+  Full book at the demo anchor: open 427 · exhausted 94 · unknown 5.
+  5 new tests in `tests/test_aggregate.py`; 122 passing.
+
+- **2026-08-20 (OpenRouter only)** — Q19 applied. Generation consolidated onto
+  OpenRouter / `google/gemini-3.7-flash`, pinned to the `google-vertex/global`
+  endpoint tag via OpenRouter provider routing (`extra_body={"provider": {...}}`,
+  configurable as `NN_LLM_PROVIDER_ONLY`). The dead AgentRouter and AvalAI
+  profiles were deleted along with their key fields. Embeddings gained a second
+  backend: `NN_EMBED_BACKEND=openrouter|ollama`, defaulting to `openrouter` on
+  `baai/bge-m3` — the same model as the local Ollama default, at the same 1024
+  dims, so §1.9's benchmark still holds. `OllamaEmbeddings` and the new
+  `OpenRouterEmbeddings` now share a `BaseEmbeddings` that owns normalisation,
+  the disk cache (keyed on backend **and** model) and batching.
+  Verified live: pinned structured call returns `source="live"`; a deliberately
+  wrong pin returns 404 rather than silently routing elsewhere; OpenRouter
+  embeddings return 1024-dim vectors for Persian; 117/117 tests still pass.
+  **The retired `google/gemini-2.0-flash-001` default is gone** — it no longer
+  resolves on OpenRouter.
 
 - **2026-08-19 (build)** — **Phases 0, 1a, 1b, 1c and 1d implemented and green.**
   `nafisnakh/` package: 7 metric tables, 22 detectors, complaint LLM block with the
