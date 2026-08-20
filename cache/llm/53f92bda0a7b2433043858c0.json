@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "نوسان نمره نخ در محدوده مجاز (CV بین ۱.۸ تا ۲.۶) بوده و خارج از رنج استاندارد نمی‌باشد.",
+  "remedy_type": "اصلاح فرآیند تولید",
+  "systemic_fix": true,
+  "escalation_body_fa": "هیچ",
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "بررسی آزمایشگاهی نشان داد نمره نخ در محدوده مجاز بوده و مقرر گردید جهت کنترل دقیق‌تر، نمونه‌های بیشتری به آزمایشگاه ارسال شود."
+}

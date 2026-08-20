@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نفیس‌نخ",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "اصلاح انبار و چیدمان",
+  "systemic_fix": true,
+  "escalation_body_fa": "هیچ",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "وجود نقص در پالت در زمان بارگیری تأیید شد و اقدام اصلاحی جهت بازبینی دقیق پیش از ارسال برای واحد انبار و بسته‌بندی صادر گردید."
+}

@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "بدون اقدام",
+  "systemic_fix": false,
+  "escalation_body_fa": "هیچ",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "نخ درجه C مشمول خدمات پس از فروش نبوده و مشکل آن با روگیری برطرف می‌شود."
+}

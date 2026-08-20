@@ -130,6 +130,7 @@ class MetricContext:
         **provenance,
     ) -> Evidence:
         prov = {"formula": formula, **provenance}
+        locator = getattr(source_rows, "locator", None)
         if assumption:
             prov["assumption"] = True
             prov.setdefault(
@@ -147,26 +148,94 @@ class MetricContext:
             source_rows=source_rows,
             provenance=prov,
             confidence=confidence,
+            locator=locator,
         )
 
 
 # ------------------------------------------------------------------ helpers
-def rows_ref(sheet: str, ids: Iterable, limit: int = 4) -> str:
-    """A compact, traceable row reference: ``فروش:SL-1,SL-2,SL-3 +48``."""
+class RowRef(str):
+    """The display string, carrying the machine-resolvable locator with it.
+
+    Subclassing ``str`` means every existing ``source_rows=rows_ref(...)`` call
+    site keeps working unchanged and the rendered text is identical, while
+    :meth:`MetricContext.emit` can lift ``.locator`` off it. The two can never
+    drift because the string is *derived from* the locator, not written beside it.
+    """
+
+    locator: dict
+
+    def __new__(cls, text: str, locator: dict):
+        obj = super().__new__(cls, text)
+        obj.locator = locator
+        return obj
+
+
+def rows_ref(sheet: str, ids: Iterable, limit: int = 4, *, key: str | None = None) -> RowRef:
+    """A traceable row reference: ``فروش:SL-1,SL-2,SL-3 +48``.
+
+    ``key`` names the column ``ids`` are values of. It is required in practice —
+    the same sheet is referenced by row id in one place and by ``Customer_ID`` in
+    another, and only the caller knows which — but defaults per sheet so the
+    common case stays short.
+    """
     ids = [str(i) for i in ids if pd.notna(i)]
+    key = key or DEFAULT_KEY.get(sheet, S.CUSTOMER_ID)
+    locator = {"kind": "ids", "sheet": sheet, "key": key, "values": ids}
     if not ids:
-        return f"{sheet}:—"
+        return RowRef(f"{sheet}:—", locator)
     head = ",".join(ids[:limit])
     extra = f" +{len(ids) - limit}" if len(ids) > limit else ""
-    return f"{sheet}:{head}{extra}"
+    return RowRef(f"{sheet}:{head}{extra}", locator)
 
 
-def span_ref(sheet: str, customer_id: str, window: tuple[date, date], n_rows: int) -> str:
-    """Row reference for an aggregate over a window rather than named rows."""
-    return (
+def span_ref(
+    sheet: str, customer_id: str, window: tuple[date, date], n_rows: int,
+    *, date_column: str | None = None,
+) -> RowRef:
+    """Reference for an aggregate over a window rather than named rows.
+
+    The locator stores the *slice* (customer + date range) instead of a
+    materialised id list. It resolves to exactly the rows the number was computed
+    from, without carrying hundreds of ids in every evidence record — 3,042 of
+    the 7,851 evidence at the demo anchor are of this shape.
+    """
+    return RowRef(
         f"{sheet}:{customer_id}@{window[0].isoformat()}..{window[1].isoformat()}"
-        f" ({n_rows} ردیف)"
+        f" ({n_rows} ردیف)",
+        {
+            "kind": "filter", "sheet": sheet,
+            "filters": {S.CUSTOMER_ID: customer_id},
+            "date_column": date_column or DEFAULT_DATE_COLUMN.get(sheet),
+            "date_from": window[0].isoformat(),
+            "date_to": window[1].isoformat(),
+        },
     )
+
+
+# Which column an id list refers to, per sheet, when the caller does not say.
+DEFAULT_KEY = {
+    S.S_SALES: S.SALES_LINE_ID,
+    S.S_INVOICES: S.INVOICE_NO,
+    S.S_COLLECTIONS: S.INVOICE_NO,
+    S.S_COMPLAINTS: S.K_ID,
+    S.S_COMPLAINT_LINK: S.K_ID,
+    S.S_CRM: S.X_ID,
+    S.S_DEV_REQUESTS: S.D_ID,
+    S.S_OFFERS: S.O_ID,
+    S.S_WALLET: S.CUSTOMER_ID,
+    S.S_HEMBAFT_LOT: S.HEMBAFT_ID,
+    S.S_COST_REAL: S.SALES_LINE_ID,
+    S.S_LOT_QUALITY: S.SALES_LINE_ID,
+}
+
+DEFAULT_DATE_COLUMN = {
+    S.S_SALES: S.F_DATE,
+    S.S_INVOICES: S.I_DATE,
+    S.S_OFFERS: S.O_DATE,
+    S.S_CRM: S.X_EVENT_TIME,
+    S.S_COMPLAINTS: S.K_CREATED_AT,
+    S.S_DEV_REQUESTS: S.D_CREATED_AT,
+}
 
 
 def days_since(as_of, series: pd.Series) -> pd.Series:
@@ -206,13 +275,14 @@ def money(x: float | None, settings: Settings) -> str:
 # consumes economics.
 BUILD_ORDER = [
     "cadence", "payment", "quality", "engagement", "mix", "economics", "wallet",
+    "rfm", "open_loops",
 ]
 
 
 def build_metrics(ctx: MetricContext, only: list[str] | None = None) -> MetricContext:
     """Run the metric builders in dependency order."""
     from . import (  # noqa: F401  — imported for side-effect registration
-        cadence, economics, engagement, mix, payment, quality, wallet,
+        cadence, economics, engagement, mix, open_loops, payment, quality, rfm, wallet,
     )
 
     missing = set(_REGISTRY) - set(BUILD_ORDER)

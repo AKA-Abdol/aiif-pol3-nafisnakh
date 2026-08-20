@@ -268,8 +268,8 @@ def test_graph_compiles_with_every_stage(ds):
     graph = build_graph()
     assert graph is not None
     assert [n for n, _ in NODES] == [
-        "load", "metrics", "complaint_llm", "feedback", "detect", "quadrant",
-        "relationship", "aggregate",
+        "load", "metrics", "complaint_llm", "resolution_llm", "feedback",
+        "detect", "quadrant", "relationship", "aggregate",
     ]
 
 
@@ -381,3 +381,34 @@ def test_fixture_actions_all_validate(fixture_state):
     assert queue.dropped == []
     for a in queue.actions:
         assert validate_action(a, ctx.evidence).ok, a.customer_id
+
+
+def test_open_investigation_gate_rewrites_the_step(ds):
+    """A meeting proposed over an unclosed complaint file is not a step.
+
+    FIX-005 carries a complaint still waiting on a sample; its action must say to
+    close that file first, and must cite the evidence carrying the day count.
+    """
+    from nafisnakh.eval.fixture import run_fixture
+
+    state = run_fixture()
+    action = next(a for a in state["queue"].actions if a.customer_id == "FIX-005")
+    assert action.detail["open_investigation"] == "pending"
+    assert "پرونده" in action.recommended_step_fa
+    assert any("resolution-pending" in e for e in action.evidence_ids)
+
+
+def test_relationship_stance_is_recorded_on_every_action(ds):
+    from nafisnakh.eval.fixture import run_fixture
+
+    allowed = {"apologise", "unsubstantiated", "mixed", "neutral"}
+    for a in run_fixture()["queue"].actions:
+        assert a.detail["relationship_stance"] in allowed
+
+
+def test_fixture_complaint_ids_are_citations_not_numbers():
+    """`CMPFIX-007` must not be read as the number 007."""
+    from nafisnakh.aggregate.validate import strip_identifiers
+
+    assert "007" not in strip_identifiers("پروندهٔ CMPFIX-007 باز است")
+    assert "0021" not in strip_identifiers("شکایت CMP-0021 بررسی شد")

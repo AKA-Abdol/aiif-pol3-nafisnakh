@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "investigation_state": "منتظر نمونه یا آزمون",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "نامشخص",
+  "systemic_fix": false,
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "escalation_body_fa": "هیچ",
+  "summary_fa": "مقرر شد دو دوک نمونه جهت بررسی ارسال شود و به دلیل اعلام مشتری مبنی بر حاد نبودن مشکل، بازدید حضوری منتفی شد."
+}

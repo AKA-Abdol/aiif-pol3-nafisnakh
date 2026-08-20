@@ -270,3 +270,69 @@ class DevRequestStalled(BaseDetector):
                 age_days=float(r.dev_request_oldest_open_days),
             ))
         return out
+
+
+@register
+class UnsubstantiatedComplaintLoad(BaseDetector):
+    """#23 — investigations that came back "not our fault", and what they cost.
+
+    Every complaint costs a visit, a sample and a lab test whether or not a defect
+    is found. A customer whose files keep closing with *«مغایرتی که ادعای مشتری را
+    تأیید کند مشاهده نشد»* is consuming quality-department capacity without a
+    quality problem existing — real cost-to-serve against zero defect.
+
+    This is deliberately **not** a risk signal. The customer is not misbehaving and
+    nothing is deteriorating; it is an efficiency fact, and it belongs in the
+    conversation as a negotiation input, never as an accusation. The recommended
+    handling is to price it in, not to confront.
+
+    Reads ``llm_resolutions`` directly rather than a metric column, for the same
+    reason detector #16 reads ``llm_complaints``: the block runs after the metric
+    layer is built.
+    """
+
+    name = "unsubstantiated_complaint_load"
+    category = "efficiency"
+    requires = ["quality", "economics"]
+
+    def _states(self, ctx: MetricContext) -> dict[str, dict]:
+        from ...llm.blocks.resolution import customer_state
+
+        table = ctx.tables.get("llm_resolutions")
+        if table is None or not len(table):
+            return {}
+        return {
+            cid: customer_state(ctx, cid)
+            for cid in table.index.unique()
+            if cid in set(ctx.population)
+        }
+
+    def eligible(self, ctx: MetricContext) -> pd.Index:
+        return pd.Index(sorted(self._states(ctx))).intersection(ctx.population)
+
+    def detect(self, ctx: MetricContext) -> list[Signal]:
+        st = ctx.settings
+        econ = ctx.table("economics")
+        out = []
+        for cid, info in self._states(ctx).items():
+            n = int(info["fault_not_ours"])
+            if n < st.unsubstantiated_min_complaints:
+                continue
+            # cost-to-serve for n complaint investigations, in the same scale-free
+            # unit economics.py uses (Q12 is still open, so this is an assumption)
+            unit = float(econ.loc[cid, "cost_to_serve_unit"]) if cid in econ.index else 0.0
+            cost = unit * st.cost_to_serve_complaint_invoices * n
+            out.append(self.signal(
+                ctx, cid,
+                severity=scale(n, st.unsubstantiated_min_complaints, 6.0),
+                direction="static",
+                headline_fa=(
+                    f"{num(n)} شکایت این مشتری بررسی شد و قصور متوجه نفیس نخ نبود؛ "
+                    "هزینه بررسی بدون وجود عیب پرداخت شده است."
+                ),
+                evidence_ids=ctx.ev(cid, "resolution-unsubstantiated", "complaints"),
+                value_at_stake=cost,
+                unsubstantiated=n,
+                fault_ours=int(info["fault_ours"]),
+            ))
+        return out

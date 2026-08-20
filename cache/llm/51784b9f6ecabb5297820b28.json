@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نفیس‌نخ",
+  "investigation_state": "بسته",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "اصلاح فرآیند تولید",
+  "systemic_fix": false,
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "escalation_body_fa": "هیچ",
+  "summary_fa": "خطای تنظیمات در یکی از وایندرهای خط تولید شناسایی و اصلاح شد و مشکل مشتری رفع گردید."
+}

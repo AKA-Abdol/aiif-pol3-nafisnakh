@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نفیس‌نخ",
+  "investigation_state": "بسته",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "اصلاح فرآیند تولید",
+  "systemic_fix": true,
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "escalation_body_fa": "جلسه خدمات مشتری",
+  "summary_fa": "تأیید افزایش پارگی فیلامنت در زمان تولید و تصویب دستورالعمل عدم ارسال محصولات تولیدشده در شرایط بحران خط تولید به مشتریان و مصرف داخلی آنها."
+}

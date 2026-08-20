@@ -60,10 +60,19 @@ class Evidence:
     source_rows: str
     provenance: dict[str, Any] = field(default_factory=dict)
     confidence: float = 1.0
+    # Machine-resolvable pointer to the rows behind this claim. `source_rows` is
+    # the human-readable rendering of the same thing and is derived from it, so
+    # the two cannot drift. See :func:`resolve` — an action shown to a customer
+    # has to be openable down to the records it rests on.
+    locator: dict[str, Any] | None = None
 
     # numbers that legitimately appear in this evidence's own text
     def numerals(self) -> set[str]:
         return extract_numerals(str(self.value)) | extract_numerals(self.claim_fa)
+
+    @property
+    def is_resolvable(self) -> bool:
+        return bool(self.locator) and self.locator.get("kind") in ("ids", "filter")
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -108,6 +117,7 @@ class EvidenceRegistry:
         source_rows: str = "",
         provenance: dict[str, Any] | None = None,
         confidence: float = 1.0,
+        locator: dict[str, Any] | None = None,
     ) -> Evidence:
         ev = Evidence(
             id=self.next_id(customer_id, slug),
@@ -118,9 +128,14 @@ class EvidenceRegistry:
             unit=unit,
             as_of=as_of,
             window=window,
-            source_rows=source_rows,
+            # store a plain str: RowRef is a carrier for the trip into here, and
+            # keeping the subclass on a frozen dataclass breaks asdict()/deepcopy
+            source_rows=str(source_rows),
             provenance=provenance or {},
             confidence=confidence,
+            # `source_rows` may be a RowRef carrying its own locator; an explicit
+            # argument wins so a caller can always be specific.
+            locator=locator or getattr(source_rows, "locator", None),
         )
         self._by_id[ev.id] = ev
         self._by_customer.setdefault(customer_id, []).append(ev.id)
@@ -183,6 +198,7 @@ class EvidenceRegistry:
                     source_rows=r.get("source_rows", ""),
                     provenance=r.get("provenance", {}),
                     confidence=r.get("confidence", 1.0),
+                    locator=r.get("locator"),
                 )
             ])
         return reg
@@ -196,3 +212,77 @@ def fmt_num(value: float, digits: int = 1) -> str:
     if float(value).is_integer() and abs(value) < 1e15:
         return str(int(value))
     return f"{value:.{digits}f}"
+
+
+# ------------------------------------------------------------------- resolving
+# The natural event date per sheet. Not used for gating — `Available_At` already
+# does that — but the regression test uses it to prove no drill-down ever returns
+# a row dated after the claim's `as_of`.
+SHEET_DATE_COLUMN = {
+    "فروش": "تاریخ",
+    "فاکتورها": "تاریخ",
+    "وصول": "تاریخ رویداد وصول",
+    "شکایات": "Created_At",
+    "تعاملات_CRM": "Event_Time",
+    "درخواست_توسعه": "Created_At",
+    "آفرها": "Offer_Date",
+}
+def resolve(evidence: Evidence, dataset) -> "Any":
+    """The actual rows behind one Evidence, as a DataFrame.
+
+    Two locator kinds, because evidence comes in two shapes:
+
+    * ``ids``    — this claim is about these specific records
+      (``{"kind": "ids", "sheet": ..., "key": ..., "values": [...]}``).
+    * ``filter`` — this claim is an aggregate over a slice
+      (``{"kind": "filter", "sheet": ..., "filters": {...},
+      "date_column": ..., "date_from": ..., "date_to": ...}``). Storing the slice
+      rather than a materialised id list keeps the evidence small while still
+      returning exactly the rows the number was computed from.
+
+    Both return real rows from the workbook, which is the point: a
+    recommendation shown to a customer has to be openable down to its records.
+    """
+    import pandas as pd
+
+    from .spine import visible
+
+    loc = evidence.locator
+    if not loc:
+        raise ValueError(f"{evidence.id} has no locator; it cannot be resolved")
+    sheet = loc.get("sheet")
+    if sheet not in dataset.frames:
+        raise KeyError(f"{evidence.id} points at unknown sheet {sheet!r}")
+
+    # Rule #4 applies to the drill-down exactly as it applied to the calculation.
+    # Without it the resolver shows rows dated after `as_of` — records the claim
+    # could not have come from, presented to a customer as its justification.
+    #
+    # `Available_At` alone is the right gate, and it is sufficient: measured
+    # across all seven dated sheets it leaves **zero** rows dated after `as_of`.
+    # Cutting on the event date as well was *stricter than the metric layer* and
+    # emptied a valid DSO locator whose collection events are visible but late.
+    df = visible(dataset.frames[sheet], evidence.as_of)
+
+    if loc["kind"] == "ids":
+        key, values = loc["key"], loc.get("values") or []
+        if key not in df.columns:
+            raise KeyError(f"{evidence.id}: {sheet!r} has no column {key!r}")
+        return df.loc[df[key].isin(values)]
+
+    if loc["kind"] == "filter":
+        mask = pd.Series(True, index=df.index)
+        for col, val in (loc.get("filters") or {}).items():
+            if col not in df.columns:
+                raise KeyError(f"{evidence.id}: {sheet!r} has no column {col!r}")
+            mask &= df[col] == val
+        date_col = loc.get("date_column")
+        if date_col and date_col in df.columns:
+            stamps = pd.to_datetime(df[date_col], errors="coerce")
+            if loc.get("date_from"):
+                mask &= stamps > pd.Timestamp(loc["date_from"])
+            if loc.get("date_to"):
+                mask &= stamps <= pd.Timestamp(loc["date_to"])
+        return df.loc[mask]
+
+    raise ValueError(f"{evidence.id}: unknown locator kind {loc['kind']!r}")

@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "مشتری",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "روغن‌زنی نایکنواخت در پروسه تکسچره و تابندگی مشتری که موجب ایجاد دورنگی در محصول شده بود",
+  "remedy_type": "ابلاغ و آموزش",
+  "systemic_fix": false,
+  "escalation_body_fa": "بازدید میدانی",
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "بررسی میدانی نشان داد مشکل ناشی از روغن‌زنی نایکنواخت در فرآیند تولید مشتری بوده که با ارائه مشاوره و حذف این فرآیند، مشکل برطرف شد."
+}

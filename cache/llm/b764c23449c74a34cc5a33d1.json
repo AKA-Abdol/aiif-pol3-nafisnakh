@@ -1,0 +1,15 @@
+{
+  "title_fa": "رسیدگی فوری فنی به شکایت باز آسیب فیلامنت و پیشگیری از ریزش",
+  "rationale_fa": "مشتری صراحتاً اعلام کرده در صورت تکرار قطع همکاری می‌کند [EV-FIX-001-llm-churn-001] و ۱ شکایت باز ۲۰۰ روزه [EV-FIX-001-complaint-age-001] و تکراری [EV-FIX-001-complaint-repeat-001] در خصوص آسیب فیلامنت دارد [EV-FIX-001-llm-mechanism-001]. این موضوع در کنار فاصله ۴۰ روزه از آخرین خرید [EV-FIX-001-cadence-last-001] و افت حجم خرید ماهانه به میزان -27.3 درصد [EV-FIX-001-volume-001] رابطه را بحرانی کرده است [EV-FIX-001-relationship-001].",
+  "recommended_step_fa": "هماهنگی و اعزام کارشناس فنی جهت بازدید حضوری از خط مشتری، تعیین تکلیف قطعی شکایت ۲۰۰ روزه آسیب فیلامنت و ارائه گزارش اصلاحی به مشتری.",
+  "owner": "مدیر خدمات فنی و فروش",
+  "evidence_ids": [
+    "EV-FIX-001-llm-churn-001",
+    "EV-FIX-001-complaint-age-001",
+    "EV-FIX-001-complaint-repeat-001",
+    "EV-FIX-001-llm-mechanism-001",
+    "EV-FIX-001-cadence-last-001",
+    "EV-FIX-001-volume-001",
+    "EV-FIX-001-relationship-001"
+  ]
+}

@@ -57,7 +57,21 @@ def build(ctx: MetricContext) -> pd.DataFrame:
     )
     comp["_resolved"] = pd.to_datetime(comp[S.K_RESOLVED_AT], errors="coerce")
     comp["_created"] = pd.to_datetime(comp[S.K_CREATED_AT], errors="coerce")
-    comp["_open"] = comp["_resolved"].isna() | (comp["_resolved"] > as_of)
+    # A complaint is closed for us only once the resolution is *knowable*
+    # (rule #4), not on the day it happened to be resolved. The two stamps sit
+    # one day apart for every row in this file, so this changes nothing at the
+    # demo anchor — but a feature that reads the wrong stamp is wrong at every
+    # other anchor, and this one decides `unresolved_aging`.
+    comp["_res_available"] = pd.to_datetime(
+        comp[S.K_RESOLUTION_AVAILABLE_AT], errors="coerce"
+    )
+    comp["_closed_for_us"] = (
+        comp["_resolved"].notna()
+        & (comp["_resolved"] <= as_of)
+        & comp["_res_available"].notna()
+        & (comp["_res_available"] <= as_of)
+    )
+    comp["_open"] = ~comp["_closed_for_us"]
     comp["_age_days"] = np.where(
         comp["_open"], (as_of - comp["_created"]).dt.days,
         (comp["_resolved"] - comp["_created"]).dt.days,
@@ -146,6 +160,15 @@ def build(ctx: MetricContext) -> pd.DataFrame:
         .reindex(index).apply(lambda v: v if isinstance(v, list) else [])
     )
 
+    # ---- `ردشده` split out from "resolved" (PLAN §2, proposal 4).
+    # A rejected complaint carries a Resolved_At like any other, but it means we
+    # told the customer they were wrong. That is the highest-tension state a
+    # relationship can be in, and counting it as a happy closure hides it.
+    df["complaints_rejected"] = (
+        comp.loc[comp[S.K_STATUS] == "ردشده"].groupby(S.CUSTOMER_ID)[S.K_ID]
+        .count().reindex(index).fillna(0.0)
+    )
+
     window = (ctx.spine.lines[S.F_DATE].min().date(), ctx.as_of)
     comp_ids = g[S.K_ID].apply(list)
     rec_ids = rec.groupby(S.CUSTOMER_ID)[S.K_ID].apply(list)
@@ -186,7 +209,7 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 f"نرخ برگشتی {pct(r.return_rate, 2)} درصد وزن ارسالی است "
                 f"({money(r.returns_value, st)} ریال).",
                 float(r.return_rate), unit="درصد", window=window,
-                source_rows=rows_ref(S.S_COST_REAL, [cid]),
+                source_rows=rows_ref(S.S_SALES, [cid], key=S.CUSTOMER_ID),
                 formula="Σ مقدار برگشتی / Σ مقدار",
             )
         if r.hembaft_at_risk_lines > 0:

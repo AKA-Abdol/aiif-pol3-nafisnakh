@@ -29,7 +29,7 @@ import numpy as np
 import pandas as pd
 
 from ..io import schema as S
-from ..metrics.base import MetricContext, money, num, pct
+from ..metrics.base import MetricContext, money, num, pct, rows_ref
 
 Bucket = Literal["grow", "protect", "fix", "reduce"]
 
@@ -127,7 +127,7 @@ def assign_quadrants(ctx: MetricContext) -> QuadrantResult:
             cid, "bucket",
             f"دسته‌بندی: {BUCKET_LABEL_FA[r.bucket]} — {reason}",
             r.bucket, unit=None, kind="comparison", window=window,
-            source_rows=f"{S.S_SALES}:{cid}",
+            source_rows=rows_ref(S.S_SALES, [cid], key=S.CUSTOMER_ID),
             formula=("risk_adj_margin_rate > 0 × (capacity_gap_ratio < "
                      f"{headroom_threshold} | revenue ≥ median)"),
             assumption=True, confidence=0.6,

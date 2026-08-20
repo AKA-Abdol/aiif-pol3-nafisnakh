@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "حمل‌ونقل",
+  "investigation_state": "بسته",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "نامشخص",
+  "systemic_fix": false,
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "escalation_body_fa": "هیچ",
+  "summary_fa": "به دلیل تعهد باربری در حمل، پیگیری موضوع از طریق انبار، بیمه و اخذ چک تضمین از شرکت باربری انجام شد."
+}

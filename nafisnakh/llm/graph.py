@@ -26,6 +26,7 @@ from ..metrics.base import MetricContext, build_metrics, make_context
 from ..signals.engine import CalibrationReport, SignalRun, calibrate, run_detectors
 from ..feedback import FeedbackStore, detector_weights
 from .blocks.complaint import attach_to_context
+from .blocks.resolution import attach_to_context as attach_resolution
 from .blocks.relationship import attach_to_context as attach_relationship
 
 log = logging.getLogger(__name__)
@@ -77,6 +78,22 @@ def node_complaint_llm(state: PipelineState) -> PipelineState:
     return {"ctx": state["ctx"]}
 
 
+def node_resolution_llm(state: PipelineState) -> PipelineState:
+    """What the investigation concluded — templates for Universe A, model for B.
+
+    Separate from ``complaint_llm`` because it reads a different column, is gated
+    on a different stamp (``Resolution_Available_At``), and is mostly free: the
+    Universe-A templates carry the majority of rows without a model call.
+    """
+    opts = state.get("options", {})
+    if opts.get("skip_llm"):
+        state["ctx"].tables.setdefault("llm_resolutions", None)
+        log.info("resolution block skipped by option")
+        return {"ctx": state["ctx"]}
+    attach_resolution(state["ctx"], allow_rules=opts.get("allow_rules", True))
+    return {"ctx": state["ctx"]}
+
+
 def node_feedback(state: PipelineState) -> PipelineState:
     """Load the sales manager's verdicts and turn them into ranking weights.
 
@@ -125,6 +142,7 @@ NODES = [
     ("load", node_load),
     ("metrics", node_metrics),
     ("complaint_llm", node_complaint_llm),
+    ("resolution_llm", node_resolution_llm),
     ("feedback", node_feedback),
     ("detect", node_detect),
     ("quadrant", node_quadrant),

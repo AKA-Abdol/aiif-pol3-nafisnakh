@@ -31,6 +31,7 @@ from pydantic import BaseModel, Field
 
 from ...config import Settings, get_settings
 from ...io import schema as S
+from ...metrics.base import rows_ref
 from ..client import LLMClient, LLMUnavailable, get_client
 from ..taxonomy import mechanism_label
 
@@ -296,7 +297,7 @@ def attach_to_context(
             f"{r.summary_fa}",
             r.health, unit=None, kind="text",
             window=(ctx.as_of, ctx.as_of),
-            source_rows=f"{S.S_CRM}:{cid}",
+            source_rows=rows_ref(S.S_CRM, [cid], key=S.CUSTOMER_ID),
             formula=f"relationship synthesis ({result.source})",
             confidence=min(conf, float(r.health_confidence or conf)),
             synthesis_source=result.source,

@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "مشتری",
+  "investigation_state": "بسته",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "ایجاد دورنگی به دلیل فرآیند روغن‌زنی نایکنواخت در خط تولید مشتری",
+  "remedy_type": "ابلاغ و آموزش",
+  "systemic_fix": false,
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "escalation_body_fa": "بازدید میدانی",
+  "summary_fa": "در بازدید میدانی مشخص شد مشکل از روغن‌زنی نایکنواخت در پروسه تولید مشتری بوده که با ارائه مشاوره و حذف روغن‌زنی برطرف شد."
+}

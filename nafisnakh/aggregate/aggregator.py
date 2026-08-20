@@ -37,6 +37,7 @@ from ..llm.client import LLMClient, LLMUnavailable, get_client
 from ..metrics.base import MetricContext
 from ..signals.base import Signal
 from ..signals.engine import SignalRun, priority_score
+from ..llm.blocks.resolution import RELATIONSHIP_STANCE_FA
 from .quadrant import BUCKET_LABEL_FA, BUCKET_MEANING_FA, QuadrantResult
 from .validate import ValidationResult, validate_action
 
@@ -141,6 +142,8 @@ USER_TEMPLATE = """مشتری: {customer_id}
 دسته‌بندی: {bucket_label} — {bucket_meaning}
 دلیل دسته‌بندی: {bucket_reason}
 وضعیت اعتباری: {credit_note}
+سابقه رسیدگی به شکایات: {stance_note}
+پرونده باز: {investigation_note}
 
 سیگنال‌های فعال‌شده (به ترتیب اهمیت):
 {signal_block}
@@ -180,6 +183,34 @@ CREDIT_BLOCKED_STEP_FA = {
         "پیش از تمدید سفارش‌های جاری، وضعیت سقف اعتبار با واحد مالی تعیین تکلیف شود."
     ),
 }
+
+
+# ------------------------------------------------- the open-investigation gate
+# Same shape as the credit gate, and for the same reason: a step the customer
+# cannot act on is not a step. Meeting a customer while their own complaint file
+# sits waiting on a sample we never chased wastes the meeting and damages the
+# relationship — the file has to be closed first, then the meeting happens.
+INVESTIGATION_NOTE_FA = {
+    "pending": (
+        "پروندهٔ شکایت این مشتری هنوز باز است و منتظر نمونه یا آزمون تکمیلی مانده؛ "
+        "هر جلسه یا پیشنهادی باید *بعد از* تعیین تکلیف آن پرونده انجام شود."
+    ),
+    "clear": "پروندهٔ شکایت بازی که مانع گفتگو باشد وجود ندارد.",
+}
+
+INVESTIGATION_BLOCKED_STEP_FA = (
+    "ابتدا پروندهٔ شکایت {ids} که {days} روز منتظر نمونه یا آزمون تکمیلی مانده با "
+    "کنترل کیفیت تعیین تکلیف شود؛ جلسه یا پیشنهاد بعدی پس از بستن آن پرونده."
+)
+
+
+def investigation_state(ctx: MetricContext, customer_id: str) -> dict:
+    """``pending``/``clear`` plus the ids and age driving it."""
+    from ..llm.blocks.resolution import customer_state
+
+    info = customer_state(ctx, customer_id)
+    info["state"] = "pending" if info["pending"] else "clear"
+    return info
 
 
 def credit_state(ctx: MetricContext, customer_id: str) -> str:
@@ -234,6 +265,7 @@ def _signal_block(signals: list[Signal]) -> str:
 def compose_offline(
     customer_id: str, signals: list[Signal], registry: EvidenceRegistry,
     bucket: str, bucket_reason: str, credit: str = "unknown",
+    investigation: dict | None = None,
 ) -> ActionDraft:
     """Deterministic Persian composer used when no model is available.
 
@@ -265,6 +297,21 @@ def compose_offline(
     if credit == "exhausted" and bucket in CREDIT_BLOCKED_STEP_FA:
         step = CREDIT_BLOCKED_STEP_FA[bucket]
         owner = "واحد مالی و مدیر فروش"
+    # An open investigation outranks the credit gate: credit decides whether the
+    # customer *may* buy more, the open file decides whether the conversation can
+    # usefully happen at all.
+    if investigation and investigation.get("state") == "pending":
+        step = INVESTIGATION_BLOCKED_STEP_FA.format(
+            ids="، ".join(investigation["pending_ids"][:3]),
+            days=investigation.get("oldest_pending_days") or 0,
+        )
+        owner = "کنترل کیفیت و مدیر فروش"
+        # the day count in that sentence comes from the pending evidence, so the
+        # evidence has to be declared or the validator will (correctly) drop it
+        for eid in investigation.get("pending_evidence_ids", []):
+            if eid not in seen:
+                seen.add(eid)
+                ordered.append(eid)
 
     title = TITLE_BY_DETECTOR.get(top.detector, top.detector)
     return ActionDraft(
@@ -371,18 +418,21 @@ def build_actions(
         )
         available_ids = [e.id for e in ctx.evidence.for_customer(cid)]
         credit = credit_state(ctx, cid)
+        investigation = investigation_state(ctx, cid)
         user = USER_TEMPLATE.format(
             customer_id=cid,
             bucket_label=BUCKET_LABEL_FA[bucket],
             bucket_meaning=BUCKET_MEANING_FA[bucket],
             bucket_reason=bucket_reason,
             credit_note=CREDIT_NOTE_FA[credit],
+            investigation_note=INVESTIGATION_NOTE_FA[investigation["state"]],
+            stance_note=RELATIONSHIP_STANCE_FA[investigation["stance"]],
             signal_block=_signal_block(signals),
             evidence_block=_evidence_block(ctx.evidence, available_ids),
         )
         fallback = (
             (lambda: compose_offline(cid, signals, ctx.evidence, bucket,
-                                     bucket_reason, credit))
+                                     bucket_reason, credit, investigation))
             if allow_offline else None
         )
 
@@ -400,7 +450,7 @@ def build_actions(
                 break
             draft, source = llm_result.value, llm_result.source
             candidate = _to_action(cid, rank, draft, bucket, signals, thresholds, st,
-                                   source, weights, credit)
+                                   source, weights, credit, investigation)
             result = validate_action(candidate, ctx.evidence)
             if result.ok:
                 actions.append(candidate)
@@ -432,6 +482,7 @@ def _to_action(
     cid: str, rank: int, draft: ActionDraft, bucket: str, signals: list[Signal],
     thresholds, settings: Settings, source: str,
     weights: dict[str, float] | None = None, credit: str = "unknown",
+    investigation: dict | None = None,
 ) -> Action:
     score = max(priority_score(s, settings, weights) for s in signals)
     return Action(
@@ -447,5 +498,10 @@ def _to_action(
         signals=[s.detector for s in signals],
         value_at_stake=float(max(s.value_at_stake for s in signals)),
         source=source,
-        detail={"priority_score": round(score, 2), "credit_room": credit},
+        detail={
+            "priority_score": round(score, 2),
+            "credit_room": credit,
+            "open_investigation": (investigation or {}).get("state", "clear"),
+            "relationship_stance": (investigation or {}).get("stance", "neutral"),
+        },
     )

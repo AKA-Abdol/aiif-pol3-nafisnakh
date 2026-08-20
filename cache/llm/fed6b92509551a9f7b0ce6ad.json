@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "investigation_state": "بسته",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "نوسان نمره در محدوده مجاز بوده و CV نمره در بازه ۱.۸ تا ۲.۶ قرار دارد",
+  "remedy_type": "اصلاح فرآیند تولید",
+  "systemic_fix": true,
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "escalation_body_fa": "هیچ",
+  "summary_fa": "بررسی نتایج آزمایشگاهی نشان داد نوسان نمره در محدوده مجاز است و مقرر شد جهت کنترل دقیق‌تر نمونه‌های بیشتری به آزمایشگاه ارسال گردد."
+}

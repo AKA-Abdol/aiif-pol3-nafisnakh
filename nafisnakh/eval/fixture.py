@@ -3,7 +3,7 @@
 Per Q6: *«یک نمونه طلایی هم برای تست آماده کنی»*. A small, fixed, composed sample
 that exercises **every block end-to-end** — loader → metrics → detectors →
 complaint block → quadrant → aggregator → validator — and, per §6, fires **all
-22 detectors at least once**, without depending on which universe a real
+27 detectors at least once**, without depending on which universe a real
 customer happens to fall in.
 
 It is a **test fixture, not a claim about reality.** Every row carries
@@ -26,7 +26,7 @@ import pandas as pd
 from ..config import Settings, get_settings
 from ..io import schema as S
 from ..io.loader import Dataset
-from ..io.normalize import parse_date_any
+from ..io.normalize import normalize_fa, parse_date_any
 
 FIXTURE_AS_OF = date(2021, 6, 30)
 FIXTURE_FLAG = "is_fixture"
@@ -50,9 +50,9 @@ F05 = "Product_Family_05"
 FIXTURE_CUSTOMERS: dict[str, tuple[str, int, int, str]] = {
     "FIX-001": ("B", 5_000_000, 30, "protect · churn threat in prose · complaint recurrence · unresolved aging"),
     "FIX-002": ("A", 4_000_000, 60, "fix · negative risk-adjusted margin at real volume"),
-    "FIX-003": ("B", 800_000, 0, "reduce · margin below peer cohort"),
+    "FIX-003": ("B", 800_000, 0, "reduce · margin below peer cohort · two unsubstantiated complaints (#23)"),
     "FIX-004": ("B", 3_000_000, 30, "grow · wallet headroom · cross-sell gap"),
-    "FIX-005": ("B", 6_000_000, 90, "blast radius · the complainant on the shared همبافت"),
+    "FIX-005": ("B", 6_000_000, 90, "blast radius · the complainant on the shared همبافت · open investigation awaiting a sample"),
     "FIX-006": ("B", 2_000_000, 30, "blast radius · exposed, has not complained"),
     "FIX-007": ("B", 1_500_000, 0, "blast radius · exposed, has not complained"),
     "FIX-008": ("B", 2_500_000, 45, "same-day repeat buyer · median gap 0"),
@@ -64,6 +64,11 @@ FIXTURE_CUSTOMERS: dict[str, tuple[str, int, int, str]] = {
     "FIX-014": ("A", 3_000_000, 30, "discount without return"),
     "FIX-015": ("B", 3_000_000, 30, "DSO slippage against own baseline"),
     "FIX-016": ("A", 3_000_000, 30, "return-rate spike · stalled development request"),
+    # ---- open loops (#24–#27): things *we* left unfinished
+    "FIX-017": ("B", 3_000_000, 30, "approved sample never turned into an offer (#24)"),
+    "FIX-018": ("B", 3_000_000, 30, "technically rejected, never communicated (#25)"),
+    "FIX-019": ("B", 3_000_000, 30, "a written next action left undone (#26)"),
+    "FIX-020": ("B", 3_000_000, 30, "offers abandoned past their own validity (#27)"),
 }
 
 
@@ -199,6 +204,16 @@ def _build_sales() -> pd.DataFrame:
     b.add("FIX-016", _series(300, 10, 25), qty=500, price=250, cost=200)
     b.add("FIX-016", _series(60, 3, 20), qty=500, price=250, cost=200, return_qty=120)
 
+    # FIX-017..020 — ordinary, healthy buyers. The point of these four is that
+    # nothing is wrong with the *customer*: the open loop is entirely ours, and a
+    # detector that only fires on accounts already in trouble would miss it.
+    # They buy Family_04, which keeps them out of the (B, Family_03) peer group
+    # that `cross_sell_peer_gap` is calibrated on — four extra members there
+    # would push the Family_05 adoption rate under the threshold and silence a
+    # detector that has nothing to do with open loops.
+    for cid in ("FIX-017", "FIX-018", "FIX-019", "FIX-020"):
+        b.add(cid, _series(300, 12, 22), qty=600, price=255, cost=205, family=F04)
+
     return b.frame()
 
 
@@ -248,7 +263,30 @@ def _build_complaints() -> tuple[pd.DataFrame, pd.DataFrame]:
          "بد پيچي و ريزش نخ در اين همبافت مشاهده شد.", "متوسط", 60, None, SHARED_HEMBAFT),
         ("CMPFIX-004", "FIX-016", "آسیب دیدگی در حمل و نقل",
          "آسيب ديدگي بار هنگام حمل و نقل.", "کم", 40, None, None),
+        # #23 — two investigations that came back "not our fault", so the
+        # unsubstantiated load has something to fire on.
+        ("CMPFIX-005", "FIX-003", "نوسان دنیر",
+         "نمره نخ خارج از تلرانس اعلام شد.", "متوسط", 150, 130, None),
+        ("CMPFIX-006", "FIX-003", "شید رنگ",
+         "اختلاف شید بین بسته ها گزارش شد.", "کم", 100, 85, None),
+        # the open-investigation gate — a file still waiting on a sample
+        ("CMPFIX-007", "FIX-005", "پیچش بسته/ تنشن پیچش",
+         "تنشن پیچش نامناسب در بسته ها مشاهده شد.", "متوسط", 120, 110, None),
     ]
+    # Resolution prose per complaint, so the resolution block has real input.
+    # The first two use the Universe-A "claim not substantiated" frame, the third
+    # the "awaiting a sample" frame — both matched by the templates, no model needed.
+    RESOLUTIONS = {
+        "CMPFIX-005": ("ابتدا موضوع از داخل سازمان بررسی گردید و نظرات واحدهای مرتبط "
+                       "دریافت گردید. نتایج ثبت‌شده در محدوده الزام محصول قرار داشت و "
+                       "مغایرتی که ادعای مشتری را تأیید کند مشاهده نشد."),
+        "CMPFIX-006": ("نتایج ثبت‌شده در محدوده الزام محصول قرار داشت و مغایرتی که "
+                       "ادعای مشتری را تأیید کند مشاهده نشد."),
+        "CMPFIX-007": ("برای نتیجه‌گیری قطعی مقرر گردید دوک نمونه و تصاویر مربوطه "
+                       "ارسال شود. تا زمان دریافت نمونه و انجام آزمون تکمیلی، موضوع "
+                       "نیازمند بررسی تکمیلی است."),
+        "CMPFIX-002": "در بررسی مستندات تولید مشخص گردید عیب تولیدی و مقرر شد اصلاح شود.",
+    }
     complaints, links = [], []
     for kid, cid, title, text, severity, created_ago, resolved_ago, hembaft in specs:
         created = _d(created_ago)
@@ -261,7 +299,10 @@ def _build_complaints() -> tuple[pd.DataFrame, pd.DataFrame]:
             S.K_STATUS: "نیازمند بررسی" if pd.isna(resolved) else "بسته‌شده",
             S.K_RESOLVED_AT: resolved,
             S.K_RESOLUTION_AVAILABLE_AT: resolved,
-            S.K_RESOLUTION_TEXT: None if pd.isna(resolved) else "بررسی و رفع شد.",
+            S.K_RESOLUTION_TEXT: (
+                None if pd.isna(resolved)
+                else RESOLUTIONS.get(kid, "بررسی و رفع شد.")
+            ),
             S.SOURCE_SYSTEM: "QMS", FIXTURE_FLAG: True,
         })
         if hembaft:
@@ -295,19 +336,75 @@ def _build_offers() -> pd.DataFrame:
             S.O_DECISION_AT: d, S.O_DECISION_AVAILABLE_AT: d,
             S.SOURCE_SYSTEM: "CRM", FIXTURE_FLAG: True,
         })
+    # #27 — three offers to FIX-020 with no knowable decision, all long past the
+    # 30-day validity they set themselves. One of them already carries a
+    # `Result` in the sheet, but its `Decision_Available_At` is in the future:
+    # under rule #4 the sales manager could not have seen it, so it is still open.
+    for i, (age, result) in enumerate(((200, None), (170, None), (140, "قبول"))):
+        d = _d(age)
+        rows.append({
+            S.O_ID: f"OFR-FIX-1{i:02d}", S.CUSTOMER_ID: "FIX-020", S.O_DATE: d,
+            S.AVAILABLE_AT: d, S.PRODUCT_ID: "P-04", S.O_FAMILY: F04,
+            S.O_BASE_PRICE: 260.0, S.O_OFFERED_PRICE: 248.0,
+            S.O_DISCOUNT_PCT: 0.046, S.O_TYPE: "قیمتی", S.O_VALIDITY_DAYS: 30,
+            S.O_REASON: "افزایش حجم سفارش", S.O_RESULT: result,
+            S.O_DECISION_AT: pd.NaT if result is None else _d(-30),
+            S.O_DECISION_AVAILABLE_AT: pd.NaT if result is None else _d(-30),
+            S.SOURCE_SYSTEM: "CRM", FIXTURE_FLAG: True,
+        })
     return pd.DataFrame(rows).assign(_universe="fixture")
 
 
 def _build_dev_requests() -> pd.DataFrame:
-    created = _d(250)
-    rows = [{
-        S.D_ID: "REQ-FIX-001", S.CUSTOMER_ID: "FIX-016", S.PRODUCT_ID: "P-03",
-        S.D_CREATED_AT: created, S.AVAILABLE_AT: created, S.D_TYPE: "کاهش پرز",
-        S.D_REQUIREMENT: "کاهش پرز در نخ ارسالی", S.D_DECISION_AT: pd.NaT,
-        S.D_STATUS: "درحال بررسی", S.D_OUTCOME: None,
-        S.D_OWNER_UNIT: "تحقیق‌وتوسعه", S.SOURCE_SYSTEM: "PLM_REQUESTS",
-        FIXTURE_FLAG: True,
-    }]
+    def row(rid, cid, created, decided, status, outcome=None):
+        return {
+            S.D_ID: rid, S.CUSTOMER_ID: cid, S.PRODUCT_ID: "P-03",
+            S.D_CREATED_AT: created, S.AVAILABLE_AT: created, S.D_TYPE: "کاهش پرز",
+            S.D_REQUIREMENT: "کاهش پرز در نخ ارسالی", S.D_DECISION_AT: decided,
+            S.D_STATUS: status, S.D_OUTCOME: outcome,
+            S.D_OWNER_UNIT: "تحقیق‌وتوسعه", S.SOURCE_SYSTEM: "PLM_REQUESTS",
+            FIXTURE_FLAG: True,
+        }
+
+    rows = [
+        row("REQ-FIX-001", "FIX-016", _d(250), pd.NaT, "درحال بررسی"),
+        # #24 — R&D said yes 200 days ago and FIX-017 has never been sent an offer.
+        # The outcome text deliberately contradicts the status: on the real sheet
+        # `Outcome_Text` is independent of `Status` (χ², p≈0.94), so a detector
+        # that read the prose instead of the state would get this one backwards.
+        row("REQ-FIX-002", "FIX-017", _d(260), _d(200), S.D_STATUS_APPROVED,
+            "درخواست با محدودیت فنی فعلی سازگار نبود."),
+        # #25 — rejected 180 days ago; the only CRM contact with FIX-018 predates it
+        row("REQ-FIX-003", "FIX-018", _d(240), _d(180), S.D_STATUS_REJECTED,
+            "نمونه برای آزمون مشتری آماده شد."),
+    ]
+    return pd.DataFrame(rows).assign(_universe="fixture")
+
+
+def _build_crm() -> pd.DataFrame:
+    """Interactions that exist to prove the next-action loop, and to prove that
+    the *latest* interaction is the only one that counts."""
+    def row(xid, cid, at, itype, next_action, version=1):
+        return {
+            S.X_ID: xid, S.X_VERSION: version, S.CUSTOMER_ID: cid,
+            S.PRODUCT_ID: "P-03", S.X_EVENT_TIME: at, S.AVAILABLE_AT: at,
+            S.X_UPDATED_AT: at, S.X_TYPE: itype,
+            S.X_SUMMARY: "جمع‌بندی تماس | فوریت: متوسط | کد پیگیری: TRK-001",
+            S.X_NEXT_ACTION: next_action, S.X_RECORD_STATUS: "ثبت اولیه",
+            S.SOURCE_SYSTEM: "CRM", S.SALES_REP_ID: "REP-FIX-1",
+            FIXTURE_FLAG: True,
+        }
+
+    rows = [
+        # FIX-018: contact is older than the rejection, so nobody has told them
+        row("INT-FIX-001", "FIX-018", _d(300), "برنامه خرید", "بدون اقدام"),
+        # FIX-019: an old promise, then a newer conversation that supersedes it.
+        # Only the later one may drive the signal — the earlier is history.
+        row("INT-FIX-002", "FIX-019", _d(400), "کیفیت محصول", "بازدید فنی"),
+        row("INT-FIX-003", "FIX-019", _d(150), "قیمت و تخفیف", "جلسه قیمت"),
+        # FIX-020: a closed loop — the promise was kept, so #26 must NOT fire
+        row("INT-FIX-004", "FIX-020", _d(250), "قیمت و تخفیف", "جلسه قیمت"),
+    ]
     return pd.DataFrame(rows).assign(_universe="fixture")
 
 
@@ -355,8 +452,16 @@ def build_fixture(settings: Settings | None = None) -> Fixture:
     sales = sales.drop(columns=["_cost", "_return_qty"]).assign(_universe="fixture")
 
     complaints, links = _build_complaints()
+    # These must be normalised exactly as `io.loader._normalize_sheet` does, not
+    # blanked. `complaint_recurrence` groups on `_title_norm`, so an empty string
+    # made every complaint from one customer look like the same title — FIX-001's
+    # recurrence signal was firing for the wrong reason, and any customer given a
+    # second complaint fired it spuriously.
     complaints = complaints.assign(
-        _universe="fixture", _title_norm="", _text_norm="", _resolution_norm=""
+        _universe="fixture",
+        _title_norm=complaints[S.K_TITLE].map(normalize_fa),
+        _text_norm=complaints[S.K_TEXT].map(normalize_fa),
+        _resolution_norm=complaints[S.K_RESOLUTION_TEXT].map(normalize_fa)
     )
     links = links.assign(_universe="fixture")
 
@@ -394,8 +499,7 @@ def build_fixture(settings: Settings | None = None) -> Fixture:
         S.S_COLLECTIONS: collections,
         S.S_COMPLAINTS: complaints,
         S.S_COMPLAINT_LINK: links,
-        S.S_CRM: empty([S.X_ID, S.X_VERSION, S.CUSTOMER_ID, S.X_EVENT_TIME,
-                        S.AVAILABLE_AT, S.X_TYPE]),
+        S.S_CRM: _build_crm(),
         S.S_DEV_REQUESTS: _build_dev_requests(),
         S.S_LOT_QUALITY: empty([S.Q_ID, S.LOT_ID, S.AVAILABLE_AT]),
         S.S_HEMBAFT_LOT: pd.DataFrame([{

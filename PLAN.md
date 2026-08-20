@@ -200,6 +200,30 @@ Activity at as_of 2022-06-30 for reference: 172 active in 90d, 243 in 180d, 383 
 | **Q20** | Should `Credit_Limit` feed the wallet/headroom metric? | **"credit limit برای wallet نیست که سهم سبد در بیاریم. ولی رابطشون اگر منطق داره باید اضافه بشه… آره اینو اضافه کن به اکشن نهایی دادن ازونجایی که credit limit در پیشنهاد کاملا موثر است"** | **Not as a capacity anchor** — against lifetime revenue it is spearman +0.900 / pearson −0.031, a monotone re-encoding of what the customer already buys, so it adds nothing to a headroom estimate built from the same quantity. **Yes as a gate on the recommended action**: credit room decides whether a growth step is executable at all. Ranking is untouched — it stays pure arithmetic over signals. |
 | **Q10** | Is the 4%/month late charge real? | **"بله، ۴٪ ماهانه روی مانده و واقعاً وصول می‌شود"** | The late charge is **compensating revenue**, not pure opportunity cost. Formula in §3.5 reflects this. Raises Q11. |
 
+### Standing instruction from the user — USE THE WHOLE DATASET (2026-08-21)
+
+> ببین ازت میخوام این مساله universe A, B ات رو کنار بذاری. هر جایی که لازمه و دیتاها به
+> هم میخونن، لطفا از تمامی دیتا استفاده کن. درسته دیتا تولید شده ولی تو مسابقه از همین
+> دیتا استفاده باید بکنیم. پس بهترین کار رو انجام بده.
+
+**This overrides the earlier A/B partitioning stance wherever the two universes agree
+structurally.** The rule is now:
+
+1. **Default to using every row.** A feature is built over the whole book unless there is
+   a *stated, checkable reason* not to.
+2. **A refusal needs a reference.** "Universe A is synthetic" is not, by itself, a reason
+   to drop it. A valid reason is concrete: the enums genuinely differ and cannot be
+   mapped (§1.4), a column is 100% absent on one side (`Hembaft_Reference`), or the
+   values are provably a generator artifact for *that specific claim* (§1.2).
+3. **The competition is scored on this dataset** (see §0). Analysis that stops at "the
+   data is fake so we cannot decide" is a non-deliverable. Carry every analysis through
+   to a recommendation on this data, and state the caveat *next to* the recommendation
+   rather than instead of it.
+4. Where the two universes need different handling, prefer a **hybrid that covers both**
+   over a feature scoped to one. Precedent: `Resolution_Text` is templated in A and free
+   prose in B, so the resolution block parses A deterministically and sends only B (and
+   any A row the templates cannot classify) to the model — one feature, whole book.
+
 ### Standing instruction from the user
 > ازت می‌خوام که خودت هم خلاقیت به خرج بدی … پس سوالاتو بعد از بررسی‌هات حتماً از من بپرس
 > و **برای پیاده‌سازیشون حتماً از من approval بگیر**.
@@ -347,7 +371,7 @@ class Detector(Protocol):
     def detect(self, ctx: MetricContext) -> list[Signal]: ...
 ```
 
-### 3.4 The 22 detectors
+### 3.4 The 27 detectors
 
 Thresholds are **starting defaults**; all live in `config.py` and must be calibrated
 (§4, Phase 1b) so that no detector fires on >60% or <2% of the book at `as_of=2021-06-30`.
@@ -397,6 +421,38 @@ Family price ladder (rial/kg, whole window, for the `mix_downgrade` ordinal):
 | 21 | `wallet_headroom` | high estimated total, low our share, good margin → **grow** |
 | 22 | `cross_sell_peer_gap` | buys family X; similar-profile peers also buy Y |
 
+**Open loops — things *we* left unfinished** (added 2026-08-21, step 2)
+| # | Name | Rule | Notes |
+|---|---|---|---|
+| 24 | `dev_sample_ready_no_offer` | `Status = نمونه تأیید`, decided ≥30d ago, **no offer to that customer since the decision** | 21 customers at the anchor, median 176d |
+| 25 | `dev_rejected_uncommunicated` | `Status = فنی رد`, decided ≥30d ago, **no CRM contact of any kind since** | 27 customers; the customer is still waiting for the answer |
+| 26 | `crm_promise_outstanding` | the **latest** interaction's `Next_Action ≠ بدون اقدام`, ≥90d old, no trace of follow-through | 237 customers |
+| 27 | `offer_negotiation_stalled` | offer with **no knowable decision** at `as_of` (rule #4), age > its own `Validity_Days` | 127 customers; median validity 18d, median age 315d |
+
+Three design commitments carried by all four:
+
+1. **State, never outcome.** `Outcome_Text` on `درخواست_توسعه` is independent of
+   `Status` (χ², p≈0.94) — a request marked `فنی رد` carries "sample ready for
+   customer testing" 55 times. Only `Status` and `Decision_At` are read.
+2. **Rule #4 decides what "open" means.** An offer's `Result` is knowable only
+   from `Decision_Available_At`. 403 visible offers have no knowable decision at
+   the anchor and **46 of them already carry a `Result`** — a result the sales
+   manager could not have seen that day. Those 46 are correctly still open.
+3. **The absence must be checkable.** "No offer since the approval" is falsifiable
+   by one row. "The rep never phoned" is not — nothing records a call that
+   produced nothing — so #26 says *no record of follow-through* and carries
+   `falsifiable: false` for `پیگیری تلفنی` / `بازدید فنی`, against `true` for
+   `جلسه قیمت` / `ارسال نمونه`, where an offer or a development request would
+   have proved it.
+
+Money at stake is **measured wherever the data can measure it** and every signal
+records which basis it used in `detail.stake_basis`: `peer_family_spend` (#24 —
+what same-segment peers spend on the stalled sample's family), `own_family_revenue`
+(#27 — this customer's own annualised revenue in the abandoned offer's family),
+`own_typical_order` (the fallback), `annual_revenue_share` (#25 at 0.15, #26 by
+what was promised: جلسه قیمت 0.20 · ارسال نمونه 0.15 · بازدید فنی 0.10 ·
+پیگیری تلفنی 0.05).
+
 **Detector #18 is the differentiator.** When one customer complains about a همبافت,
 every other customer shipped that همبافت is a complaint *in flight*. Nobody asked for
 this; it is unique to this domain (§5, integration rule #7) and is the strongest demo.
@@ -433,6 +489,43 @@ label it clearly as an assumption in the evidence `provenance`.
 
 **LTV** — tenure-aware cumulative risk-adjusted margin, not cumulative revenue.
 ⚠️ Requires the Jalali fix (§1.5) or it is NaN for exactly the 20 real customers.
+
+**RFM — book-relative position** (added 2026-08-21, step 2; `metrics/rfm.py`).
+
+Deliberately *alongside* `cadence`, not instead of it, because they answer
+different questions and a sales manager needs both:
+
+* `cadence` is **self-relative** — "3.2× this customer's own rhythm quiet" is the
+  right instrument for *is something wrong here*.
+* `rfm` is **book-relative** — "R2 F5 M5" is the right instrument for *where does
+  this account sit among the others*, which is what portfolio decisions are made on.
+
+A regression test asserts `rfm.recency_days == cadence.days_since_last` for every
+customer: two tables, one fact, or one of them is reading the wrong rows.
+
+Scores are quintiles of the **rank**, not of the value, so a handful of enormous
+accounts cannot compress everyone else into one bucket; ties share a score, which
+is why the zero-purchase tail all lands on 1. Recency spans the whole visible
+history (a 400-day silence is a fact about the relationship, not about a window);
+frequency and monetary use the standing 12-month window. The purchase event is the
+**invoice**, as in `cadence` — counting sales lines would make a customer who buys
+ten SKUs at once look ten times more frequent.
+
+Six states, mapping `r` against `fm = (f+m)/2`. At the anchor:
+نیازمند توجه 166 · خوابیده 136 · قهرمان 122 · امیدبخش 74 · در معرض ریزش 15 ·
+کم‌خرید یا تازه‌وارد 13.
+
+`median_order_value` lives here too — it is the measured fallback the open-loop
+detectors use when no better anchor for money at stake exists.
+
+**`open_loops` — the promises we have not closed** (added 2026-08-21, `metrics/open_loops.py`).
+Every other metric table describes what the *customer* did; this one describes what
+**we** did and then stopped doing. It exists as a metric table rather than inside the
+detectors because a detector may never read a dataframe from the dataset directly
+(§3.1) — and because the 360° page and the agent tool layer will read the same rows.
+Row ids survive the groupby as list columns (`dev_approved_open_ids`,
+`offers_abandoned_ids`, `next_action_id`) so a citation and the number it supports
+cannot be recomputed from a different filter and drift apart.
 
 ### 3.6 Complaint LLM block
 
@@ -1100,6 +1193,145 @@ random_state        = 42
 ---
 
 ## 11. CHANGELOG
+
+- **2026-08-21 (step 2/5 — open loops + RFM)** — Four detectors (#24–#27) and two
+  metric tables (`rfm`, `open_loops`). The organising idea: detectors #1–#23 look at
+  the customer, these four look at **us**. A customer buying less is a diagnosis that
+  needs a conversation; an approved sample nobody priced is an action the sales manager
+  can take before lunch with no new information from anyone.
+
+  Measured at the anchor: 21 customers hold an approved sample with no offer since
+  (median 176 days) · 27 were told nothing after a technical rejection · 237 have a
+  written next action ≥90 days old with no trace of follow-through · 127 have offers
+  abandoned past their own validity (median validity 18 days against median age 315).
+  All four land inside the calibration band; **all 27 detectors pass, zero failures.**
+
+  Three things this surfaced that are worth keeping:
+
+  * `Outcome_Text` on `درخواست_توسعه` is **independent of `Status`** (χ², p≈0.94) — a
+    request marked `فنی رد` says "sample ready for customer testing" 55 times. The
+    fixture now encodes this deliberately: `REQ-FIX-002` is approved and carries the
+    rejection prose, so a detector that read the text instead of the state fails a test.
+  * Rule #4 changes what "an open offer" means. 403 visible offers have no knowable
+    decision at the anchor and **46 already carry a `Result`** the sales manager could
+    not have seen that day. Reading `Result` would have hidden them.
+  * The 90-day threshold on #26 is not cosmetic: at 60 days it fires on 57% of everyone
+    who has ever had a CRM interaction, which is a description of the book, not a signal.
+
+  The RFM evidence initially resolved to **zero rows for 77 customers** — those with
+  nothing in the 12-month window, which is precisely the population the claim is *about*.
+  Its locator now spans the whole visible history, since their order record is what makes
+  both "last bought 373 days ago" and "zero orders in the window" true.
+
+  Fixture grew 16 → 20 customers (FIX-017…020, one per loop, all ordinary healthy buyers
+  — a detector that only fires on accounts already in trouble would miss these). FIX-020
+  proves the negative case: its promise was kept, so #26 must not fire on it. The four
+  were put on `Family_04` because four extra members in the `(B, Family_03)` peer group
+  pushed `cross_sell_peer_gap` under its adoption threshold and silenced an unrelated
+  detector. One bucket moved in the snapshot: FIX-010 reduce → fix, because the
+  materiality threshold is the book median and four mid-sized accounts shifted it.
+  15 new tests in `tests/test_open_loops.py`; 154 passing.
+
+- **2026-08-21 (step 1/5 — evidence locators)** — User requirement: *«اگر به evidence ای
+  اشاره میکنیم، باید بتونیم با یه سری کد پایتون اون evidence رو هم بعدا نمایش بدیم … قابل
+  دفاع و نمایش برای یک مشتری»*. Measured first: of 7,851 evidence, **3,042 (39%) could not
+  be resolved to rows at all** — they carried only a window description like
+  `فروش:C_419410@2020-09-30..2021-06-30 (46 ردیف)`; the rest carried a bare, truncated id
+  list with no key column named.
+
+  `Evidence.locator` added — a structured pointer in two kinds, `ids`
+  (`{sheet, key, values}`) and `filter` (`{sheet, filters, date_column, date_range}`),
+  plus `core.evidence.resolve()` returning the real rows. `source_rows` is now **derived
+  from** the locator via `RowRef(str)` rather than written beside it, so the display
+  string and the pointer cannot drift, and every existing `source_rows=rows_ref(...)`
+  call site kept working untouched.
+
+  **Three defects found while enforcing it:**
+  - `rows_ref(S.S_COST_REAL, [cid])` pointed the returns evidence at a sheet that **has no
+    `Customer_ID` column** — a pointer to nothing. Retargeted to the sales spine.
+  - Exposure / credit-room / finance-net pointed at `وصول`, which is empty for a customer
+    with no collection events (36 evidence resolved to zero rows). Retargeted to the
+    invoices they are actually computed from.
+  - **The resolver ignored rule #4.** Drill-down on a 2021-06-30 claim returned invoices
+    dated 2022 — records the number could not have come from, shown to a customer as its
+    justification. `resolve()` now applies `visible()` and the sheet's own date column at
+    `evidence.as_of`: that one claim went 304 → 256 rows, and **0 rows dated after as_of
+    across all 7,851**.
+
+  - **The DSO claim cited invoices it could not have used.** `payment.py` took the last
+    four of *all* the customer's sales invoices and pointed them at `وصول`; for
+    `C_411612` every collection event on those four is dated August–September 2021 and
+    invisible at the anchor, so the reference resolved to nothing. The number was gated
+    but its citation was not. Now cites only invoices with visible collection events.
+
+  One correction worth recording: the resolver first gated on `Available_At` **and** the
+  sheet's event date. That is stricter than the metric layer and emptied the valid DSO
+  locator. Measured across all seven dated sheets, `Available_At` alone already leaves
+  **zero** rows dated after `as_of`, so the extra cut was removed — rule #4 is the gate,
+  nothing more.
+
+  New `nafisnakh evidence <EV-ID>` prints the claim, formula, confidence, locator and the
+  source rows. 6 new tests, three of which are the enforcement: every emitted evidence
+  must carry a locator, every locator must return real rows, and no drill-down may return
+  a row dated after the claim's `as_of`.
+
+- **2026-08-21 (the complaints sheet, re-reviewed)** — The user asked whether every
+  column of `شکایات` had actually been examined. It had not. Two columns were being read
+  by nothing at all: **`Complaint_Status`** and **`Resolution_Text`**. Findings and the
+  five changes that followed:
+
+  **The finding that changed the design.** `Resolution_Text` was assumed to be a
+  Universe-B-only feature and therefore invisible at the demo anchor. Wrong: **204
+  complaints have a knowable resolution at 2021-06-30**, all Universe A. The Universe-A
+  text is templated, and the templates encode exactly the distinctions a sales manager
+  needs — «مغایرتی که ادعای مشتری را تأیید کند مشاهده نشد» (claim not substantiated, 37
+  at the anchor), «تا زمان دریافت نمونه… نیازمند بررسی تکمیلی» (still open, 17), and
+  root-cause-plus-corrective-action (97). Templated text is *easier* to parse reliably
+  than prose, not harder.
+
+  **New block** `llm/blocks/resolution.py`, whole-book by construction (§2): templates
+  first (175 of 204 rows, free), model for the rest. Runs as a new pipeline node
+  `resolution_llm`, gated on `Resolution_Available_At` per rule #4.
+
+  1. **Open-investigation gate.** An action whose customer has a complaint file still
+     waiting on a sample now says to close that file *before* the meeting. Outranks the
+     credit gate — credit decides whether they may buy more, an open file decides whether
+     the conversation can usefully happen. 16 customers at the anchor.
+  2. **Relationship stance** on every action: `apologise` (43 customers) · `unsubstantiated`
+     (13) · `mixed` (12) · `neutral`. Fed to the drafting prompt and to the offline composer.
+  3. **Detector #23 `unsubstantiated_complaint_load`** — investigations that came back
+     "not our fault" are real cost-to-serve against zero defect. Fires 8/91 eligible
+     (8.8%, in band). Deliberately `efficiency`, not `risk`: a negotiation input, never
+     an accusation.
+  4. **`ردشده` split from "resolved"** — `complaints_rejected` in the quality table. A
+     rejected complaint carries a `Resolved_At` like any other but means we told the
+     customer they were wrong.
+  5. **`Resolution_Available_At` now gates the open/closed flag.** Zero rows move at this
+     anchor (the two stamps sit one day apart for all 370 rows), but `unresolved_aging`
+     was reading the wrong stamp at every other anchor.
+
+  **Three bugs found on the way, all now covered by tests:**
+  - The template patterns were written in raw orthography while the text goes through
+    `normalize_fa`, which folds hamza (تأیید → تایید). The "claim not substantiated"
+    frame matched **0 of 62** rows. Patterns are now compiled *through* the normaliser,
+    so the two cannot drift.
+  - `validate.py` read `CMPFIX-007` as the number `007` — the complaint-id pattern
+    missed the fixture prefix.
+  - **The fixture blanked `_title_norm`**, so every complaint from one customer looked
+    like the same title. FIX-001's `complaint_recurrence` had been passing for the wrong
+    reason, and any customer given a second complaint fired it spuriously. The fixture
+    now normalises exactly as `io.loader` does.
+
+  Fixture extended to 7 complaints so #23 and the gate both fire: 23/23 detectors,
+  16 actions, 0 dropped. 134 tests passing.
+
+- **2026-08-20 (brief review)** — `brief` still carried the artifact-clobbering bug that
+  `build` and `signals` had already been fixed for: a `--sample 8` run wrote
+  `actions_<as_of>.json` and `brief_<as_of>.txt`, the *same* paths as the full book. It
+  bit us in this session — the 25-action live brief was silently replaced by a 3-action
+  sample. `brief` now routes through `_subset()` like the other two, so subset runs write
+  `__8c` files and unknown ids raise a clean `--customers` error instead of a KeyError
+  traceback. The full live brief was regenerated.
 
 - **2026-08-20 (calibrate review)** — Calibration used to pass a verdict on any
   eligible population, however small, so every subset run produced a wall of false

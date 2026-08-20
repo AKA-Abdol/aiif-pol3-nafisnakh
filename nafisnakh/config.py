@@ -113,7 +113,21 @@ class Settings(BaseSettings):
     credit_room_max_months: float = 60.0
     margin_peer_percentile: float = 20.0
     complaint_recurrence_days: int = 180
+    # #23 — how many investigations must come back "not our fault" before the
+    # load is worth the sales manager's attention. Two, because one unsubstantiated
+    # complaint is noise and every customer is entitled to be wrong once.
+    unsubstantiated_min_complaints: int = 2
     dev_request_stall_days: int = 90
+
+    # ---- open loops: promises we made and have not closed (PLAN §2)
+    # A decision taken last week is not a dropped ball. The grace period is the
+    # time sales is allowed to act on an R&D decision before it counts as one.
+    open_loop_grace_days: int = 30
+    # A written next action older than this with no trace of follow-through. At
+    # the demo anchor 90 days keeps the detector inside the calibration band;
+    # 60 pushes it to 57% of everyone who has ever had a CRM interaction, which
+    # is a description of the book rather than a signal.
+    next_action_stale_days: int = 90
     late_interest_drag_pct: float = 0.25
     unresolved_aging_days: int = 24          # median resolution days, §5.5
     # Age-based detectors fire above whichever is larger: the fixed floor above

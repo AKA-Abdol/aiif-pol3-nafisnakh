@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "نامشخص",
+  "systemic_fix": false,
+  "escalation_body_fa": "بازدید میدانی",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "مقرر شد مشتری نمونه نخ معیوب ارسال کند وگرنه شکایت مختومه شود، همچنین با درخواست بازدید از شرکت مشتری موافقت نشد."
+}

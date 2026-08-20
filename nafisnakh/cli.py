@@ -121,7 +121,7 @@ def signals(
     sample: int = typer.Option(0, help="فقط روی N مشتری تصادفی اجرا کن"),
     customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
-    """Run the 22 detectors and write the ranked signal file."""
+    """Run the 27 detectors and write the ranked signal file."""
     from .io.loader import load_dataset
     from .llm.graph import run_pipeline
 
@@ -181,21 +181,22 @@ def brief(
     customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
     """End-to-end run: ranked action queue as JSON plus a readable Persian brief."""
+    from .io.loader import load_dataset
     from .llm.graph import run_pipeline
 
     st = _settings(as_of, dataset, profile)
-    ids = [c.strip() for c in customers.split(",")] if customers else None
-    if ids or sample:
+    ds, suffix = _subset(load_dataset(st), customers, sample)
+    if suffix:
         _echo("⚠️ اجرای نمونه‌ای: آشکارسازهای مبتنی بر همتایان روی نمونه کوچک "
               "خاموش می‌مانند (نیازمند ۵ تا ۸ همتا).\n")
     state = run_pipeline(
-        settings=st, as_of=st.as_of, top_n=top, skip_llm=skip_llm, use_graph=False,
-        customers=ids, sample=sample,
+        settings=st, as_of=st.as_of, dataset=ds, top_n=top, skip_llm=skip_llm,
+        use_graph=False,
     )
     queue = state["queue"]
 
-    json_path = Path(st.out_dir) / f"actions_{st.as_of.isoformat()}.json"
-    text_path = Path(st.out_dir) / f"brief_{st.as_of.isoformat()}.txt"
+    json_path = Path(st.out_dir) / f"actions_{st.as_of.isoformat()}{suffix}.json"
+    text_path = Path(st.out_dir) / f"brief_{st.as_of.isoformat()}{suffix}.txt"
     queue.dump_json(json_path)
     text = queue.to_brief_fa(st, top_n=top)
     text_path.write_text(text, encoding="utf-8")
@@ -265,6 +266,68 @@ def report(
     _echo(f"گزارش نوشته شد: {path}")
     _echo(f"اقدام‌ها: {len(state['queue'].actions)} · "
           f"دسته‌بندی: {state['quadrants'].counts()}")
+
+
+@app.command()
+def evidence(
+    evidence_id: str = typer.Argument(..., help="شناسه شاهد، مثلاً EV-C_245948-exposure-001"),
+    as_of: Optional[str] = typer.Option(None),
+    dataset: Optional[Path] = typer.Option(None),
+    rows: int = typer.Option(20, help="حداکثر ردیف نمایش داده‌شده"),
+):
+    """Show the actual source rows behind one evidence id.
+
+    This is what makes a recommendation defensible in front of a customer: the
+    claim, then the records it rests on, from the workbook.
+    """
+    import json
+
+    from .core.evidence import EvidenceRegistry, resolve
+    from .io.loader import load_dataset
+
+    st = _settings(as_of, dataset)
+    ds = load_dataset(st)
+
+    # prefer the artifact `build` already wrote; fall back to recomputing
+    dumped = Path(st.out_dir) / f"evidence_{st.as_of.isoformat()}.json"
+    if dumped.exists():
+        registry = EvidenceRegistry.from_records(
+            json.loads(dumped.read_text(encoding="utf-8"))
+        )
+    else:
+        from .metrics.base import build_metrics, make_context
+
+        _echo("(فایل شواهد یافت نشد؛ لایه سنجه بازساخته می‌شود)\n")
+        registry = build_metrics(
+            make_context(ds, as_of=st.as_of, settings=st)
+        ).evidence
+
+    ev = registry.get(evidence_id)
+    if ev is None:
+        _echo(f"شاهدی با شناسه {evidence_id} یافت نشد.")
+        raise typer.Exit(code=1)
+
+    _echo(f"شناسه      : {ev.id}")
+    _echo(f"مشتری      : {ev.customer_id}")
+    _echo(f"ادعا       : {ev.claim_fa}")
+    _echo(f"مقدار      : {ev.value} {ev.unit or ''}")
+    _echo(f"اطمینان    : {ev.confidence}")
+    _echo(f"فرمول      : {ev.provenance.get('formula', '—')}")
+    if ev.provenance.get("assumption"):
+        _echo(f"⚠️ فرض     : {ev.provenance.get('caveat_fa', '')}")
+    _echo(f"ارجاع      : {ev.source_rows}")
+    if not ev.is_resolvable:
+        _echo("\n⚠️ این شاهد locator ندارد و قابل بازیابی نیست.")
+        raise typer.Exit(code=1)
+    _echo(f"locator    : {json.dumps(ev.locator, ensure_ascii=False)}")
+
+    found = resolve(ev, ds)
+    _echo(f"\nردیف‌های منبع ({len(found)} ردیف):")
+    shown = found.head(rows)
+    cols = [c for c in shown.columns if not str(c).startswith("_")]
+    _echo(shown[cols].to_string(index=False))
+    if len(found) > rows:
+        _echo(f"… و {len(found) - rows} ردیف دیگر")
 
 
 @app.command()

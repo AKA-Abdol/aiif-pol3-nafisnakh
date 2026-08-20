@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "investigation_state": "بسته",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "جایگزینی کالا",
+  "systemic_fix": false,
+  "resolution_confirmed": false,
+  "compensation_given": true,
+  "escalation_body_fa": "هیچ",
+  "summary_fa": "ارسال ۳۰ عدد سر دوک ACW به مشتری جهت رفع مشکل خرابی و شکستگی دوک‌ها."
+}

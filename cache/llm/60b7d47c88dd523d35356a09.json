@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "عدم مشاهده هرگونه مغایرت رنگی پس از تکسچره ۸ دوک در محل مشتری",
+  "remedy_type": "بدون اقدام",
+  "systemic_fix": false,
+  "escalation_body_fa": "بازدید میدانی",
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "طی بازدید میدانی و تکسچره ۸ دوک، هیچ مغایرت رنگی مشاهده نشد و به مشتری اطمینان مصرف داده شد."
+}

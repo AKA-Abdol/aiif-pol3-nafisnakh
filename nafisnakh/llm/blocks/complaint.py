@@ -31,6 +31,7 @@ from pydantic import BaseModel, Field
 
 from ...config import Settings, get_settings
 from ...io import schema as S
+from ...metrics.base import rows_ref
 from ...io.normalize import normalize_fa, normalize_fa_keep_punct
 from ..client import LLMClient, LLMUnavailable, get_client
 from ..taxonomy import (
@@ -298,7 +299,7 @@ def attach_to_context(ctx, *, allow_rules: bool = True, universe: str | None = N
             f"شکایت {r.complaint_id} به مکانیزم «{mechanism_label(r.mechanism)}» "
             f"نسبت داده شد ({r.mechanism}).",
             r.mechanism, unit=None, kind="text", window=window,
-            source_rows=f"{S.S_COMPLAINTS}:{r.complaint_id}",
+            source_rows=rows_ref(S.S_COMPLAINTS, [r.complaint_id]),
             formula=f"LLM structured extraction ({r.extraction_source})",
             confidence=min(conf, float(r.mechanism_confidence or conf)),
             extraction_source=r.extraction_source,
@@ -318,7 +319,7 @@ def attach_to_context(ctx, *, allow_rules: bool = True, universe: str | None = N
             ctx.emit(
                 cid, "llm-churn", claim,
                 True, unit=None, kind="text", window=window,
-                source_rows=f"{S.S_COMPLAINTS}:{r.complaint_id}",
+                source_rows=rows_ref(S.S_COMPLAINTS, [r.complaint_id]),
                 formula=f"LLM structured extraction ({r.extraction_source})",
                 confidence=conf if shared == 1 else conf * 0.5,
                 extraction_source=r.extraction_source,

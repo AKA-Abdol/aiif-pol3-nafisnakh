@@ -16,7 +16,11 @@
     "FIX-013",
     "FIX-014",
     "FIX-015",
-    "FIX-016"
+    "FIX-016",
+    "FIX-017",
+    "FIX-018",
+    "FIX-019",
+    "FIX-020"
   ],
   "detectors_fired": [
     "bounced_cheque",
@@ -24,8 +28,11 @@
     "churn_threat_language",
     "complaint_recurrence",
     "credit_exposure",
+    "crm_promise_outstanding",
     "cross_sell_peer_gap",
+    "dev_rejected_uncommunicated",
     "dev_request_stalled",
+    "dev_sample_ready_no_offer",
     "discount_without_return",
     "dso_slippage",
     "first_order_no_repeat",
@@ -34,10 +41,12 @@
     "margin_below_peer_cohort",
     "mix_downgrade",
     "negative_risk_adj_margin",
+    "offer_negotiation_stalled",
     "price_erosion",
     "return_rate_spike",
     "sku_narrowing",
     "unresolved_aging",
+    "unsubstantiated_complaint_load",
     "volume_decline",
     "volume_surge",
     "wallet_headroom"
@@ -57,6 +66,7 @@
     "FIX-003": [
       "cross_sell_peer_gap",
       "margin_below_peer_cohort",
+      "unsubstantiated_complaint_load",
       "volume_decline"
     ],
     "FIX-004": [
@@ -122,6 +132,26 @@
       "dev_request_stalled",
       "return_rate_spike",
       "unresolved_aging"
+    ],
+    "FIX-017": [
+      "cadence_breach",
+      "dev_sample_ready_no_offer",
+      "volume_decline"
+    ],
+    "FIX-018": [
+      "cadence_breach",
+      "dev_rejected_uncommunicated",
+      "volume_decline"
+    ],
+    "FIX-019": [
+      "cadence_breach",
+      "crm_promise_outstanding",
+      "volume_decline"
+    ],
+    "FIX-020": [
+      "cadence_breach",
+      "offer_negotiation_stalled",
+      "volume_decline"
     ]
   },
   "buckets": {
@@ -134,13 +164,17 @@
     "FIX-007": "protect",
     "FIX-008": "protect",
     "FIX-009": "protect",
-    "FIX-010": "reduce",
+    "FIX-010": "fix",
     "FIX-011": "protect",
     "FIX-012": "protect",
     "FIX-013": "protect",
     "FIX-014": "protect",
     "FIX-015": "protect",
-    "FIX-016": "reduce"
+    "FIX-016": "reduce",
+    "FIX-017": "protect",
+    "FIX-018": "protect",
+    "FIX-019": "protect",
+    "FIX-020": "protect"
   },
   "actions": [
     {
@@ -163,15 +197,21 @@
     },
     {
       "customer_id": "FIX-010",
-      "bucket": "reduce",
+      "bucket": "fix",
       "priority": "بالا",
       "n_evidence": 5
+    },
+    {
+      "customer_id": "FIX-017",
+      "bucket": "protect",
+      "priority": "بالا",
+      "n_evidence": 7
     },
     {
       "customer_id": "FIX-005",
       "bucket": "protect",
       "priority": "بالا",
-      "n_evidence": 7
+      "n_evidence": 8
     },
     {
       "customer_id": "FIX-006",
@@ -192,6 +232,12 @@
       "n_evidence": 6
     },
     {
+      "customer_id": "FIX-020",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 8
+    },
+    {
       "customer_id": "FIX-013",
       "bucket": "protect",
       "priority": "متوسط",
@@ -204,10 +250,22 @@
       "n_evidence": 4
     },
     {
-      "customer_id": "FIX-003",
+      "customer_id": "FIX-018",
       "bucket": "protect",
       "priority": "متوسط",
-      "n_evidence": 6
+      "n_evidence": 7
+    },
+    {
+      "customer_id": "FIX-019",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 7
+    },
+    {
+      "customer_id": "FIX-003",
+      "bucket": "protect",
+      "priority": "پایین",
+      "n_evidence": 8
     },
     {
       "customer_id": "FIX-012",

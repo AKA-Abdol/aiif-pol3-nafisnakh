@@ -35,7 +35,10 @@ _YEAR_RE = re.compile(r"^(19|20|14)\d{2}$")
 _CITATION_RE = re.compile(r"EV-[A-Za-z0-9_\-]+")
 _CUSTOMER_RE = re.compile(r"\b(?:C_\d+|CUST-\d+)\b", re.IGNORECASE)
 _MECHANISM_RE = re.compile(r"\bM\d{2}_[a-z_]+\b")
-_COMPLAINT_RE = re.compile(r"\bCMP-\d+\b", re.IGNORECASE)
+# `CMP-0021` and the fixture's `CMPFIX-007` are both citations, not numeric
+# claims. The narrower form missed the fixture prefix and read its suffix as the
+# number 007.
+_COMPLAINT_RE = re.compile(r"\bCMP[A-Z]*-\d+\b", re.IGNORECASE)
 
 
 def strip_identifiers(text: str) -> str:

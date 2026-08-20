@@ -117,7 +117,7 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 f"{pct(r.wallet_share_active, 0)} درصد است "
                 f"(رقیب اصلی: {r.main_competitor}).",
                 float(r.wallet_share_active), unit="درصد", kind="comparison",
-                window=window, source_rows=rows_ref(S.S_WALLET, [cid]),
+                window=window, source_rows=rows_ref(S.S_WALLET, [cid], key=S.CUSTOMER_ID),
                 formula="mean(Nafis_Purchase)/mean(Estimated_Total_Purchase) over ACTIVE months",
                 caveat=LEAKAGE_CAVEAT, confidence=0.5, assumption=False,
             )
@@ -128,7 +128,7 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 f"ظرفیت رشد برآوردی این مشتری {money(r.headroom_value, st)} ریال است "
                 f"({num(r.capacity_gap_ratio, 2)} برابر همتایان هم‌بخش خود خرید می‌کند).",
                 float(r.headroom_value), unit="ریال", kind="comparison",
-                window=window, source_rows=rows_ref(S.S_SALES, [cid]),
+                window=window, source_rows=rows_ref(S.S_SALES, [cid], key=S.CUSTOMER_ID),
                 formula=("(peer_p75_revenue_per_active_month − own) × active_months"
                          if estimated else
                          "(Estimated_Total_Purchase − Nafis_Purchase) over active months"),

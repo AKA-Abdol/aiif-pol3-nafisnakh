@@ -21,7 +21,7 @@ def test_help_lists_every_command():
 def test_fixture_command_reports_full_detector_coverage():
     result = runner.invoke(app, ["fixture"])
     assert result.exit_code == 0, result.stdout
-    assert "22 از 22" in result.stdout
+    assert "27 از 27" in result.stdout
     assert "فعال نشد" not in result.stdout
 
 

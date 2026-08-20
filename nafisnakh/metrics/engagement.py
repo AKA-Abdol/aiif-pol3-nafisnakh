@@ -152,7 +152,7 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 f"{num(r.offers_total)} پیشنهاد قیمتی/مدت‌دار برای این مشتری ثبت شده است "
                 f"({num(r.offers_price_type)} قیمتی و {num(r.offers_financing_type)} مدت‌دار).",
                 float(r.offers_total), unit="مورد", kind="event",
-                window=window, source_rows=rows_ref(S.S_OFFERS, [cid]),
+                window=window, source_rows=rows_ref(S.S_OFFERS, [cid], key=S.CUSTOMER_ID),
                 formula="count(آفرها)",
                 caveat=("مدت‌دار is a financing concession, not a price cut; the two "
                         "discount scales are not comparable (§5.3). Offer effectiveness "

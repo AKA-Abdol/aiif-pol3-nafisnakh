@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نفیس‌نخ",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "اصلاح فرآیند تولید",
+  "systemic_fix": true,
+  "escalation_body_fa": "جلسه خدمات مشتری",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "با تأیید بروز پارگی فیلامنت در خط تولید، در جلسه خدمات مشتری تصویب شد که در زمان‌های بحران تولید، محصولات نامناسب ارسال نشده و صرفاً در داخل سازمان مصرف شوند."
+}

@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "مشتری",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "اختلاف در شیرینکیج نخ ناشی از فرآیند تکسچرایزینگ و تابندگی مشتری",
+  "remedy_type": "بدون اقدام",
+  "systemic_fix": false,
+  "escalation_body_fa": "بازدید میدانی",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "بررسی میدانی نشان داد تفاوت شید رنگ به دلیل اختلاف شیرینکیج در فرآیند تکسچرایزینگ و تابندگی مشتری بوده و مشکلی از سمت نفیس‌نخ وجود ندارد."
+}

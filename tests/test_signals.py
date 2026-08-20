@@ -27,10 +27,10 @@ def run(ctx):
     return run_detectors(ctx)
 
 
-def test_exactly_twenty_two_detectors_are_registered():
+def test_every_registered_detector_is_accounted_for():
     dets = all_detectors()
-    assert len(dets) == 22
-    assert len({d.name for d in dets}) == 22
+    assert len(dets) == 27
+    assert len({d.name for d in dets}) == 27
     assert {d.category for d in dets} <= {"risk", "opportunity", "efficiency"}
 
 
@@ -150,7 +150,7 @@ def test_calibration_passes_for_every_detector(run, ctx):
     it could possibly fire on. Detectors that are rare by design are exempt
     from the lower bound only."""
     report = calibrate(run, ctx)
-    assert len(report.rows) == 22
+    assert len(report.rows) == 27
     assert report.failures.empty, f"\n{report.failures.to_string(index=False)}"
 
 
@@ -216,3 +216,49 @@ def test_llm_block_only_runs_for_triggered_customers(run, ctx):
     triggered = set(run.triggered_customers())
     assert triggered
     assert triggered <= set(ctx.population)
+
+
+# ---------------------------------------------- resolution block (PLAN §2)
+def test_templates_are_matched_after_normalisation():
+    """The patterns and the text must go through the same normaliser.
+
+    `normalize_fa` folds hamza (تأیید → تایید) and strips punctuation, so a
+    pattern written in raw orthography matches nothing. This exact bug made the
+    "claim not substantiated" frame miss all 62 rows it was written for.
+    """
+    from nafisnakh.llm.blocks.resolution import template_extraction
+
+    raw = "نتایج در محدوده الزام محصول بود و مغایرتی که ادعای مشتری را تأیید کند مشاهده نشد."
+    e = template_extraction(raw)
+    assert e is not None
+    assert e.fault_verdict == "مشتری"
+    assert e.initial_claim_overturned is True
+
+
+def test_awaiting_sample_is_reported_as_pending():
+    from nafisnakh.llm.blocks.resolution import template_extraction
+
+    e = template_extraction("تا زمان دریافت نمونه و انجام آزمون تکمیلی، موضوع باز است.")
+    assert e is not None and e.investigation_state == "منتظر نمونه یا آزمون"
+    assert e.resolution_confirmed is False
+
+
+def test_unrecognised_prose_escalates_to_the_model():
+    """Returning None is what sends Universe-B prose to the LLM."""
+    from nafisnakh.llm.blocks.resolution import template_extraction
+
+    assert template_extraction("متنی که هیچ قالب شناخته‌شده‌ای ندارد") is None
+    assert template_extraction("") is None
+    assert template_extraction(None) is None
+
+
+def test_resolution_is_gated_on_its_own_availability_stamp(ctx):
+    """Rule #4: the answer is knowable from Resolution_Available_At, not before."""
+    import pandas as pd
+    from nafisnakh.io import schema as S
+    from nafisnakh.llm.blocks.resolution import knowable_resolutions
+
+    rows = knowable_resolutions(ctx)
+    stamp = pd.to_datetime(rows[S.K_RESOLUTION_AVAILABLE_AT], errors="coerce")
+    assert stamp.notna().all()
+    assert (stamp <= pd.Timestamp(ctx.as_of)).all()

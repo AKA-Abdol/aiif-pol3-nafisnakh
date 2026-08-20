@@ -1,3 +1,10 @@
-"""The 22 detectors (PLAN §3.4), grouped as the plan groups them."""
+"""The 27 detectors (PLAN §3.4), grouped as the plan groups them."""
 
-from . import behaviour, opportunity, payment, price_margin, quality  # noqa: F401
+from . import (  # noqa: F401
+    behaviour,
+    open_loops,
+    opportunity,
+    payment,
+    price_margin,
+    quality,
+)

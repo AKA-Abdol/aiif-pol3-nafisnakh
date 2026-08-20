@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "مشتری",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "تلرانس نمره نخ در محدوده مجاز قرار داشت",
+  "remedy_type": "بدون اقدام",
+  "systemic_fix": false,
+  "escalation_body_fa": "هیچ",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "پس از بررسی نتایج کیفی و قرار داشتن تلرانس نمره در محدوده مجاز، شکایت مشتری رد شد."
+}

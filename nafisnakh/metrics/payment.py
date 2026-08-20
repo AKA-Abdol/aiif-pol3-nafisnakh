@@ -132,14 +132,25 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                  "exhausted", "open"),
     )
 
-    invoice_ids = inv.groupby(S.CUSTOMER_ID)[S.INVOICE_NO].apply(list)
+    # DSO is computed only from invoices that actually have visible collection
+    # events, so those are the invoices the claim must cite. Citing *all* the
+    # customer's invoices pointed at وصول rows that do not exist at this as_of —
+    # the number was gated but its reference was not.
+    collected_ids = (
+        inv.loc[inv["_events"].fillna(0) > 0]
+        .groupby(S.CUSTOMER_ID)[S.INVOICE_NO].apply(list)
+    )
     bounced_inv = (
         inv.loc[inv["_bounces"] > 0].groupby(S.CUSTOMER_ID)[S.INVOICE_NO].apply(list)
     )
     window = (ctx.spine.lines[S.F_DATE].min().date(), ctx.as_of)
 
     for cid, r in df.iterrows():
-        ref = rows_ref(S.S_COLLECTIONS, invoice_ids.get(cid, [])[-4:])
+        ref = rows_ref(S.S_COLLECTIONS, collected_ids.get(cid, [])[-4:])
+        # Open exposure is invoices *minus* collections, so for a customer with no
+        # collection events at all the وصول sheet holds nothing to show. Point the
+        # exposure claims at the invoices they are actually computed from.
+        exposure_ref = rows_ref(S.S_INVOICES, [cid], key=S.CUSTOMER_ID)
         if pd.notna(r.dso):
             ctx.emit(
                 cid, "dso",
@@ -163,7 +174,7 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 f"مانده باز {money(r.open_exposure, st)} ریال است"
                 + (f" و {pct(r.exposure_ratio, 0)} درصد سقف اعتبار را اشغال کرده است."
                    if pd.notna(r.exposure_ratio) else "."),
-                float(r.open_exposure), unit="ریال", window=window, source_rows=ref,
+                float(r.open_exposure), unit="ریال", window=window, source_rows=exposure_ref,
                 formula="Σ max(invoice_total - collected, 0)",
                 exposure_ratio=None if pd.isna(r.exposure_ratio) else round(float(r.exposure_ratio), 3),
             )
@@ -178,7 +189,7 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 cid, "credit-room",
                 f"{pct(free, 0)} درصد سقف اعتبار این مشتری هنوز آزاد است.",
                 round(free, 4), unit="درصد", kind="comparison",
-                window=window, source_rows=ref,
+                window=window, source_rows=exposure_ref,
                 formula="1 − open_exposure / Credit_Limit",
                 room_value=round(float(r.credit_room_value), 0),
                 credit_limit=(None if pd.isna(r.credit_limit)
@@ -200,7 +211,7 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 f"اثر خالص مالی (جریمه دیرکرد منهای هزینه سرمایه) "
                 f"{money(r.net_finance_effect, st)} ریال است.",
                 float(r.net_finance_effect), unit="ریال", kind="comparison",
-                window=window, source_rows=ref,
+                window=window, source_rows=exposure_ref,
                 formula=("Σ(days_late/30 × 4% × collected) "
                          "− Σ(days_tied/30 × wacc × amount)"),
                 assumption=True, confidence=0.6,
