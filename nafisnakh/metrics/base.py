@@ -275,6 +275,32 @@ def money(x: float | None, settings: Settings) -> str:
     return f"{x / settings.currency_scale:.1f}{settings.currency_label}"
 
 
+def jsonable(value: Any) -> Any:
+    """A metric row's value, out of pandas/numpy and into plain JSON.
+
+    Both the HTTP layer and the on-demand action cache have to write metric
+    values out — one to a response body, one to a file on disk — and a pandas
+    ``NaT`` or a ``numpy.int64`` is fatal to ``json.dumps`` in either. Defined
+    once here, beside the other "metric value, made presentable" helpers, so the
+    two cannot disagree about what ``NaN`` serialises to.
+    """
+    import numpy as np
+
+    if isinstance(value, (list, tuple)):
+        return [jsonable(v) for v in value]
+    if isinstance(value, dict):
+        return {k: jsonable(v) for k, v in value.items()}
+    if isinstance(value, pd.Timestamp):
+        return value.date().isoformat()
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, float) and pd.isna(value):
+        return None
+    if value is not None and not isinstance(value, (str, int, float, bool)):
+        return str(value)
+    return value
+
+
 # Dependency order, not registration order: economics consumes payment, quality
 # and engagement to build risk-adjusted margin, and wallet's headroom fallback
 # consumes economics.

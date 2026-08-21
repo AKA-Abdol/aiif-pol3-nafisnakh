@@ -1,0 +1,70 @@
+{
+  "customer_id": "C_314119",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_314119",
+    "rank": 14,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف درخواست توسعه و وصول مطالبات جهت احیای سفارش‌گذاری",
+    "rationale_fa": "مشتری با رتبه RFM معادل 255 [EV-C_314119-rfm-001] پس از 205 روز سکوت خرید [EV-C_314119-cadence-last-001] دچار افت حجم -100.0 درصد شده است [EV-C_314119-volume-001]. علت اصلی این وضعیت بحرانی [EV-C_314119-relationship-001]، بلاتکلیف ماندن 1 درخواست توسعه به مدت 218 روز است [EV-C_314119-devreq-001]. علاوه بر این، پر بودن 89 درصد سقف اعتبار با مانده باز 1.1M ریال [EV-C_314119-exposure-001] مانع ثبت هرگونه سفارش جدید بدون تسویه یا بازنگری اعتباری است.",
+    "recommended_step_fa": "برگزاری جلسه مشترک مدیر فروش و تیم فنی با مشتری برای ارائه پاسخ قطعی به درخواست توسعه 218 روزه [EV-C_314119-devreq-001] و تعیین برنامه تسویه مانده 1.1M ریال جهت آزادسازی سقف اعتبار [EV-C_314119-exposure-001].",
+    "owner": "مدیر فروش",
+    "evidence_ids": [
+      "EV-C_314119-rfm-001",
+      "EV-C_314119-cadence-last-001",
+      "EV-C_314119-volume-001",
+      "EV-C_314119-relationship-001",
+      "EV-C_314119-devreq-001",
+      "EV-C_314119-exposure-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "volume_decline",
+      "credit_exposure",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 13121105.14,
+    "source": "cached",
+    "detail": {
+      "priority_score": 264.77,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "توسعه محصول و شرایط مالی",
+    "unmet_promises_fa": [
+      "درخواست توسعه محصول بلاتکلیف و بدون پاسخ نهایی"
+    ],
+    "customer_priorities_fa": [
+      "پیگیری و تعیین تکلیف تقاضاهای توسعه فنی",
+      "تعدیل نرخ و شرایط پرداخت",
+      "تأمین پایدار"
+    ],
+    "recommended_tone_fa": "عذرخواهی بابت تأخیر طولانی در رسیدگی به درخواست فنی، همراه با رویکرد حل مسئله مالی و پیشنهاد سبد محصولات جدید",
+    "watch_items_fa": [
+      "ریزش دائمی و بی‌تحرکی طولانی‌مدت حساب",
+      "اشغال بخش عمده سقف اعتبار",
+      "از دست رفتن فرصت‌های فروش سبد جدید"
+    ],
+    "summary_fa": "خرید مشتری کاملاً متوقف شده و بلاتکلیف ماندن درخواست توسعه از سمت ما رابطه را قفل کرده است. احیای این مشتری نیازمند پاسخ فوری به نیاز فنی قبلی و تسویه بدهی‌های جاری است.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "volume_decline",
+    "credit_exposure",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

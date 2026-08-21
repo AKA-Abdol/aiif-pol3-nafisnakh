@@ -1,0 +1,73 @@
+{
+  "customer_id": "C_051535",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:12:29+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_051535",
+    "rank": 8,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف چک برگشتی و بازنگری سقف اعتبار مشتری",
+    "rationale_fa": "حجم خرید مشتری ۸۱.۱ درصد رشد داشته [EV-C_051535-volume-001]، اما مانده باز ۱۲.۴M ریال معادل ۱۷۵ درصد سقف اعتبار را اشغال کرده است [EV-C_051535-exposure-001]. همچنین ۱ فقره چک برگشتی ثبت شده [EV-C_051535-bounce-001]، دوره وصول ۶۱.۶ روز در برابر قرارداد ۳۰ روز است [EV-C_051535-dso-001] و اثر خالص مالی منفی ۱.۹M ریال گزارش شده است [EV-C_051535-finance-net-001].",
+    "recommended_step_fa": "برگزاری جلسه فوری با مشتری برای وصول و تعیین تکلیف ۱ فقره چک برگشتی و مانده معوق، و هماهنگی با واحد مالی جهت بازنگری سقف اعتبار پیش از تایید سفارش‌های جدید.",
+    "owner": "مدیر فروش و کارشناس وصول مطالبات",
+    "evidence_ids": [
+      "EV-C_051535-volume-001",
+      "EV-C_051535-exposure-001",
+      "EV-C_051535-bounce-001",
+      "EV-C_051535-dso-001",
+      "EV-C_051535-finance-net-001"
+    ],
+    "signals": [
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "bounced_cheque",
+      "volume_surge",
+      "late_interest_drag",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 30427140.169999998,
+    "source": "cached",
+    "detail": {
+      "priority_score": 293.05,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "مالی و تسویه اعتباری",
+    "unmet_promises_fa": [
+      "رسیدگی و تعیین تکلیف شکایت باز و قدیمی در خصوص تاب و لا"
+    ],
+    "customer_priorities_fa": [
+      "تأمین پیوسته و افزایش حجم بار",
+      "انعطاف در شرایط پرداخت و مهلت تسویه",
+      "ثبات کیفیت در مشخصات فنی نخ"
+    ],
+    "recommended_tone_fa": "قاطع و شفاف در زمینه لزوم تعیین تکلیف تعهدات مالی و چک برگشتی، توأم با دلجویی بابت تأخیر در پاسخ به شکایت کیفی پیش از افزایش سقف تحویل",
+    "watch_items_fa": [
+      "تداوم ثبت سفارش‌های سنگین بدون پوشش اعتباری و تسویه حساب‌های باز",
+      "ریسک تکرار برگشت چک و تأخیر در وصول مطالبات",
+      "تأثیر منفی شکایت کیفی معوق بر انگیزه تسویه حساب خریدار"
+    ],
+    "summary_fa": "مشتری با وجود خرید فعال و تمایل به افزایش برداشت، به دلیل نقض حدود اعتباری و وجود تعهدات مالی معوق در موقعیت پرریسکی قرار گرفته است. ضروری است پیش از تخصیص سهمیه جدید، وضعیت چک برگشتی و شکایت فنی باز تعیین تکلیف شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "bounced_cheque",
+    "volume_surge",
+    "late_interest_drag",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

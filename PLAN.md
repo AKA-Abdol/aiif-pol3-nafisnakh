@@ -651,7 +651,7 @@ frequency and monetary use the standing 12-month window. The purchase event is t
 ten SKUs at once look ten times more frequent.
 
 Six states, mapping `r` against `fm = (f+m)/2`. At the anchor:
-نیازمند توجه 166 · خوابیده 136 · قهرمان 122 · امیدبخش 74 · در معرض ریزش 15 ·
+نیازمند توجه 166 · غیرفعال 136 · مشتری کلیدی 122 · امیدبخش 74 · در معرض ریزش 15 ·
 کم‌خرید یا تازه‌وارد 13.
 
 `median_order_value` lives here too — it is the measured fallback the open-loop

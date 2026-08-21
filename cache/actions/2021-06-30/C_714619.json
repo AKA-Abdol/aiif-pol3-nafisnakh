@@ -1,0 +1,73 @@
+{
+  "customer_id": "C_714619",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_714619",
+    "rank": 17,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف مانده بدهی، بازنگری سقف اعتبار و مذاکره مجدد قیمت",
+    "rationale_fa": "مشتری 233 روز است خریدی انجام نداده [EV-C_714619-cadence-last-001] و حجم خرید ماهانه 3 ماه اخیر -100.0 درصد افت داشته است [EV-C_714619-volume-001]. مانده باز 1.8M ریال است که 281 درصد سقف اعتبار را اشغال کرده است [EV-C_714619-exposure-001]. همچنین اقدام بعدی ثبت‌شده در CRM برای «جلسه قیمت» 213 روز معلق مانده [EV-C_714619-loop-nextaction-001] و 2 آفر بدون پاسخ و منقضی‌شده در پرونده وجود دارد [EV-C_714619-loop-offer-001].",
+    "recommended_step_fa": "برگزاری جلسه مشترک فروش و مالی با مشتری جهت تعیین تکلیف وصول مانده 1.8M ریال و اصلاح سقف اعتبار، و سپس تجدید مذاکره قیمتی برای آفرها.",
+    "owner": "مدیر فروش با همراهی کارشناس وصول مطالبات/مالی",
+    "evidence_ids": [
+      "EV-C_714619-cadence-last-001",
+      "EV-C_714619-volume-001",
+      "EV-C_714619-exposure-001",
+      "EV-C_714619-loop-nextaction-001",
+      "EV-C_714619-loop-offer-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "credit_exposure",
+      "offer_negotiation_stalled",
+      "volume_decline",
+      "crm_promise_outstanding",
+      "late_interest_drag"
+    ],
+    "value_at_stake": 9295052.71,
+    "source": "cached",
+    "detail": {
+      "priority_score": 233.17,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "مالی و قیمت",
+    "unmet_promises_fa": [
+      "برگزاری و پیگیری جلسه مذاکره قیمتی ثبت‌شده در سیستم"
+    ],
+    "customer_priorities_fa": [
+      "شفافیت و انعطاف در قیمت‌گذاری",
+      "تسهیلات و سقف اعتباری",
+      "ثبات در تحویل سفارش‌ها"
+    ],
+    "recommended_tone_fa": "مسئولانه و شفاف، با محوریت رفع موانع مالی، تعیین تکلیف بدهی گذشته و توافق بر سر نرخ‌های جدید",
+    "watch_items_fa": [
+      "ریسک عدم بازگشت به چرخه خرید منظم",
+      "فراتر رفتن بدهی از حد اعتباری مجاز",
+      "فرسایشی شدن آفرها و پیشنهادات بی‌پاسخ"
+    ],
+    "summary_fa": "مشتری به دلیل بلاتکلیفی در مذاکرات قیمتی و پر شدن سقف اعتباری، ارتباط خرید خود را به طور کامل متوقف کرده است. احیای این حساب نیازمند تعیین تکلیف فوری مانده بدهی و نهایی‌سازی شرایط جدید همکاری است.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "credit_exposure",
+    "offer_negotiation_stalled",
+    "volume_decline",
+    "crm_promise_outstanding",
+    "late_interest_drag"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

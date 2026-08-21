@@ -1,0 +1,94 @@
+{
+  "customer_id": "C_126481",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T07:50:56+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_126481",
+    "rank": 98,
+    "priority": "بالا",
+    "bucket": "fix",
+    "title_fa": "تعیین تکلیف شکایت باز CMP-0340، تسویه مانده اعتباری و اصلاح قیمت قرارداد",
+    "rationale_fa": "مشتری با درآمد 2.1M ریال [EV-C_126481-revenue-001] دارای حاشیه سود ناخالص -10.0 درصد [EV-C_126481-margin-001] و حاشیه سود ریسک‌تعدیل‌شده -40.0 درصد [EV-C_126481-riskadj-001] است. مانده باز 0.3M ریال 140 درصد سقف اعتبار را پر کرده [EV-C_126481-exposure-001] و امکان سفارش‌گذاری جدید وجود ندارد. همچنین پرونده شکایت CMP-0340 به مدت 416 روز معطل آزمون مانده [EV-C_126481-resolution-pending-001]، 1 رد فنی 346 روز به مشتری اطلاع داده نشده [EV-C_126481-loop-rejection-001] و 2 نمونه تأییدشده 347 روز بدون آفر رها شده است [EV-C_126481-loop-sample-001].",
+    "recommended_step_fa": "اخذ نتیجه آزمون شکایت CMP-0340 از واحد فنی و اعلام وضعیت درخواست‌های توسعه به مشتری، سپس برگزاری جلسه مالی-فروش جهت تعیین تکلیف مانده 0.3M ریال و بازنگری در نرخ سود قرارداد قبل از ثبت هرگونه پیشنهاد جدید.",
+    "owner": "مدیر فروش با همکاری خدمات فنی و واحد مالی",
+    "evidence_ids": [
+      "EV-C_126481-revenue-001",
+      "EV-C_126481-margin-001",
+      "EV-C_126481-riskadj-001",
+      "EV-C_126481-exposure-001",
+      "EV-C_126481-resolution-pending-001",
+      "EV-C_126481-loop-rejection-001",
+      "EV-C_126481-loop-sample-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "negative_risk_adj_margin",
+      "dev_sample_ready_no_offer",
+      "dev_rejected_uncommunicated",
+      "margin_below_peer_cohort",
+      "credit_exposure",
+      "crm_promise_outstanding",
+      "unresolved_aging",
+      "dev_request_stalled",
+      "late_interest_drag",
+      "offer_negotiation_stalled",
+      "unsubstantiated_complaint_load"
+    ],
+    "value_at_stake": 2102198.53,
+    "source": "live",
+    "detail": {
+      "priority_score": 113.21,
+      "credit_room": "exhausted",
+      "open_investigation": "pending",
+      "relationship_stance": "mixed"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "فنی و توسعه محصول",
+    "unmet_promises_fa": [
+      "عدم ارسال پیشنهاد تجاری برای نمونه‌های فنی تأییدشده",
+      "عدم اطلاع‌رسانی نتیجه رد فنی درخواست توسعه به مشتری",
+      "شکایات باز و بلاتکلیف در حوزه بسته‌بندی و حمل",
+      "درخواست‌های توسعه محصول معطل و بدون تصمیم‌گیری",
+      "پیگیری تلفنی معوق و انجام‌نشده"
+    ],
+    "customer_priorities_fa": [
+      "پاسخگویی سریع و پیگیری پروژه‌های توسعه محصول",
+      "سلامت و کیفیت بسته‌بندی و فرآیند تحویل",
+      "شفافیت در ارائه قیمت و شرایط اعتباری"
+    ],
+    "recommended_tone_fa": "عذرخواهی شفاف و مسئولانه بابت معطلی طولانی در پرونده‌های فنی و شکایات، ارائه تکلیف نهایی درخواست‌ها، و سپس ورود به گفت‌وگوی بازنگری شرایط مالی",
+    "watch_items_fa": [
+      "ریسک بالای از دست رفتن دائمی مشتری به دلیل رهاسازی ارتباط فنی",
+      "تخطی از سقف اعتبار و زیان‌ده بودن فروش جاری",
+      "شکایات بررسی‌نشده و تأثیر منفی بر اعتماد مشتری"
+    ],
+    "summary_fa": "ارتباط با این مشتری به دلیل انباشت تعهدات فنی معوق، شکایات رهاشده و توقف طولانی در خرید به وضعیت بحرانی رسیده است. احیای این تعامل نیازمند پاسخگویی فوری به پرونده‌های باز توسعه و بازنگری کامل در شرایط قیمت‌گذاری و اعتباری است.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "negative_risk_adj_margin",
+    "dev_sample_ready_no_offer",
+    "dev_rejected_uncommunicated",
+    "margin_below_peer_cohort",
+    "credit_exposure",
+    "crm_promise_outstanding",
+    "unresolved_aging",
+    "dev_request_stalled",
+    "late_interest_drag",
+    "offer_negotiation_stalled",
+    "unsubstantiated_complaint_load"
+  ],
+  "n_llm_calls": 2,
+  "call_sources": [
+    "cached",
+    "live"
+  ]
+}

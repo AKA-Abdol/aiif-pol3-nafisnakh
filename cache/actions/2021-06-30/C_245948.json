@@ -1,0 +1,82 @@
+{
+  "customer_id": "C_245948",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:12:29+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_245948",
+    "rank": 1,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف چک‌های برگشتی و مانده اعتباری جهت ازسرگیری خرید",
+    "rationale_fa": "مانده باز 38.9M ریال بوده و 434 درصد سقف اعتبار را اشغال کرده است [EV-C_245948-exposure-001] و 2 فقره چک برگشتی ثبت شده است [EV-C_245948-bounce-001]. این وضعیت در کنار اثر خالص مالی منفی 9.0M ریال [EV-C_245948-finance-net-001] و سکوت خرید 23 روزه که 11.32 برابر ریتم خرید است [EV-C_245948-cadence-last-001] [EV-C_245948-cadence-ratio-001]، ادامه فروش را بدون رفع موانع مالی متوقف می‌کند.",
+    "recommended_step_fa": "برگزاری جلسه حضوری یا تماس فوری با مشتری جهت تعیین تکلیف 2 فقره چک برگشتی و وصول بخشی از مانده باز، به عنوان پیش‌شرط بازنگری سقف اعتبار و ثبت سفارش جدید.",
+    "owner": "مدیر اعتبارات و حسابداری فروش",
+    "evidence_ids": [
+      "EV-C_245948-exposure-001",
+      "EV-C_245948-bounce-001",
+      "EV-C_245948-finance-net-001",
+      "EV-C_245948-cadence-last-001",
+      "EV-C_245948-cadence-ratio-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "credit_exposure",
+      "offer_negotiation_stalled",
+      "bounced_cheque",
+      "discount_without_return",
+      "complaint_recurrence",
+      "late_interest_drag",
+      "unresolved_aging",
+      "unsubstantiated_complaint_load",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 81740422.52,
+    "source": "cached",
+    "detail": {
+      "priority_score": 441.57,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "unsubstantiated"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "مالی و تسویه حساب توأم با شکایات فنی حل‌نشده",
+    "unmet_promises_fa": [
+      "تعیین تکلیف و بستن شکایات باز و کهنه کیفی در خصوص شید رنگ و آسیب فیلامنت",
+      "پاسخ‌گویی و پیشبرد درخواست‌های توسعه محصول معطل‌مانده"
+    ],
+    "customer_priorities_fa": [
+      "رفع نواقص فنی تکرارشونده و ثبات کیفیت محصول",
+      "پیشبرد درخواست‌های توسعه‌ای محصولات جدید",
+      "انعطاف در شرایط پرداخت و تسهیلات اعتباری"
+    ],
+    "recommended_tone_fa": "قاطع و ساختاریافته پیرامون وصول مطالبات و تعیین تکلیف چک‌ها، همگام با ارائه برنامه زمان‌بندی دقیق برای حل مسائل کیفی و توسعه‌ای",
+    "watch_items_fa": [
+      "ریسک وصول مطالبات معوق و وضعیت چک‌های برگشتی",
+      "تداوم توقف خرید علی‌رغم تخفیف‌های ارائه‌شده",
+      "نارضایتی انباشته ناشی از طولانی شدن روند بررسی شکایات و طرح‌های توسعه"
+    ],
+    "summary_fa": "رابطه به دلیل همزمانی ریسک بالای مالی و چک‌های برگشتی با انبوه شکایات فنی و توسعه‌ای بی‌پاسخ در آستانه قطع کامل قرار دارد. احیای همکاری مستلزم شفاف‌سازی وضعیت اعتباری هم‌گام با اقدام فوری برای پاسخ‌گویی به تعهدات فنی معوق است.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "credit_exposure",
+    "offer_negotiation_stalled",
+    "bounced_cheque",
+    "discount_without_return",
+    "complaint_recurrence",
+    "late_interest_drag",
+    "unresolved_aging",
+    "unsubstantiated_complaint_load",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

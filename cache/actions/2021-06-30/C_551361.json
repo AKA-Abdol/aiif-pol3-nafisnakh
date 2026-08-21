@@ -1,0 +1,76 @@
+{
+  "customer_id": "C_551361",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_551361",
+    "rank": 23,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "مذاکره دلجویی بابت شکایات، تعیین‌تکلیف چک برگشتی و احیای سفارش",
+    "rationale_fa": "خرید مشتری ۱۱۴ روز است که متوقف شده [EV-C_551361-cadence-last-001] و حجم خرید ماهانه -100.0 درصد افت داشته است [EV-C_551361-volume-001]، در حالی که میانه ریتم خرید ۷ روز است [EV-C_551361-cadence-median-001]. در شکایات قبلی CMP-0251 و CMP-0506 قصور به عهده نفیس نخ بوده [EV-C_551361-resolution-fault-001] [EV-C_551361-resolution-fault-002]. همچنین ۱ فقره چک برگشتی [EV-C_551361-bounce-001] و مانده باز 0.9M ریال [EV-C_551361-exposure-001] وجود دارد، هرچند ۸۸ درصد سقف اعتبار مشتری آزاد است [EV-C_551361-credit-room-001].",
+    "recommended_step_fa": "تماس مدیر فروش با مشتری با محوریت پذیرش و تشریح اقدامات اصلاحی کیفی [EV-C_551361-resolution-fault-001] [EV-C_551361-resolution-fault-002]، توافق بر سر رفع ۱ فقره چک برگشتی [EV-C_551361-bounce-001] و ثبت سفارش مجدد در اندازه معمول 0.3M ریال [EV-C_551361-order-value-001].",
+    "owner": "مدیر فروش",
+    "evidence_ids": [
+      "EV-C_551361-cadence-last-001",
+      "EV-C_551361-volume-001",
+      "EV-C_551361-cadence-median-001",
+      "EV-C_551361-resolution-fault-001",
+      "EV-C_551361-resolution-fault-002",
+      "EV-C_551361-bounce-001",
+      "EV-C_551361-exposure-001",
+      "EV-C_551361-credit-room-001",
+      "EV-C_551361-order-value-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "offer_negotiation_stalled",
+      "volume_decline",
+      "bounced_cheque",
+      "discount_without_return",
+      "cross_sell_peer_gap",
+      "late_interest_drag"
+    ],
+    "value_at_stake": 7887253.15,
+    "source": "cached",
+    "detail": {
+      "priority_score": 218.46,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "apologise"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "مالی و رکود کامل خرید",
+    "unmet_promises_fa": [],
+    "customer_priorities_fa": [
+      "تطابق دقیق شید رنگ و بسته‌بندی مناسب",
+      "تخفیف‌های قیمتی و شرایط اعتباری منعطف"
+    ],
+    "recommended_tone_fa": "قاطع در پیگیری تسویه حساب و جویا شدن علت توقف همکاری، همراه با رویکرد حل مساله",
+    "watch_items_fa": [
+      "تعیین تکلیف چک برگشتی و مانده بدهی باز",
+      "علت‌سنجی عدم پاسخ به پیشنهادهای فروش ارسال‌شده",
+      "خطر ریزش کامل مشتری به سمت رقبا"
+    ],
+    "summary_fa": "توقف کامل خریدها هم‌زمان با وجود چک برگشتی و پیشنهادهای بی‌پاسخ، این رابطه را در آستانه قطع کامل قرار داده است. تمرکز فوری باید بر شفاف‌سازی وضعیت مالی و ارزیابی تمایل مشتری به ازسرگیری همکاری باشد.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "offer_negotiation_stalled",
+    "volume_decline",
+    "bounced_cheque",
+    "discount_without_return",
+    "cross_sell_peer_gap",
+    "late_interest_drag"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

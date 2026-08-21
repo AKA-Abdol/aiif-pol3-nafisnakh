@@ -1,0 +1,76 @@
+{
+  "customer_id": "C_535756",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:12:29+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_535756",
+    "rank": 7,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "بازنگری سقف اعتبار، پاسخ به درخواست‌های فنی و احیای سفارش‌ها",
+    "rationale_fa": "حجم خرید ماهانه مشتری -81.2 درصد افت کرده [EV-C_535756-volume-001] و سکوت خرید به 30 روز (7.88 برابر ریتم شخصی) رسیده است [EV-C_535756-cadence-ratio-001] [EV-C_535756-cadence-last-001]. مانده باز با 9.7M ریال، 129 درصد سقف اعتبار را پر کرده [EV-C_535756-exposure-001] و 4 درخواست توسعه تا 104 روز معطل مانده است [EV-C_535756-devreq-001]. همچنین در شکایات CMP-0322 و CMP-0344 قصور متوجه نفیس نخ بوده است [EV-C_535756-resolution-fault-001] [EV-C_535756-resolution-fault-002].",
+    "recommended_step_fa": "برگزاری جلسه مشترک با مشتری با محوریت پذیرش و ارائه اقدام اصلاحی شکایات قبلی، تعیین‌تکلیف 4 درخواست توسعه باز، و توافق بر سر تسویه یا بازنگری سقف اعتبار 9.7M ریالی پیش از ثبت سفارش جدید.",
+    "owner": "مدیر فروش با هماهنگی واحد مالی و فنی",
+    "evidence_ids": [
+      "EV-C_535756-volume-001",
+      "EV-C_535756-cadence-ratio-001",
+      "EV-C_535756-cadence-last-001",
+      "EV-C_535756-exposure-001",
+      "EV-C_535756-devreq-001",
+      "EV-C_535756-resolution-fault-001",
+      "EV-C_535756-resolution-fault-002"
+    ],
+    "signals": [
+      "volume_decline",
+      "cadence_breach",
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "discount_without_return",
+      "late_interest_drag"
+    ],
+    "value_at_stake": 51239181.86,
+    "source": "cached",
+    "detail": {
+      "priority_score": 300.25,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "apologise"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "مالی و عدم تعیین‌تکلیف درخواست‌های توسعه",
+    "unmet_promises_fa": [
+      "درخواست‌های توسعه محصول بلاتکلیف و بدون پاسخ مانده از سمت ما",
+      "پیشنهادهای فروش گذشته از مهلت اعتبار و بی‌پاسخ"
+    ],
+    "customer_priorities_fa": [
+      "توسعه محصولات جدید و پاسخ‌گویی فنی",
+      "شرایط پرداخت و انعطاف در سقف اعتبار",
+      "سلامت فیزیکی بسته‌بندی و عدم آسیب فیلامنت در حمل"
+    ],
+    "recommended_tone_fa": "پاسخ‌گویی شفاف و تعیین‌تکلیف درخواست‌های فنی و توسعه معطل‌مانده، سپس مذاکره قاطع اما حمایتی پیرامون تسویه مطالبات و احیای سفارش‌ها",
+    "watch_items_fa": [
+      "پر شدن سقف اعتبار و ریسک انباشت بدهی",
+      "توقف کامل خرید و فرسایشی شدن تعاملات",
+      "بی‌پاسخ ماندن بیشتر فرایندهای توسعه محصول و از دست رفتن انگیزه خرید"
+    ],
+    "summary_fa": "توقف خرید و فراتر رفتن مانده بدهی از سقف اعتبار در کنار معطل ماندن درخواست‌های توسعه، رابطه با این مشتری کلیدی را در وضعیت ناپایداری قرار داده است. اولویت مدیر فروش باید تسریع در پاسخ‌گویی به درخواست‌های فنی باز و هم‌زمان سامان‌دهی شرایط اعتباری برای بازگشت مشتری به چرخه خرید باشد.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "volume_decline",
+    "cadence_breach",
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "discount_without_return",
+    "late_interest_drag"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

@@ -38,9 +38,16 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
+from .aggregate.on_demand import (
+    action_for_customer,
+    adopt_queue_action,
+    read_cached,
+)
 from .config import get_settings
 from .feedback import FeedbackStore, detector_stats, detector_weights
+from .llm.client import LLMUnavailable
 from .llm.graph import run_pipeline
+from .metrics.base import jsonable
 
 log = logging.getLogger(__name__)
 
@@ -75,7 +82,41 @@ def _state(as_of: date | None = None, *, stage: Stage = "quadrant",
                 settings=st, as_of=as_of, top_n=top_n, use_graph=False,
                 stop_after=None if stage == "full" else "quadrant",
             )
+            if stage == "full":
+                _persist_queue(_CACHE[key])
         return _CACHE[key]
+
+
+def _persist_queue(state) -> None:
+    """Write every freshly built queue action to the on-demand cache.
+
+    The in-memory run answers the dossier only for as long as this process
+    lives. Persisting here means an account that reached today's queue stays
+    free to open tomorrow, and after a restart — which is the difference between
+    a cache and a memo. Done once, on the cold build, rather than on every
+    ``/actions`` request that reads the same warm state.
+    """
+    queue, ctx = state.get("queue"), state["ctx"]
+    if queue is None:
+        return
+    weights = state.get("weights") or state["signals"].weights
+    by_customer = state["signals"].by_customer()
+    table = ctx.tables.get("relationship")
+    for action in queue.actions:
+        cid = action.customer_id
+        relationship = (
+            {k: _jsonable(v) for k, v in table.loc[cid].to_dict().items()}
+            if table is not None and len(table) and cid in table.index else None
+        )
+        try:
+            adopt_queue_action(
+                state["settings"], state["as_of"], cid,
+                action=action.to_dict(), relationship=relationship,
+                signals=[s.detector for s in by_customer.get(cid, [])],
+                weights=weights,
+            )
+        except OSError as exc:      # a full disk must not lose the queue itself
+            log.warning("could not cache action for %s: %s", cid, exc)
 
 
 def _invalidate() -> None:
@@ -112,24 +153,10 @@ def _relationship_row(as_of: date, customer_id: str) -> dict | None:
     return None
 
 
-def _jsonable(value: Any) -> Any:
-    """pandas/numpy scalars and NaN out of a metric row, into JSON."""
-    import numpy as np
-    import pandas as pd
-
-    if isinstance(value, (list, tuple)):
-        return [_jsonable(v) for v in value]
-    if isinstance(value, dict):
-        return {k: _jsonable(v) for k, v in value.items()}
-    if isinstance(value, pd.Timestamp):
-        return value.date().isoformat()
-    if isinstance(value, np.generic):
-        value = value.item()
-    if isinstance(value, float) and pd.isna(value):
-        return None
-    if value is not None and not isinstance(value, (str, int, float, bool)):
-        return str(value)
-    return value
+#: pandas/numpy scalars and NaN out of a metric row, into JSON. Shared with the
+#: on-demand action cache, which has to write the same values to disk — see
+#: :func:`nafisnakh.metrics.base.jsonable`.
+_jsonable = jsonable
 
 
 def _row(state, table: str, customer_id: str) -> dict | None:
@@ -446,6 +473,161 @@ def hold_meeting_endpoint(customer_id: str, payload: MeetingIn | None = None,
         only_agents=(payload.agents if payload else None),
     )
     return {**meet.to_dict(), "brief_fa": meet.to_brief_fa()}
+
+
+# --------------------------------------------------------- on-demand action
+def _from_queue(as_of: date, customer_id: str) -> tuple[Any, Any] | None:
+    """An action a ``full`` run already built for this customer, if one is in memory.
+
+    Same lookup as :func:`_relationship_row`, and for the same reason: the
+    dossier runs on the ``quadrant`` stage and so never carries a queue of its
+    own, but a queue built under a different cache key in this process is still
+    the answer to the same question.
+    """
+    prefix = f"{as_of.isoformat()}|full|"
+    with _LOCK:
+        states = [v for k, v in _CACHE.items() if k.startswith(prefix)]
+    for state in states:
+        queue = state.get("queue")
+        if queue is None:
+            continue
+        action = next(
+            (a for a in queue.actions if a.customer_id == customer_id), None
+        )
+        if action is not None:
+            return state, action
+    return None
+
+
+def _existing_action(state, customer_id: str, weights: dict) -> dict | None:
+    """What is already known about this account's action, without spending.
+
+    Two places hold one, and both have to be consulted or the page contradicts
+    the queue: the disk cache, and a queue built in this process. The second is
+    adopted into the first on the way past, so the answer survives a restart.
+    """
+    st, as_of = state["settings"], state["as_of"]
+    hit = read_cached(st, as_of, customer_id, weights=weights)
+    if hit is not None:
+        return hit
+
+    found = _from_queue(as_of, customer_id)
+    if found is None:
+        return None
+    queue_state, action = found
+    relationship = _relationship_row(as_of, customer_id)
+    signals = [
+        s.detector for s in state["signals"].by_customer().get(customer_id, [])
+    ]
+    return adopt_queue_action(
+        st, as_of, customer_id, action=action.to_dict(),
+        relationship=relationship,
+        dropped=[d for d in queue_state["queue"].dropped
+                 if d.get("customer_id") == customer_id],
+        signals=signals, weights=weights,
+    )
+
+
+@app.get("/customers/{customer_id}/action", tags=["queue"])
+def customer_action(customer_id: str, as_of: date | None = None) -> dict:
+    """The action for one account **if it has already been paid for** — free.
+
+    Same split as ``/meeting/plan`` vs ``/meeting``: this GET only ever reads,
+    so a browser refresh cannot bill anyone. ``status`` tells the page which of
+    the two buttons to offer:
+
+    * ``ready``          — an action is on disk; it is in ``result``;
+    * ``not_computed``   — nothing cached, or what was cached went stale when the
+      model or the feedback weights moved. A POST would compute it.
+    """
+    state = _ctx(as_of, customer_id)
+    payload = _existing_action(
+        state, customer_id,
+        state.get("weights") or state["signals"].weights,
+    )
+    if payload is None:
+        return {
+            "customer_id": customer_id,
+            "as_of": state["as_of"].isoformat(),
+            "status": "not_computed",
+            "result": None,
+            "estimated_llm_calls": _estimated_calls(state, customer_id),
+        }
+    # A cached payload with no action is a draft that failed evidence validation,
+    # not a miss. Reporting it as `ready` would have the page render an empty
+    # card; reporting it as `not_computed` would offer a build that has already
+    # happened and would fail the same way. It gets its own status so the page
+    # can say what actually went wrong.
+    return {
+        "customer_id": customer_id,
+        "as_of": state["as_of"].isoformat(),
+        "status": "ready" if payload.get("action") else "dropped",
+        "result": {**payload, "served_from": "cache"},
+        "estimated_llm_calls": 0,
+    }
+
+
+@app.post("/customers/{customer_id}/action", tags=["queue"])
+def compute_customer_action(
+    customer_id: str,
+    as_of: date | None = None,
+    refresh: bool = Query(False, description="دوباره بساز حتی اگر کش تازه باشد"),
+) -> dict:
+    """Compute the full action for one account. **Costs model calls — hence POST.**
+
+    This is what the 360° page's button calls. It exists because the daily queue
+    stops at ``top_n``: an account below the line has every input computed and no
+    action written, and this pays the one or two calls that write it.
+
+    The result is cached to disk, so the second press is free and stays free
+    across a restart. ``refresh=true`` overrides that and pays again — the
+    escape hatch for a draft that came back wrong, never the default.
+    """
+    state = _ctx(as_of, customer_id)
+    weights = state.get("weights") or state["signals"].weights
+
+    # An account already in today's queue has an action; pressing the button on
+    # its page must adopt that one, not pay for a second copy of it. `refresh`
+    # is the deliberate exception.
+    if not refresh:
+        existing = _existing_action(state, customer_id, weights)
+        if existing is not None:
+            return {
+                "customer_id": customer_id,
+                "as_of": state["as_of"].isoformat(),
+                "status": "ready" if existing.get("action") else "dropped",
+                "result": {**existing, "served_from": "cache"},
+                "estimated_llm_calls": 0,
+            }
+
+    try:
+        result = action_for_customer(
+            state["ctx"], state["signals"], state["quadrants"], customer_id,
+            settings=state["settings"], weights=weights, refresh=refresh,
+        )
+    except LLMUnavailable as exc:
+        raise HTTPException(503, str(exc)) from exc
+    return {
+        "customer_id": customer_id,
+        "as_of": state["as_of"].isoformat(),
+        "status": "ready" if result.get("action") else "dropped",
+        "result": result,
+        "estimated_llm_calls": 0,
+    }
+
+
+def _estimated_calls(state, customer_id: str) -> int:
+    """What a POST would cost right now: drafting, plus synthesis if it is missing.
+
+    Shown on the button so the press is an informed one. It is a floor, not a
+    ceiling — a draft that fails evidence validation is retried once, exactly as
+    in the queue.
+    """
+    table = state["ctx"].tables.get("relationship")
+    has_relationship = (
+        table is not None and len(table) and customer_id in table.index
+    )
+    return 1 if has_relationship else 2
 
 
 # ------------------------------------------------------------- calibration

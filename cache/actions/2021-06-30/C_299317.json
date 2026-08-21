@@ -1,0 +1,65 @@
+{
+  "customer_id": "C_299317",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:12:29+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_299317",
+    "rank": 4,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "مذاکره اصلاح قیمت و معرفی سبد جدید با توجه به رشد خرید",
+    "rationale_fa": "حجم خرید ماهانه مشتری 1778.6 درصد رشد داشته [EV-C_299317-volume-001] و 31 درصد سقف اعتبار آزاد است [EV-C_299317-credit-room-001]، اما موقعیت قیمتی -12.6 درصد افت کرده [EV-C_299317-price-trend-001] و اقدام قبلی CRM برای «جلسه قیمت» 39 روز معطل مانده است [EV-C_299317-loop-nextaction-001]. همچنین امکان فروش Product_Family_03 وجود دارد [EV-C_299317-crosssell-001].",
+    "recommended_step_fa": "برگزاری جلسه بازنگری قیمت جهت توقف فرسایش نرخ‌ها و ارائه پیشنهاد فروش خانواده محصول Product_Family_03 متناسب با اعتبار باقی‌مانده.",
+    "owner": "مدیر فروش",
+    "evidence_ids": [
+      "EV-C_299317-volume-001",
+      "EV-C_299317-credit-room-001",
+      "EV-C_299317-price-trend-001",
+      "EV-C_299317-loop-nextaction-001",
+      "EV-C_299317-crosssell-001"
+    ],
+    "signals": [
+      "volume_surge",
+      "price_erosion",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 53337714.480000004,
+    "source": "cached",
+    "detail": {
+      "priority_score": 339.59,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "unsubstantiated"
+    }
+  },
+  "relationship": {
+    "health": "سالم",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "قیمت و حجم خرید",
+    "unmet_promises_fa": [],
+    "customer_priorities_fa": [
+      "تامین پیوسته حجم بالای سفارش",
+      "دریافت قیمت‌های رقابتی و تخفیف",
+      "پایداری کیفیت و جلوگیری از آسیب فیلامنت"
+    ],
+    "recommended_tone_fa": "استقبال از رشد همکاری، تثبیت شرایط قیمتی و بررسی ظرفیت اعتباری پیش از پذیرش تعهدات جدید",
+    "watch_items_fa": [
+      "فرسایش نرخ فروش و کاهش حاشیه سود",
+      "تکمیل ظرفیت سقف اعتبار مالی",
+      "بروز مجدد نقص کیفی فیلامنت"
+    ],
+    "summary_fa": "مشتری در دوره رشد چشمگیر تقاضا و خرید متوالی قرار دارد اما نرخ‌های فروش به سمت ارزان‌تر شدن متمایل شده است. لازم است پیش از افزایش بیشتر تعهدات، وضعیت اعتباری بازنگری شده و سبد محصولات جدید معرفی شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "volume_surge",
+    "price_erosion",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

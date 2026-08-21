@@ -1,5 +1,5 @@
 import type {
-  Action, Calibration, CustomerDossier, CustomerList, CustomerTools,
+  Action, Calibration, CustomerAction, CustomerDossier, CustomerList, CustomerTools,
   Evidence, EvidenceRows, FeedbackIn, FeedbackStats, Health, MeetingPlan,
   MeetingResult, Summary, ToolSpec, AgentSpec, Bucket,
 } from "./types";
@@ -97,6 +97,18 @@ export const api = {
       method: "POST",
       body: JSON.stringify(agents && agents.length ? { agents } : {}),
     }),
+
+  /** FREE — reads the on-disk cache only. Says whether a build would cost anything. */
+  customerAction: (id: string, asOf?: string) =>
+    req<CustomerAction>(`/customers/${encodeURIComponent(id)}/action${qs({ as_of: asOf })}`),
+
+  /** PAID — 1-2 model calls for this one account, then cached to disk forever.
+   *  `refresh` pays again on purpose; only ever from a second, explicit click. */
+  buildCustomerAction: (id: string, asOf?: string, refresh = false) =>
+    req<CustomerAction>(
+      `/customers/${encodeURIComponent(id)}/action${qs({ as_of: asOf, refresh: refresh ? "true" : undefined })}`,
+      { method: "POST" },
+    ),
 
   /** PAID — one model call per action on a cold run. */
   actions: (asOf?: string, opts: { bucket?: Bucket; priority?: string; limit?: number } = {}) =>

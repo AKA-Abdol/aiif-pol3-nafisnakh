@@ -478,8 +478,14 @@ def build_actions(
                 draft = None
                 break
 
-    for i, a in enumerate(actions, start=1):
-        object.__setattr__(a, "rank", i)
+    # A whole-book build renumbers so the queue reads 1..n with no holes where a
+    # draft was dropped in validation. An `only` build must NOT: its rank is the
+    # position in the book, which is the whole reason it was carried down from
+    # `numbered` above — renumbering here would undo that and announce every
+    # single-account build as rank 1.
+    if only is None:
+        for i, a in enumerate(actions, start=1):
+            object.__setattr__(a, "rank", i)
 
     return ActionQueue(
         actions=actions, as_of=ctx.as_of, dropped=dropped,

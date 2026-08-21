@@ -43,11 +43,11 @@ from .base import (
 # the frequency and monetary scores — how much this account is worth having —
 # and `r` is how alive it is right now.
 SEGMENT_FA = {
-    "champion": "قهرمان",
+    "champion": "مشتری کلیدی",
     "promising": "امیدبخش",
     "small_or_new": "کم‌خرید یا تازه‌وارد",
     "at_risk": "در معرض ریزش",
-    "hibernating": "خوابیده",
+    "hibernating": "غیرفعال",
     "needs_attention": "نیازمند توجه",
 }
 SEGMENT_MEANING_FA = {

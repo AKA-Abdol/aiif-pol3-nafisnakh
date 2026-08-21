@@ -1,0 +1,91 @@
+{
+  "customer_id": "C_113139",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_113139",
+    "rank": 20,
+    "priority": "فوری",
+    "bucket": "fix",
+    "title_fa": "بازنگری سقف اعتباری، تعیین‌تکلیف چک برگشتی و اصلاح شرایط قیمتی",
+    "rationale_fa": "با وجود رشد 204.7 درصدی حجم خرید ماهانه [EV-C_113139-volume-001] و درآمد کل 14.9M ریال [EV-C_113139-revenue-001]، مانده باز به 6.4M ریال رسیده و 165 درصد سقف اعتبار را اشغال کرده است [EV-C_113139-exposure-001]. همچنین 1 فقره چک برگشتی ثبت شده [EV-C_113139-bounce-001] و حاشیه سود ریسک‌تعدیل‌شده -0.7 درصد است [EV-C_113139-riskadj-001]. از سوی دیگر 2 درخواست توسعه رد فنی شده پس از 218 روز هنوز به مشتری اعلام نشده است [EV-C_113139-loop-rejection-001].",
+    "recommended_step_fa": "برگزاری جلسه با مشتری برای تعیین‌تکلیف چک برگشتی و بازنگری سقف اعتبار پیش از پذیرش سفارش جدید، همراه با ابلاغ شفاف دلایل رد 2 درخواست فنی معوق.",
+    "owner": "مدیر فروش با هماهنگی واحد اعتبارات و مالی",
+    "evidence_ids": [
+      "EV-C_113139-volume-001",
+      "EV-C_113139-revenue-001",
+      "EV-C_113139-exposure-001",
+      "EV-C_113139-bounce-001",
+      "EV-C_113139-riskadj-001",
+      "EV-C_113139-loop-rejection-001"
+    ],
+    "signals": [
+      "volume_surge",
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "dev_rejected_uncommunicated",
+      "bounced_cheque",
+      "mix_downgrade",
+      "complaint_recurrence",
+      "price_erosion",
+      "crm_promise_outstanding",
+      "late_interest_drag",
+      "dev_request_stalled",
+      "unsubstantiated_complaint_load",
+      "negative_risk_adj_margin"
+    ],
+    "value_at_stake": 13237858.179999998,
+    "source": "cached",
+    "detail": {
+      "priority_score": 225.75,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "mixed"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "مالی و تعهدات فنی معوق",
+    "unmet_promises_fa": [
+      "اطلاع‌رسانی شفاف درباره درخواست‌های توسعه ردشده به مشتری",
+      "تعیین تکلیف و پاسخ‌دهی به درخواست‌های توسعه محصول معلق",
+      "رسیدگی نهایی و بستن شکایت‌های کیفی قدیمی و باز",
+      "انجام پیگیری تلفنی وعده‌داده‌شده و معوق در سیستم"
+    ],
+    "customer_priorities_fa": [
+      "توسعه محصولات جدید متناسب با نیاز خط تولید",
+      "خرید با قیمت اقتصادی و شرایط پرداخت منعطف",
+      "رفع عیوب کیفی مربوط به تاب نخ و فرم بسته‌بندی"
+    ],
+    "recommended_tone_fa": "قاطع و منضبط در ساماندهی تعهدات مالی و چک برگشتی، همراه با پاسخگویی شفاف و عذرخواهی بابت تأخیر طولانی در رسیدگی به درخواست‌های فنی",
+    "watch_items_fa": [
+      "ریسک اعتباری ناشی از چک برگشتی و بدهی فراتر از سقف مجاز",
+      "فرسایش سودآوری ناشی از خرید اقلام ارزان‌تر و افت سطح قیمتی",
+      "نارضایتی پنهان مشتری به دلیل بلاتکلیف ماندن طولانی‌مدت درخواست‌های توسعه و شکایات"
+    ],
+    "summary_fa": "با وجود تداوم خریدهای پرحجم، بدهی فراتر از سقف اعتبار و وجود چک برگشتی در کنار سودآوری منفی، این حساب را در وضعیت پرریسک قرار داده است. باید پیش از هرگونه تعهد حجم جدید، وضعیت مالی ساماندهی شده و پاسخ معوقات فنی و شکایت‌های باز به مشتری اعلام شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "volume_surge",
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "dev_rejected_uncommunicated",
+    "bounced_cheque",
+    "mix_downgrade",
+    "complaint_recurrence",
+    "price_erosion",
+    "crm_promise_outstanding",
+    "late_interest_drag",
+    "dev_request_stalled",
+    "unsubstantiated_complaint_load",
+    "negative_risk_adj_margin"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

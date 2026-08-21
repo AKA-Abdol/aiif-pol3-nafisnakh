@@ -1,0 +1,69 @@
+{
+  "customer_id": "C_758522",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_758522",
+    "rank": 21,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف مانده باز و پیگیری احیای سفارش‌ها",
+    "rationale_fa": "مشتری ۲۱۲ روز است که خریدی ثبت نکرده [EV-C_758522-cadence-last-001] و حجم خرید ۳ ماه اخیر آن ۱۰۰.۰- درصد افت داشته است [EV-C_758522-volume-001]. همچنین مانده باز ۱.۵M ریال معادل ۱۹۴ درصد سقف اعتبار را اشغال کرده [EV-C_758522-exposure-001] و آخرین اقدام CRM نیز ۱۶۲ روز معلق مانده است [EV-C_758522-loop-nextaction-001].",
+    "recommended_step_fa": "تماس تلفنی فوری جهت تعیین تکلیف تسویه مانده باز ۱.۵M ریالی و بازنگری سقف اعتبار پیش از دریافت هرگونه سفارش جدید.",
+    "owner": "کارشناس فروش با هماهنگی امور مالی",
+    "evidence_ids": [
+      "EV-C_758522-cadence-last-001",
+      "EV-C_758522-volume-001",
+      "EV-C_758522-exposure-001",
+      "EV-C_758522-loop-nextaction-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "volume_decline",
+      "credit_exposure",
+      "crm_promise_outstanding",
+      "late_interest_drag"
+    ],
+    "value_at_stake": 8398309.48,
+    "source": "cached",
+    "detail": {
+      "priority_score": 224.05,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "مالی و توقف تعاملات خرید",
+    "unmet_promises_fa": [
+      "پیگیری تلفنی معوق و بلاتکلیف ماندن ارتباط از سمت ما"
+    ],
+    "customer_priorities_fa": [
+      "شرایط اعتباری و مهلت تسویه",
+      "برنامه‌ریزی منظم تحویل بار",
+      "ثبات کیفیت اقلام دریافتی"
+    ],
+    "recommended_tone_fa": "پیگیری محترمانه برای تعیین تکلیف مطالبات معوق، سپس ریشه‌یابی علت توقف خرید با رویکرد احیای حساب",
+    "watch_items_fa": [
+      "ریسک بالای عدم وصول مانده حساب معوق",
+      "تداوم رکود خرید و ریزش قطعی مشتری"
+    ],
+    "summary_fa": "رابطه به دلیل توقف کامل سفارش‌ها و عبور مانده حساب از سقف مجاز در وضعیت بسیار حساسی قرار گرفته است. لازم است پیش از هر اقدامی، مطالبات جاری تعیین تکلیف شده و برای بازگرداندن مشتری مذاکره شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "volume_decline",
+    "credit_exposure",
+    "crm_promise_outstanding",
+    "late_interest_drag"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

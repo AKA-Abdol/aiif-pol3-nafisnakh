@@ -1,0 +1,72 @@
+{
+  "customer_id": "C_069492",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_069492",
+    "rank": 15,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "بازنگری آفرهای باز و مشروط‌سازی قیمت‌گذاری به حجم و تسویه",
+    "rationale_fa": "تعداد 4 آفر بدون پاسخ و منقضی‌شده وجود دارد [EV-C_069492-loop-offer-001] در حالی که حجم خرید -29.3 درصد افت داشته [EV-C_069492-volume-001] و موقعیت قیمتی تعدیل‌شده -8.8 درصد فرسایش یافته است [EV-C_069492-price-trend-001]. همچنین دوره وصول 68.9 روز [EV-C_069492-dso-001] موجب اثر خالص مالی منفی -1.2M ریال شده است [EV-C_069492-finance-net-001]. با وجود 22 درصد سقف اعتبار آزاد [EV-C_069492-credit-room-001]، ادامه تخفیف بدون تعهد حجمی توجیه ندارد [EV-C_069492-relationship-001].",
+    "recommended_step_fa": "برگزاری جلسه مذاکره برای ابطال یا اصلاح ۴ آفر معوق، مشروط‌کردن نرخ‌ها به رعایت دوره وصول ۳۰ روزه و معرفی سبد Product_Family_03 جهت افزایش تنوع خرید.",
+    "owner": "مدیر فروش",
+    "evidence_ids": [
+      "EV-C_069492-loop-offer-001",
+      "EV-C_069492-volume-001",
+      "EV-C_069492-price-trend-001",
+      "EV-C_069492-dso-001",
+      "EV-C_069492-finance-net-001",
+      "EV-C_069492-credit-room-001",
+      "EV-C_069492-relationship-001",
+      "EV-C_069492-crosssell-001"
+    ],
+    "signals": [
+      "offer_negotiation_stalled",
+      "discount_without_return",
+      "late_interest_drag",
+      "price_erosion",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 21388862.62,
+    "source": "cached",
+    "detail": {
+      "priority_score": 264.23,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "شکننده",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "مالی و قیمت",
+    "unmet_promises_fa": [],
+    "customer_priorities_fa": [
+      "دریافت تخفیف‌های قیمتی و تسهیلات در تسویه",
+      "حفظ شرایط خرید اعتباری و مدت‌دار",
+      "تداوم دسترسی به اقلام مصرفی جاری"
+    ],
+    "recommended_tone_fa": "قاطع در توقف تخفیف‌های بی‌بازگشت و بازنگری شرایط پرداخت، همراه با معرفی سبدهای جدید مشروط به تعهد حجم",
+    "watch_items_fa": [
+      "فرسایش حاشیه سود به دلیل دوره وصول طولانی و هزینه‌های مالی",
+      "کاهش حجم خرید با وجود دریافت تخفیف‌های قیمتی",
+      "انباشت پیشنهادهای قیمتی بی‌پاسخ و بی‌سرانجام"
+    ],
+    "summary_fa": "خرید این حساب با ریتم منظم ادامه دارد اما دریافت تخفیف‌های یک‌طرفه و تأخیر در تسویه، سودآوری رابطه را به شدت تحت فشار گذاشته است. مذاکرات آتی باید بر اصلاح شرایط مالی، جلوگیری از فرسایش بیشتر قیمت و مشروط‌سازی تخفیف به تعهد خرید متمرکز شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "offer_negotiation_stalled",
+    "discount_without_return",
+    "late_interest_drag",
+    "price_erosion",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../api/client";
 import { useApp, useLink } from "../state/app";
-import type { CustomerDossier, Signal, ToolResult } from "../api/types";
-import { EvidenceChips } from "../components/Evidence";
+import type { CustomerAction, CustomerDossier, Signal, ToolResult } from "../api/types";
+import { EvidenceChips, WithEvidence } from "../components/Evidence";
 import {
-  BUCKET_MEANING_FA, BucketPill, CATEGORY_FA, Empty, GateBadge, RelationshipPanel,
-  SeverityBar, Skeleton, fmtMoney, fmtNum,
+  BUCKET_MEANING_FA, BucketPill, CATEGORY_FA, Empty, GateBadge,
+  RelationshipPanel, RunHint, SeverityBar, Skeleton, fmtMoney, fmtNum,
 } from "../components/bits";
 
 type Tab = "signals" | "loops" | "tools" | "evidence";
@@ -121,6 +121,8 @@ export default function DossierPage() {
         </div>
       </div>
 
+      <ActionPanel id={id} />
+
       <RelationshipPanel r={d.relationship} />
 
       {/* ------------------------------------------------------------- tabs */}
@@ -145,6 +147,131 @@ export default function DossierPage() {
         : toolsQ.isError ? <div className="notice bad">{(toolsQ.error as ApiError).fa}</div>
         : <ToolCards results={toolsQ.data?.results ?? []} />
       )}
+    </div>
+  );
+}
+
+/** The one account's action, built on demand.
+ *
+ *  The daily queue stops at `top_n`, so most accounts reach this page with every
+ *  input computed and no action written. The free GET says whether one is
+ *  already on disk; only the button spends anything, and what it spends is
+ *  printed on it before it is pressed. The result is cached server-side, so the
+ *  second visit renders from `status: "ready"` without a mutation at all. */
+function ActionPanel({ id }: { id: string }) {
+  const { asOf } = useApp();
+  const qc = useQueryClient();
+  const [confirmRefresh, setConfirmRefresh] = useState(false);
+
+  const key = ["customer-action", asOf, id] as const;
+  const q = useQuery({ queryKey: key, queryFn: () => api.customerAction(id, asOf) });
+
+  // A mutation, never a query: this must not fire on mount, on refocus, or on a
+  // retry. Its result is written straight into the query cache so navigating
+  // away and back shows the action without asking the server again.
+  const build = useMutation({
+    mutationFn: (refresh: boolean) => api.buildCustomerAction(id, asOf, refresh),
+    onSuccess: (data) => {
+      qc.setQueryData(key, data);
+      setConfirmRefresh(false);
+      // The synthesis it just paid for belongs on the dossier's own panel too.
+      qc.invalidateQueries({ queryKey: ["customer", asOf, id] });
+    },
+  });
+
+  if (q.isLoading) return <Skeleton h={120} />;
+  if (q.isError) return <div className="notice bad">{(q.error as ApiError).fa}</div>;
+
+  const data = q.data as CustomerAction;
+  const res = data.result;
+  const a = res?.action ?? null;
+
+  if (!a) {
+    const failed = data.status === "dropped" || (res?.dropped?.length ?? 0) > 0;
+    return (
+      <div className="card" style={{ marginBottom: 18 }}>
+        <div className="rowsplit">
+          <h3 style={{ flex: 1 }}>اقدام پیشنهادی برای این مشتری</h3>
+          {build.isPending && <span className="tag">در حال ساخت…</span>}
+        </div>
+
+        {failed ? (
+          <div className="notice bad" style={{ marginTop: 10 }}>
+            متنی ساخته شد ولی از اعتبارسنجی شواهد رد نشد و منتشر نشده است — عددی در آن
+            بود که در هیچ شاهدی نیامده بود. سیستم ترجیح داده چیزی نگوید تا چیز
+            بی‌پشتوانه بگوید.
+            {res?.dropped?.map((x, i) => (
+              <div key={i} className="tiny" style={{ marginTop: 6, opacity: 0.85 }}>
+                {x.issues?.map((y) => y.detail).join(" · ") || x.reason}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="muted" style={{ margin: "10px 0 0" }}>
+            صف روزانه فقط برای بالای دفتر ساخته می‌شود و این حساب در آن نبوده است. با
+            دکمهٔ زیر، اقدام پیشنهادی همین حالا برای همین یک مشتری ساخته می‌شود.
+          </p>
+        )}
+
+        {build.isError && (
+          <div className="notice bad" style={{ marginTop: 10 }}>{(build.error as ApiError).fa}</div>
+        )}
+
+        <div className="btnrow" style={{ marginTop: 12 }}>
+          <button className="primary" disabled={build.isPending} onClick={() => build.mutate(false)}>
+            {build.isPending ? "در حال ساخت…" : failed ? "دوباره بساز" : "ساخت اقدام برای این مشتری"}
+          </button>
+        </div>
+        <RunHint>چند ثانیه طول می‌کشد. نتیجه ذخیره می‌شود و دفعهٔ بعد بی‌درنگ باز می‌شود.</RunHint>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 18 }}>
+      <div className="rowsplit">
+        <span className="pill danger">{a.priority}</span>
+        <BucketPill bucket={a.bucket} title />
+        <h3 style={{ flex: 1, margin: 0 }}>{a.title_fa}</h3>
+        <span className="small muted">در معرض خطر <b className="num">{fmtMoney(a.value_at_stake)}</b></span>
+        <span className="tag">رتبه در دفتر #{a.rank}</span>
+      </div>
+
+      <div className="notice good" style={{ marginTop: 12 }}>
+        <strong>قدم بعدی:</strong> {a.recommended_step_fa}
+        <div className="tiny" style={{ marginTop: 6, opacity: 0.85 }}>مسئول: {a.owner}</div>
+      </div>
+
+      <div className="rowsplit" style={{ gap: 5, marginTop: 10 }}>
+        {a.signals.map((x) => <span key={x} className="tag">{x}</span>)}
+        {a.source === "rules" && <span className="pill fix">متن قالبی — مدل در دسترس نبود</span>}
+      </div>
+
+      <details className="sect" style={{ marginTop: 10 }}>
+        <summary>چرا؟</summary>
+        <p style={{ lineHeight: 2 }}><WithEvidence text={a.rationale_fa} /></p>
+        <EvidenceChips ids={a.evidence_ids} />
+      </details>
+
+      <div className="rowsplit" style={{ marginTop: 12, borderTop: "1px solid var(--rule)", paddingTop: 10 }}>
+        {/* When it was written is a fact about the advice; how it was produced
+            is our bookkeeping and stays off the page. */}
+        <span className="tiny muted">
+          {res?.computed_at ? `ساخته‌شده در ${res.computed_at.slice(0, 10)}` : ""}
+        </span>
+        <span className="spacer" />
+        {confirmRefresh ? (
+          <>
+            <span className="tiny muted">متن از نو نوشته می‌شود.</span>
+            <button className="sm" disabled={build.isPending} onClick={() => build.mutate(true)}>
+              {build.isPending ? "…" : "تأیید"}
+            </button>
+            <button className="ghost sm" onClick={() => setConfirmRefresh(false)}>انصراف</button>
+          </>
+        ) : (
+          <button className="ghost sm" onClick={() => setConfirmRefresh(true)}>ساخت دوباره</button>
+        )}
+      </div>
     </div>
   );
 }

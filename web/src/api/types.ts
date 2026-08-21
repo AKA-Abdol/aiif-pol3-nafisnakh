@@ -226,6 +226,35 @@ export interface Action {
   detail: Partial<Gates> & Record<string, unknown>;
 }
 
+/** What `POST /customers/{id}/action` computed, or what the free GET found cached. */
+export interface CustomerActionResult {
+  customer_id: string;
+  as_of: string;
+  fingerprint: string;
+  cache_version: string;
+  computed_at: string;
+  model: string;
+  action: Action | null;
+  relationship: Relationship | null;
+  dropped: Array<{ customer_id?: string; reason?: string; issues?: Array<{ code: string; detail: string }> }>;
+  signals: string[];
+  n_llm_calls: number;
+  call_sources: Source[];
+  /** `cache` = nothing was spent on this response. */
+  served_from: "cache" | "computed";
+}
+
+export interface CustomerAction {
+  customer_id: string;
+  as_of: string;
+  /** `ready` = an action exists · `not_computed` = a POST would build it ·
+   *  `dropped` = it was built but failed evidence validation. */
+  status: "ready" | "not_computed" | "dropped";
+  result: CustomerActionResult | null;
+  /** What a POST would cost right now. Zero when the answer is already cached. */
+  estimated_llm_calls: number;
+}
+
 export interface CalibrationRow {
   detector: string;
   category: SignalCategory;

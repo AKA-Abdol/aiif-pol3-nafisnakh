@@ -5,7 +5,7 @@ import { api, ApiError } from "../api/client";
 import { useApp, useLink } from "../state/app";
 import type { AgentSpec, Finding, MeetingPlan, MeetingResult } from "../api/types";
 import { EvidenceChips, WithEvidence } from "../components/Evidence";
-import { CostNotice, Empty, GateBadge, Skeleton } from "../components/bits";
+import { Empty, GateBadge, RunHint, Skeleton } from "../components/bits";
 
 const SECONDS_PER_AGENT = 12;
 
@@ -67,7 +67,6 @@ export default function MeetingPage() {
   if (plan.isError) return <div className="wrap"><div className="notice bad">{(plan.error as ApiError).fa}</div></div>;
   const p = plan.data as MeetingPlan;
 
-  const calls = selected.length * 2;
   const eta = Math.round(selected.length * SECONDS_PER_AGENT);
 
   return (
@@ -96,7 +95,6 @@ export default function MeetingPage() {
       <div className="card" style={{ marginBottom: 14 }}>
         <div className="rowsplit" style={{ marginBottom: 10 }}>
           <h3 style={{ flex: 1 }}>مرحلهٔ ۱ — تصمیم روتر</h3>
-          <span className="pill ok">رایگان</span>
         </div>
 
         <div className="stack">
@@ -145,9 +143,10 @@ export default function MeetingPage() {
         <div className="card">
           <div className="rowsplit" style={{ marginBottom: 10 }}>
             <h3 style={{ flex: 1 }}>مرحلهٔ ۲ — اجرای تحلیل‌گرها</h3>
-            <span className="pill fix">هزینه دارد</span>
           </div>
-          <CostNotice calls={calls} note={`${selected.length} تحلیل‌گر انتخاب شده · حدود ${eta} ثانیه روی اجرای سرد.`} />
+          <RunHint>
+            {selected.length} تحلیل‌گر انتخاب شده · حدود {eta} ثانیه طول می‌کشد.
+          </RunHint>
           <div className="btnrow" style={{ marginTop: 12 }}>
             <button
               className="primary"
@@ -177,7 +176,6 @@ export default function MeetingPage() {
         <>
           <div className="rowsplit" style={{ margin: "18px 0 12px" }}>
             <h2 style={{ flex: 1 }}>دستور جلسه</h2>
-            {!run.data && <span className="tag">از کش این نشست</span>}
             <button className="sm" onClick={() => navigator.clipboard.writeText(result.brief_fa)}>کپی متن</button>
             <button className="sm" onClick={() => window.print()}>چاپ</button>
             <button
@@ -230,7 +228,6 @@ function FindingCard({ f }: { f: Finding }) {
         {f.blocking && <span className="pill danger">بازدارنده</span>}
         <h3 style={{ flex: 1 }}>{f.question_fa}</h3>
         {f.source === "rules" && <span className="pill fix">متن قالبی — مدل در دسترس نبود</span>}
-        {f.source === "cached" && <span className="tag">از کش</span>}
       </div>
 
       <p className="tiny muted" style={{ margin: "6px 0 0" }}>چرا ارجاع شد: {f.trigger_fa}</p>

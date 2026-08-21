@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Bucket, Gates, Relationship, SignalCategory } from "../api/types";
 
 export const BUCKET_FA: Record<Bucket, string> = {
@@ -113,9 +114,8 @@ export function RelationshipPanel({ r }: { r: Relationship | null }) {
   if (!r) {
     return (
       <div className="notice" style={{ marginBottom: 18 }}>
-        جمع‌بندی رابطه هنوز برای این مشتری ساخته نشده است. این تحلیل فقط هنگام ساخت صف
-        اقدام و فقط برای مشتریان همان صف اجرا می‌شود، چون هر مورد یک فراخوان مدل دارد —
-        اگر صف امروز را بسازید و این مشتری در آن باشد، همین‌جا ظاهر می‌شود.
+        جمع‌بندی رابطه هنوز برای این مشتری آماده نشده است. با ساخت اقدام برای همین
+        مشتری — دکمهٔ بالای همین صفحه — ساخته می‌شود و همین‌جا ظاهر می‌شود.
       </div>
     );
   }
@@ -147,15 +147,15 @@ export function RelationshipPanel({ r }: { r: Relationship | null }) {
   );
 }
 
-/** Shown before every paid operation — never after (API.md §701). */
-export function CostNotice({ calls, note }: { calls: number; note?: string }) {
-  return (
-    <div className="notice cost">
-      <strong>این عملیات هزینهٔ مدل دارد:</strong>{" "}
-      <span className="num">{calls}</span> فراخوان مدل.{" "}
-      {note ?? "نتیجه روی سرور کش می‌شود؛ اجرای دوم فوری است."}
-    </div>
-  );
+/** A one-line footnote under a button that takes a while.
+ *
+ *  This used to be a warning box counting model calls. The reader is a sales
+ *  manager, and how many times we call a language model is our operational
+ *  detail, not their decision — putting it on screen made every useful button
+ *  look like a bill. What they do need is how long it takes, so that is all
+ *  this says, in the quietest type on the page. */
+export function RunHint({ children }: { children: ReactNode }) {
+  return <p className="tiny muted" style={{ margin: "8px 0 0" }}>{children}</p>;
 }
 
 export function Skeleton({ h = 90, n = 1 }: { h?: number; n?: number }) {

@@ -1,0 +1,86 @@
+{
+  "customer_id": "C_746892",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_746892",
+    "rank": 11,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف چک برگشتی، سقف اعتبار و شکایات معوق",
+    "rationale_fa": "مانده باز 8.1M ریال معادل 183 درصد سقف اعتبار را اشغال کرده [EV-C_746892-exposure-001] و 1 فقره چک برگشتی وجود دارد [EV-C_746892-bounce-001] که حاشیه سود ریسک‌تعدیل‌شده را به 0.5 درصد رسانده است [EV-C_746892-riskadj-001]. همزمان پرونده شکایت CMP-0136 به مدت 88 روز منتظر نتیجه آزمون مانده [EV-C_746892-resolution-pending-001] و نتیجه رد فنی 1 درخواست توسعه پس از 95 روز به مشتری اعلام نشده است [EV-C_746892-loop-rejection-001].",
+    "recommended_step_fa": "پیگیری فوری وصول چک برگشتی و بازنگری سقف اعتبار با همکاری واحد مالی، و همزمان بستن پرونده شکایت CMP-0136 و اعلام نتیجه رد فنی به مشتری پیش از ارائه هرگونه پیشنهاد تجاری جدید.",
+    "owner": "مدیر اعتبارات مالی و رئیس خدمات فنی فروش",
+    "evidence_ids": [
+      "EV-C_746892-exposure-001",
+      "EV-C_746892-bounce-001",
+      "EV-C_746892-riskadj-001",
+      "EV-C_746892-resolution-pending-001",
+      "EV-C_746892-loop-rejection-001"
+    ],
+    "signals": [
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "complaint_recurrence",
+      "bounced_cheque",
+      "dev_rejected_uncommunicated",
+      "discount_without_return",
+      "late_interest_drag",
+      "unresolved_aging",
+      "crm_promise_outstanding",
+      "dev_request_stalled",
+      "unsubstantiated_complaint_load"
+    ],
+    "value_at_stake": 23026243.950000003,
+    "source": "cached",
+    "detail": {
+      "priority_score": 270.23,
+      "credit_room": "exhausted",
+      "open_investigation": "pending",
+      "relationship_stance": "mixed"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.9,
+    "dominant_theme_fa": "ریسک‌های مالی و شکایات بلاتکلیف فنی",
+    "unmet_promises_fa": [
+      "اطلاع‌رسانی وضعیت رد فنی درخواست توسعه محصول به مشتری",
+      "تعیین تکلیف و پاسخ‌گویی به درخواست‌های توسعه معطل‌مانده",
+      "رسیدگی و بستن پرونده شکایات کیفی قدیمی و تکراری",
+      "انجام پیگیری تلفنی وعده‌داده‌شده در تعامل قبلی"
+    ],
+    "customer_priorities_fa": [
+      "پاسخ‌گویی سریع به نیازهای توسعه محصول و نمونه‌گیری",
+      "رفع عیوب کیفی و پایداری مشخصات فنی نخ",
+      "دریافت تسهیلات اعتباری و تخفیف‌های قیمتی"
+    ],
+    "recommended_tone_fa": "قاطع و شفاف در انضباط مالی و تعیین تکلیف اسناد برگشتی، هم‌زمان با مسئولیت‌پذیری و ارائه پاسخ روشن برای مطالبات فنی معوق",
+    "watch_items_fa": [
+      "تداوم فروش بدون تسویه اسناد و تجاوز از حد اعتباری",
+      "اعطای تخفیف بدون رشد متناظر در حجم برداشت",
+      "ریسک نارضایتی انباشته ناشی از شکایات فنی تکراری و بی‌پاسخ"
+    ],
+    "summary_fa": "جریان منظم خرید مشتری زیر سایه سنگین ریسک‌های اعتباری، سند برگشتی و پرونده‌های فنی معطل‌مانده قرار گرفته است. لازم است پیش از هرگونه توافق جدید، وضعیت مالی تثبیت شده و پاسخ قطعی شکایات و درخواست‌های توسعه ارائه شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "complaint_recurrence",
+    "bounced_cheque",
+    "dev_rejected_uncommunicated",
+    "discount_without_return",
+    "late_interest_drag",
+    "unresolved_aging",
+    "crm_promise_outstanding",
+    "dev_request_stalled",
+    "unsubstantiated_complaint_load"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

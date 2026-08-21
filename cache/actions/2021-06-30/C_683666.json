@@ -1,0 +1,84 @@
+{
+  "customer_id": "C_683666",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:12:29+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_683666",
+    "rank": 6,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف پرونده‌های فنی باز و بازنگری اعتباری مانده معوق",
+    "rationale_fa": "مانده باز مشتری 18.8M ریال است و 291 درصد سقف اعتبار را اشغال کرده و 1 فقره چک برگشتی دارد [EV-C_683666-exposure-001] [EV-C_683666-bounce-001]. از طرفی 7 شکایت باز وجود دارد [EV-C_683666-complaints-001] که پرونده‌هایی نظیر CMP-0061، CMP-0427 و CMP-0502 همچنان منتظر نمونه یا آزمون تکمیلی هستند [EV-C_683666-resolution-pending-001] [EV-C_683666-resolution-pending-002] [EV-C_683666-resolution-pending-003]. با توجه به افت 37.0- درصدی حجم خرید ماهانه [EV-C_683666-volume-001] و پر بودن سقف اعتبار، هرگونه پیشنهاد جدید بدون بستن پرونده‌های کیفی و تعیین تکلیف بدهی متوقف خواهد شد [EV-C_683666-relationship-001].",
+    "recommended_step_fa": "برگزاری جلسه مشترک واحد خدمات فنی و مالی با مشتری جهت نهایی‌سازی آزمون شکایات باز (CMP-0061 و CMP-0427 و CMP-0502) و تعیین برنامه وصول چک برگشتی پیش از بازنگری سقف اعتبار.",
+    "owner": "مدیر فروش با همکاری خدمات فنی و مالی",
+    "evidence_ids": [
+      "EV-C_683666-exposure-001",
+      "EV-C_683666-bounce-001",
+      "EV-C_683666-complaints-001",
+      "EV-C_683666-resolution-pending-001",
+      "EV-C_683666-resolution-pending-002",
+      "EV-C_683666-resolution-pending-003",
+      "EV-C_683666-volume-001",
+      "EV-C_683666-relationship-001"
+    ],
+    "signals": [
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "complaint_recurrence",
+      "bounced_cheque",
+      "discount_without_return",
+      "volume_decline",
+      "dev_request_stalled",
+      "late_interest_drag",
+      "unsubstantiated_complaint_load"
+    ],
+    "value_at_stake": 51207976.57,
+    "source": "cached",
+    "detail": {
+      "priority_score": 336.19,
+      "credit_room": "exhausted",
+      "open_investigation": "pending",
+      "relationship_stance": "mixed"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "مالی و کیفیت محصول",
+    "unmet_promises_fa": [
+      "درخواست‌های توسعه محصول معطل‌مانده و بلاتکلیف",
+      "شکایت‌های کیفی باز و بدون پاسخ نهایی",
+      "پیشنهادهای قیمت و آفرهای رهاشده و منقضی"
+    ],
+    "customer_priorities_fa": [
+      "ثبات مشخصات فنی و کیفیت فیلامنت و بسته‌بندی",
+      "دریافت تخفیف‌های قیمتی",
+      "پاسخ‌گویی سریع به نمونه‌ها و درخواست‌های فنی جدید"
+    ],
+    "recommended_tone_fa": "شفاف و قاطع درباره تعیین‌تکلیف اسناد مالی و چک برگشتی، همزمان با همدلی و تعهد اجرایی برای بستن شکایات کیفی و پرونده‌های توسعه معطل",
+    "watch_items_fa": [
+      "ریسک اعتباری ناشی از سقف باز مالی و وصول تعهدات",
+      "افت ادامه‌دار حجم سفارش‌ها علی‌رغم اعمال تخفیف",
+      "تکرار ایرادات کیفی در بسته‌بندی، شید رنگ و خواص مکانیکی نخ"
+    ],
+    "summary_fa": "رابطه با این مشتری با وجود استمرار خرید، به علت تعهدات مالی معوق و چک برگشتی از یک‌سو و معطل ماندن طولانی‌مدت شکایات و درخواست‌های توسعه از سوی دیگر در شرایط پرریسکی قرار دارد. اولویت اصلی باید انضباط‌بخشی به حساب‌های مالی و هم‌راستا با آن بستن پرونده‌های فنی باز باشد تا افت حجم خرید متوقف شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "complaint_recurrence",
+    "bounced_cheque",
+    "discount_without_return",
+    "volume_decline",
+    "dev_request_stalled",
+    "late_interest_drag",
+    "unsubstantiated_complaint_load"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

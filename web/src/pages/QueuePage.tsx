@@ -5,7 +5,7 @@ import { api, ApiError } from "../api/client";
 import { useApp, useLink } from "../state/app";
 import type { Action, Bucket, Decision } from "../api/types";
 import { WithEvidence, EvidenceChips } from "../components/Evidence";
-import { BUCKET_FA, BucketPill, CostNotice, GateBadge, Skeleton, fmtMoney } from "../components/bits";
+import { BUCKET_FA, BucketPill, GateBadge, RunHint, Skeleton, fmtMoney } from "../components/bits";
 
 const DECISIONS: Array<{ k: Decision; fa: string; needsReason: boolean }> = [
   { k: "done", fa: "انجام شد", needsReason: false },
@@ -96,8 +96,7 @@ export default function QueuePage() {
         <div className="card" style={{ marginBottom: 12 }}>
           <h3 style={{ marginBottom: 8 }}>ساخت صف اقدام</h3>
           <p className="dim small">
-            صف با نوشتن یک اقدام برای هر مشتری ساخته می‌شود و هر اقدام یک فراخوان مدل دارد.
-            به همین دلیل خودکار اجرا نمی‌شود.
+            صف خودکار ساخته نمی‌شود. تعداد و فیلترها را انتخاب کنید و بسازیدش.
           </p>
           <div className="filters" style={{ marginTop: 12, marginBottom: 12 }}>
             <label className="small muted">تعداد اقدام</label>
@@ -117,11 +116,7 @@ export default function QueuePage() {
               {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
-          {cached ? (
-            <div className="notice good">این ترکیب قبلاً ساخته شده و در کش مرورگر است — نمایشش رایگان است.</div>
-          ) : (
-            <CostNotice calls={limit} note="اجرای سرد ممکن است چند دقیقه طول بکشد؛ اجرای دوم از کش می‌آید." />
-          )}
+          {!cached && <RunHint>ساخت صف ممکن است چند دقیقه طول بکشد.</RunHint>}
           <div className="btnrow" style={{ marginTop: 12 }}>
             <button
               className="primary"
@@ -136,7 +131,7 @@ export default function QueuePage() {
       {armed && actions.isLoading && (
         <>
           <div className="notice info" style={{ marginBottom: 12 }}>
-            در حال ساخت صف — <span className="num">{limit}</span> فراخوان مدل. ممکن است چند دقیقه طول بکشد.
+            در حال ساخت صف — ممکن است چند دقیقه طول بکشد.
           </div>
           <Skeleton h={150} n={4} />
         </>

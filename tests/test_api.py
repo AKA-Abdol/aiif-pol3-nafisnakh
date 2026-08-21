@@ -133,6 +133,77 @@ def test_meeting_plan_is_free_and_holding_it_is_not(client):
     assert "دستور جلسه" in body["brief_fa"]
 
 
+def test_reading_an_action_is_free_and_building_it_is_not(client):
+    """Same split as the meeting pair, for the same reason.
+
+    The GET only ever reads the on-disk cache, so a browser refresh on the 360°
+    page cannot bill anyone. It also has to say what a build *would* cost, or the
+    button is asking for a blank cheque.
+    """
+    body = client.get(f"/customers/{BUSY}/action").json()
+    assert body["status"] in {"ready", "not_computed", "dropped"}
+    if body["status"] == "not_computed":
+        assert body["result"] is None
+        assert body["estimated_llm_calls"] in {1, 2}
+    else:
+        assert body["result"]["served_from"] == "cache"
+        assert body["estimated_llm_calls"] == 0
+        # a cached payload with no action is `dropped`, never a silent `ready`
+        assert (body["result"]["action"] is not None) == (body["status"] == "ready")
+
+
+def test_building_one_account_returns_an_action_ranked_by_the_book(client):
+    built = client.post(f"/customers/{BUSY}/action").json()
+    assert built["status"] in {"ready", "dropped"}
+    result = built["result"]
+    assert result["customer_id"] == BUSY
+
+    if built["status"] == "ready":
+        action = result["action"]
+        assert action["customer_id"] == BUSY
+        # `only=` builds carry the position in the whole book; announcing every
+        # single-account build as rank 1 is the bug this guards.
+        assert action["rank"] >= 1
+        assert action["evidence_ids"], "an action with no evidence should not ship"
+
+    # Whatever it produced is now on disk, so the free GET can serve it.
+    after = client.get(f"/customers/{BUSY}/action").json()
+    if built["status"] == "ready":
+        assert after["status"] == "ready"
+        assert after["estimated_llm_calls"] == 0
+        assert after["result"]["served_from"] == "cache"
+
+
+def test_a_customer_already_in_the_queue_is_not_offered_a_rebuild(client):
+    """The bug this guards: open an account from today's top ten and its page
+    offered to build an action that the queue had already paid for.
+
+    The queue builds into memory and nothing wrote it where the 360° page looks,
+    so the accounts most likely to be opened were exactly the ones that asked to
+    be paid for twice.
+    """
+    queued = client.get("/actions", params={"limit": 5}).json()
+    assert queued, "need a queue to have been built for this to mean anything"
+    cid = queued[0]["customer_id"]
+
+    body = client.get(f"/customers/{cid}/action").json()
+    assert body["status"] == "ready", "the page must find the queue's action"
+    assert body["estimated_llm_calls"] == 0
+    assert body["result"]["action"]["customer_id"] == cid
+    # adopted, not recomputed — nothing was spent finding it
+    assert body["result"]["n_llm_calls"] == 0
+
+    # And pressing the button anyway must adopt rather than pay again.
+    again = client.post(f"/customers/{cid}/action").json()
+    assert again["result"]["served_from"] == "cache"
+    assert again["result"]["action"] == body["result"]["action"]
+
+
+def test_action_endpoints_reject_an_unknown_customer(client):
+    assert client.get("/customers/C_NOPE/action").status_code == 404
+    assert client.post("/customers/C_NOPE/action").status_code == 404
+
+
 def test_calibration_reports_every_detector(client):
     body = client.get("/calibration").json()
     assert len(body["rows"]) == 28

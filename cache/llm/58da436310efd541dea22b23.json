@@ -1,0 +1,16 @@
+{
+  "title_fa": "مذاکره برای ریشه‌یابی افت خرید و توقف تخفیف‌های مازاد",
+  "rationale_fa": "حجم خرید ماهانه مشتری در 3 ماه اخیر -61.9 درصد افت کرده است [EV-FIX-014-volume-001] و فاصله آخرین خرید به 35 روز رسیده که 1.75 برابر ریتم 20 روزه مشتری است [EV-FIX-014-cadence-last-001] [EV-FIX-014-cadence-median-001] [EV-FIX-014-cadence-ratio-001]. با وجود ثبت 5 پیشنهاد قیمتی [EV-FIX-014-offers-001]، حاشیه سود در صدک 17 همتایان قرار گرفته [EV-FIX-014-margin-cohort-001] اما تقاضا بازنگشته است [EV-FIX-014-relationship-001]. همزمان 98 درصد سقف اعتبار مشتری آزاد است و مانعی از نظر اعتبار ندارد [EV-FIX-014-credit-room-001].",
+  "recommended_step_fa": "برگزاری جلسه حضوری یا تماس مستقیم مدیر فروش جهت بررسی دلایل کاهش سفارش‌ها و تثبیت ریتم خرید بدون ارائه تخفیف قیمتی جدید.",
+  "owner": "مدیر فروش",
+  "evidence_ids": [
+    "EV-FIX-014-volume-001",
+    "EV-FIX-014-cadence-last-001",
+    "EV-FIX-014-cadence-median-001",
+    "EV-FIX-014-cadence-ratio-001",
+    "EV-FIX-014-offers-001",
+    "EV-FIX-014-margin-cohort-001",
+    "EV-FIX-014-credit-room-001",
+    "EV-FIX-014-relationship-001"
+  ]
+}

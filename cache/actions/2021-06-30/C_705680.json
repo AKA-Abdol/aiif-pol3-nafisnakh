@@ -1,0 +1,72 @@
+{
+  "customer_id": "C_705680",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:12:29+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_705680",
+    "rank": 10,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "جلسه حضوری تعیین‌تکلیف درخواست فنی، تسویه مانده و بازنگری سقف اعتبار",
+    "rationale_fa": "خرید مشتری ۱۰۰ روز متوقف شده که ۱۴.۲۹ برابر ریتم ۷ روزه آن است [EV-C_705680-cadence-ratio-001] و افت حجم ماهانه به -۱۰۰.۰ درصد رسیده است [EV-C_705680-volume-001]. همچنین مانده باز ۱.۹M ریال معادل ۱۲۴ درصد سقف اعتبار را اشغال کرده [EV-C_705680-exposure-001] و ۱ درخواست توسعه ۴۴۱ روز بلاتکلیف مانده است [EV-C_705680-devreq-001]. با توجه به پذیرش قصور نفیس نخ در شکایت پیشین [EV-C_705680-resolution-fault-001]، احیای خرید مشروط به حل مسائل فنی و رفع انسداد اعتباری است.",
+    "recommended_step_fa": "برگزاری جلسه حضوری با مشتری با شروع از پذیرش قصور شکایت قبلی، ارائه پاسخ به درخواست توسعه باز، و توافق بر سر برنامه تسویه مانده ۱.۹M ریالی جهت امکان بازنگری سقف اعتبار.",
+    "owner": "مدیر فروش با همراهی نماینده مالی",
+    "evidence_ids": [
+      "EV-C_705680-cadence-ratio-001",
+      "EV-C_705680-volume-001",
+      "EV-C_705680-exposure-001",
+      "EV-C_705680-devreq-001",
+      "EV-C_705680-resolution-fault-001"
+    ],
+    "signals": [
+      "volume_decline",
+      "cadence_breach",
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "late_interest_drag",
+      "dev_request_stalled"
+    ],
+    "value_at_stake": 14118720.48,
+    "source": "cached",
+    "detail": {
+      "priority_score": 271.59,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "apologise"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "مالی و توسعه محصول",
+    "unmet_promises_fa": [
+      "بلاتکلیف ماندن و عدم تعیین‌تکلیف درخواست توسعه محصول"
+    ],
+    "customer_priorities_fa": [
+      "تعیین‌تکلیف پروژه‌های توسعه فنی",
+      "تسهیل شرایط اعتباری و تسویه مطالبات"
+    ],
+    "recommended_tone_fa": "پیگیری همراه با عذرخواهی بابت تأخیر طولانی در پاسخ به درخواست فنی، در کنار ایجاد راه‌حل عملی و منعطف برای تسویه مطالبات و بازگشایی اعتبار",
+    "watch_items_fa": [
+      "توقف کامل خریدها و فاصله غیرعادی از آخرین سفارش",
+      "تکمیل ظرفیت اعتباری و هزینه‌های دیرکرد مالی",
+      "بلاتکلیف ماندن پیشنهادهای فروش و درخواست توسعه"
+    ],
+    "summary_fa": "خرید این مشتری به طور کامل متوقف شده و به دلیل انفعال در پاسخ به نیاز توسعه فنی و انسداد اعتباری، رابطه در آستانه قطع کامل است. برای احیای همکاری، باید فوراً تکلیف درخواست فنی مشخص شده و هم‌زمان برنامه تسویه حساب تدوین گردد.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "volume_decline",
+    "cadence_breach",
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "late_interest_drag",
+    "dev_request_stalled"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

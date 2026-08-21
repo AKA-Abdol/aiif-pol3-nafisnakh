@@ -1,0 +1,19 @@
+{
+  "title_fa": "تعیین‌تکلیف شکایت باز کیفی و احیای ریتم خرید مشتری",
+  "rationale_fa": "مشتری علیرغم آزاد بودن 100 درصد سقف اعتبار [EV-FIX-005-credit-room-001] و سودآوری مطلوب [EV-FIX-005-margin-001][EV-FIX-005-riskadj-001]، به دلیل تأخیر در رسیدگی به شکایت باز 60 روزه CMPFIX-007 مربوط به «شکل‌گیری بسته» [EV-FIX-005-complaints-001][EV-FIX-005-complaint-age-001][EV-FIX-005-llm-mechanism-002][EV-FIX-005-resolution-pending-001]، دچار سکوت خرید 40 روزه (4 برابر میانه ریتم 10 روزه خود) [EV-FIX-005-cadence-last-001][EV-FIX-005-cadence-median-001][EV-FIX-005-cadence-ratio-001] و افت حجم خرید ماهانه به میزان -30.4 درصد شده است [EV-FIX-005-volume-001].",
+  "recommended_step_fa": "پیگیری فوری نتیجه آزمون تکمیلی پرونده شکایت CMPFIX-007 از واحد کنترل کیفیت و بستن پرونده، سپس هماهنگی جلسه حضوری با مشتری برای تجدید سفارش با تکیه بر اعتبار آزاد.",
+  "owner": "مدیر فروش با همکاری واحد خدمات فنی و کیفیت",
+  "evidence_ids": [
+    "EV-FIX-005-credit-room-001",
+    "EV-FIX-005-margin-001",
+    "EV-FIX-005-riskadj-001",
+    "EV-FIX-005-complaints-001",
+    "EV-FIX-005-complaint-age-001",
+    "EV-FIX-005-llm-mechanism-002",
+    "EV-FIX-005-resolution-pending-001",
+    "EV-FIX-005-cadence-last-001",
+    "EV-FIX-005-cadence-median-001",
+    "EV-FIX-005-cadence-ratio-001",
+    "EV-FIX-005-volume-001"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "title_fa": "مذاکره برای احیای ریتم خرید و معرفی خانواده کالای جدید",
+  "rationale_fa": "فاصله آخرین خرید مشتری به 40 روز رسیده که نسبت به میانه 20 روزه آن 2 برابر است [EV-FIX-003-cadence-ratio-001] و حجم خرید ماهانه -30.6 درصد افت کرده است [EV-FIX-003-volume-001]. همچنین حاشیه سود مشتری در صدک 0 همتایان است [EV-FIX-003-margin-cohort-001]. با توجه به اینکه 100 درصد سقف اعتبار آزاد است [EV-FIX-003-credit-room-001] و عدم قصور نفیس نخ در شکایات گذشته مشخص شده است [EV-FIX-003-resolution-unsubstantiated-001][EV-FIX-003-resolution-unsubstantiated-002]، بستر مناسبی برای فروش Product_Family_05 وجود دارد [EV-FIX-003-crosssell-001].",
+  "recommended_step_fa": "برگزاری جلسه مذاکره با مشتری جهت رفع ابهامات شکایات قبلی، فعال‌سازی مجدد سفارش‌ها و ارائه پیشنهاد خرید Product_Family_05 با تکیه بر اعتبار آزاد.",
+  "owner": "مدیر فروش",
+  "evidence_ids": [
+    "EV-FIX-003-cadence-ratio-001",
+    "EV-FIX-003-volume-001",
+    "EV-FIX-003-margin-cohort-001",
+    "EV-FIX-003-credit-room-001",
+    "EV-FIX-003-resolution-unsubstantiated-001",
+    "EV-FIX-003-resolution-unsubstantiated-002",
+    "EV-FIX-003-crosssell-001"
+  ]
+}

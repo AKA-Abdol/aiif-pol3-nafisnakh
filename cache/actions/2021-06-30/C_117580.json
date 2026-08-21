@@ -1,0 +1,90 @@
+{
+  "customer_id": "C_117580",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:12:29+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_117580",
+    "rank": 2,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف مطالبات مالی، چک‌های برگشتی و بررسی شکایات کیفی معوق",
+    "rationale_fa": "مشتری در وضعیت بحرانی و در معرض ریزش قرار دارد [EV-C_117580-rfm-001]، [EV-C_117580-relationship-001] و 296 روز است که خریدی ثبت نکرده است [EV-C_117580-cadence-last-001]. مانده باز 5.5M ریال معادل 905 درصد سقف اعتبار را پر کرده [EV-C_117580-exposure-001] و 3 فقره چک برگشتی وجود دارد [EV-C_117580-bounce-001]. از طرفی 8 شکایت تکراری در بازه 180 روزه [EV-C_117580-complaint-repeat-001] و تهدید به قطع همکاری [EV-C_117580-llm-churn-001] ثبت شده و 11 درخواست با وضعیت نمونه تأیید بدون آفر رها شده است [EV-C_117580-loop-sample-001]. با توجه به پر بودن سقف اعتبار، هرگونه فروش جدید منوط به تسویه بدهی و رفع مسائل کیفی است [EV-C_117580-relationship-001].",
+    "recommended_step_fa": "برگزاری جلسه مشترک مدیریت فروش و مالی با مشتری جهت تعیین برنامه زمان‌بندی تسویه مانده 5.5M ریال و 3 فقره چک برگشتی، همراه با ارائه گزارش اقدامات اصلاحی شکایات و شفاف‌سازی وضعیت 11 نمونه تأییدشده.",
+    "owner": "مدیر فروش و رئیس حسابداری فروش",
+    "evidence_ids": [
+      "EV-C_117580-rfm-001",
+      "EV-C_117580-relationship-001",
+      "EV-C_117580-cadence-last-001",
+      "EV-C_117580-exposure-001",
+      "EV-C_117580-bounce-001",
+      "EV-C_117580-complaint-repeat-001",
+      "EV-C_117580-llm-churn-001",
+      "EV-C_117580-loop-sample-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "offer_negotiation_stalled",
+      "complaint_recurrence",
+      "churn_threat_language",
+      "credit_exposure",
+      "dev_rejected_uncommunicated",
+      "bounced_cheque",
+      "dev_sample_ready_no_offer",
+      "dev_request_stalled",
+      "unresolved_aging",
+      "late_interest_drag",
+      "unsubstantiated_complaint_load"
+    ],
+    "value_at_stake": 42262437.16,
+    "source": "cached",
+    "detail": {
+      "priority_score": 376.73,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "mixed"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "کیفیت و مالی",
+    "unmet_promises_fa": [
+      "تعیین تکلیف و بستن شکایات کیفی معوق و تکراری",
+      "اطلاع‌رسانی نتایج درخواست‌های توسعه ردشده به مشتری",
+      "ارائه پیشنهاد تجاری برای نمونه‌های توسعه‌ای تأییدشده"
+    ],
+    "customer_priorities_fa": [
+      "رفع ایرادات کیفی تکراری در فیلامنت و بسته‌بندی",
+      "پیگیری و پاسخ‌گویی به پروژه‌های توسعه محصول",
+      "تسهیل و شفاف‌سازی شرایط تسویه حساب"
+    ],
+    "recommended_tone_fa": "پاسخ‌گو و شفاف همراه با پذیرش خطاهای فنی و پیگیری قاطع برای تعیین تکلیف مطالبات مالی",
+    "watch_items_fa": [
+      "ریسک قطع کامل همکاری به دلیل نارضایتی شدید از کیفیت",
+      "چک‌های برگشتی و ریسک اعتباری مانده مطالبات",
+      "پروژه‌های توسعه بلاتکلیف و رهاشده"
+    ],
+    "summary_fa": "انباشت شکایات کیفی حل‌نشده و تأخیر در پاسخ به درخواست‌های توسعه در کنار مسائل مالی و چک‌های برگشتی، این ارتباط را در آستانه قطع کامل قرار داده است. احیای رابطه مستلزم رسیدگی فوری به پرونده‌های کیفی معوق و توافق بر سر تسویه مطالبات پیش از آغاز دوباره همکاری است.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "offer_negotiation_stalled",
+    "complaint_recurrence",
+    "churn_threat_language",
+    "credit_exposure",
+    "dev_rejected_uncommunicated",
+    "bounced_cheque",
+    "dev_sample_ready_no_offer",
+    "dev_request_stalled",
+    "unresolved_aging",
+    "late_interest_drag",
+    "unsubstantiated_complaint_load"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

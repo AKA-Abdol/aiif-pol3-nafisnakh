@@ -1,0 +1,89 @@
+{
+  "customer_id": "C_051706",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T07:56:41+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_051706",
+    "rank": 79,
+    "priority": "بالا",
+    "bucket": "fix",
+    "title_fa": "بازدید فنی حضوری، پذیرش خطای کیفی و بازنگری شرایط تسویه",
+    "rationale_fa": "مشتری با درآمد کل 5.7M ریال [EV-C_051706-revenue-001] حاشیه سود ریسک‌تعدیل‌شده -6.4 درصد دارد [EV-C_051706-riskadj-001]. حجم خرید -74.4 درصد افت کرده [EV-C_051706-volume-001] و خرید 51 روز متوقف بوده است [EV-C_051706-cadence-last-001]. اقدام بازدید فنی 90 روز معوق مانده [EV-C_051706-loop-nextaction-001] و در شکایات قبلی قصور متوجه نفیس نخ بوده است [EV-C_051706-resolution-fault-001] [EV-C_051706-resolution-fault-002]. همچنین 1 فقره چک برگشتی [EV-C_051706-bounce-001] و دوره وصول 105.0 روز [EV-C_051706-dso-001] اثر مالی منفی -0.5M ریال ایجاد کرده است [EV-C_051706-finance-net-001].",
+    "recommended_step_fa": "انجام بازدید فنی معوق، ارائه گزارش اقدامات اصلاحی کیفی با پذیرش مسئولیت، و تعیین تکلیف چک برگشتی هم‌زمان با اصلاح دوره وصول قرارداد.",
+    "owner": "مدیر فروش با همراهی کارشناس خدمات فنی",
+    "evidence_ids": [
+      "EV-C_051706-revenue-001",
+      "EV-C_051706-riskadj-001",
+      "EV-C_051706-volume-001",
+      "EV-C_051706-cadence-last-001",
+      "EV-C_051706-loop-nextaction-001",
+      "EV-C_051706-resolution-fault-001",
+      "EV-C_051706-resolution-fault-002",
+      "EV-C_051706-bounce-001",
+      "EV-C_051706-dso-001",
+      "EV-C_051706-finance-net-001"
+    ],
+    "signals": [
+      "offer_negotiation_stalled",
+      "volume_decline",
+      "cadence_breach",
+      "bounced_cheque",
+      "late_interest_drag",
+      "negative_risk_adj_margin",
+      "complaint_recurrence",
+      "discount_without_return",
+      "crm_promise_outstanding"
+    ],
+    "value_at_stake": 3423913.56,
+    "source": "live",
+    "detail": {
+      "priority_score": 126.4,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "apologise"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.9,
+    "dominant_theme_fa": "مالی و کیفیت",
+    "unmet_promises_fa": [
+      "انجام بازدید فنی معوق",
+      "رسیدگی نهایی به شکایت باز در حوزه خواص مکانیکی",
+      "تعیین تکلیف و پیگیری درخواست‌های توسعه محصول"
+    ],
+    "customer_priorities_fa": [
+      "حل مشکلات کیفی و پایداری خواص مکانیکی",
+      "توسعه محصولات متناسب با نیاز تولید",
+      "شرایط منعطف مالی و اعتباری"
+    ],
+    "recommended_tone_fa": "مسئولانه و حل‌مسئله با عذرخواهی شفاف بابت عدم انجام بازدید فنی و پیگیری مسائل کیفی، پیش از ورود به مباحث مالی و فروش",
+    "watch_items_fa": [
+      "ریسک وصول مطالبات و سابقه چک برگشتی",
+      "تداوم ریزش خرید علی‌رغم اعطای تخفیف‌ها",
+      "تکرار ایرادات کیفی در نخ‌های تحویلی"
+    ],
+    "summary_fa": "رابطه با مشتری به دلیل معوق ماندن تعهدات فنی، تکرار مشکلات کیفی و ایجاد تنش مالی در آستانه قطع قرار گرفته است. ضروری است پیش از هرگونه مذاکره فروش، بازدید فنی انجام شده و وضعیت حساب مالی تعیین تکلیف گردد.",
+    "synthesis_source": "live"
+  },
+  "dropped": [],
+  "signals": [
+    "offer_negotiation_stalled",
+    "volume_decline",
+    "cadence_breach",
+    "bounced_cheque",
+    "late_interest_drag",
+    "negative_risk_adj_margin",
+    "complaint_recurrence",
+    "discount_without_return",
+    "crm_promise_outstanding"
+  ],
+  "n_llm_calls": 2,
+  "call_sources": [
+    "live",
+    "live"
+  ]
+}

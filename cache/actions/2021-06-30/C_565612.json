@@ -1,0 +1,73 @@
+{
+  "customer_id": "C_565612",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_565612",
+    "rank": 24,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "ارسال فوری نمونه معوق و پیگیری آفرهای بی‌پاسخ جهت احیای سفارش‌ها",
+    "rationale_fa": "مشتری با ریتم خرید 7 روز [EV-C_565612-cadence-median-001]، اکنون 191 روز است که خریدی نداشته [EV-C_565612-cadence-last-001] و حجم خرید ماهانه آن -100.0 درصد افت کرده است [EV-C_565612-volume-001]. تعهد CRM مبنی بر «ارسال نمونه» 292 روز معلق مانده [EV-C_565612-loop-nextaction-001] و 3 آفر بدون پاسخ و منقضی‌شده ثبت شده است [EV-C_565612-loop-offer-001]. با توجه به اینکه 72 درصد سقف اعتبار مشتری آزاد است [EV-C_565612-credit-room-001] و حاشیه سود ریسک‌تعدیل‌شده 9.0 درصد مثبت است [EV-C_565612-riskadj-001]، احیای رابطه بحرانی نیازمند رفع فوری بدقولی نمونه و مذاکره مجدد است [EV-C_565612-relationship-001].",
+    "recommended_step_fa": "ارسال فوری نمونه ثبت‌شده در CRM و تماس تلفنی مستقیم کارشناس فروش با مشتری برای پیگیری نمونه و به‌روزرسانی ۳ پیشنهاد قیمتی/مدت‌دار.",
+    "owner": "کارشناس فروش",
+    "evidence_ids": [
+      "EV-C_565612-cadence-median-001",
+      "EV-C_565612-cadence-last-001",
+      "EV-C_565612-volume-001",
+      "EV-C_565612-loop-nextaction-001",
+      "EV-C_565612-loop-offer-001",
+      "EV-C_565612-credit-room-001",
+      "EV-C_565612-riskadj-001",
+      "EV-C_565612-relationship-001"
+    ],
+    "signals": [
+      "cadence_breach",
+      "offer_negotiation_stalled",
+      "crm_promise_outstanding",
+      "cross_sell_peer_gap",
+      "volume_decline"
+    ],
+    "value_at_stake": 7296207.6,
+    "source": "cached",
+    "detail": {
+      "priority_score": 211.58,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "بحرانی",
+    "health_confidence": 0.95,
+    "dominant_theme_fa": "قیمت و توسعه محصول",
+    "unmet_promises_fa": [
+      "ارسال نمونه ثبت‌شده در تعاملات پیشین که بی‌پاسخ و معلق رها شده است"
+    ],
+    "customer_priorities_fa": [
+      "دریافت به‌موقع نمونه‌های درخواستی",
+      "سطح قیمت رقابتی در مقایسه با بازار",
+      "پیگیری مؤثر و شفاف پیشنهادهای تجاری"
+    ],
+    "recommended_tone_fa": "عذرخواهی مستقیم بابت تعلل در ارسال نمونه و سپس ارائه پیشنهادهای منعطف جهت احیای همکاری",
+    "watch_items_fa": [
+      "ریزش قطعی و گرایش کامل به سمت رقبا",
+      "عدم واکنش به پیشنهادهای جدید به دلیل بی‌اعتمادی از پیگیری‌های گذشته"
+    ],
+    "summary_fa": "مشتری به علت بی‌توجهی به تعهد ارسال نمونه و معلق ماندن پیشنهادها خرید خود را کاملاً متوقف کرده و رابطه در آستانه قطع دائم است. برای احیای رابطه، باید فوراً تعهد ارسال نمونه انجام شده و مذاکره برای بازگرداندن سفارش‌ها آغاز گردد.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "offer_negotiation_stalled",
+    "crm_promise_outstanding",
+    "cross_sell_peer_gap",
+    "volume_decline"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

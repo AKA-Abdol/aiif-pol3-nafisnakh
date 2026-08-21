@@ -1,0 +1,14 @@
+{
+  "title_fa": "تماس جهت بازیابی ریتم خرید و معرفی Product_Family_05",
+  "rationale_fa": "حجم خرید ماهانه در ۳ ماه اخیر -52.9 درصد افت کرده [EV-FIX-008-volume-001] و آخرین خرید 40 روز پیش انجام شده که نسبت به ریتم شخصی 20 روزه مشتری، نسبت سکوت 2 برابر شده است [EV-FIX-008-cadence-last-001] [EV-FIX-008-cadence-median-001] [EV-FIX-008-cadence-ratio-001]. با توجه به اینکه 100 درصد سقف اعتبار آزاد است [EV-FIX-008-credit-room-001] و مشتری تاکنون Product_Family_05 را نخریده است [EV-FIX-008-crosssell-001]، امکان سفارش‌گذاری مجدد و توسعه سبد وجود دارد.",
+  "recommended_step_fa": "تماس مستقیم با مشتری جهت بررسی علت توقف سفارش‌ها، فعال‌سازی مجدد خرید با اتکا به سقف اعتبار آزاد و ارائه پیشنهاد فروش خانواده کالایی Product_Family_05.",
+  "owner": "کارشناس فروش",
+  "evidence_ids": [
+    "EV-FIX-008-volume-001",
+    "EV-FIX-008-cadence-last-001",
+    "EV-FIX-008-cadence-median-001",
+    "EV-FIX-008-cadence-ratio-001",
+    "EV-FIX-008-credit-room-001",
+    "EV-FIX-008-crosssell-001"
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "customer_id": "C_739947",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_739947",
+    "rank": 19,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "اطلاع‌رسانی رد فنی و مذاکره برای تسویه و بازنگری سقف اعتبار",
+    "rationale_fa": "مشتری ۱ درخواست توسعه «فنی رد» دارد که ۴۸ روز است پاسخی به آن ثبت نشده است [EV-C_739947-loop-rejection-001] و ۲ آفر منقضی بدون پاسخ دارد [EV-C_739947-loop-offer-001]. از سوی دیگر، مانده باز ۵.۰M ریال معادل ۱۴۲ درصد سقف اعتبار است [EV-C_739947-exposure-001] و دوره وصول ۵۷.۲ روزه فراتر از قرارداد ۳۰ روزه است [EV-C_739947-dso-001]؛ بنابراین پیش از هر اقدام تجاری، تعیین‌تکلیف فنی و اعتبار ضروری است [EV-C_739947-relationship-001].",
+    "recommended_step_fa": "تماس مستقیم با مشتری برای شفاف‌سازی و اعلام رسمی دلیل رد درخواست فنی و توافق بر سر برنامه تسویه مانده ۵.۰M ریالی جهت بازنگری سقف اعتبار و بررسی آفرهای باز.",
+    "owner": "مدیر فروش",
+    "evidence_ids": [
+      "EV-C_739947-loop-rejection-001",
+      "EV-C_739947-loop-offer-001",
+      "EV-C_739947-exposure-001",
+      "EV-C_739947-dso-001",
+      "EV-C_739947-relationship-001"
+    ],
+    "signals": [
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "dev_rejected_uncommunicated",
+      "late_interest_drag",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 18770885.7,
+    "source": "cached",
+    "detail": {
+      "priority_score": 225.76,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "شکننده",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "مالی و اعتباری",
+    "unmet_promises_fa": [
+      "عدم اطلاع‌رسانی نتیجه رد بررسی فنی درخواست توسعه محصول به مشتری",
+      "بلاتکلیف ماندن پیشنهادهای تجاری و اعتباری ارسال‌شده"
+    ],
+    "customer_priorities_fa": [
+      "انعطاف در شرایط پرداخت و سقف اعتباری",
+      "پاسخ‌گویی به درخواست‌های فنی و سفارشی‌سازی",
+      "ثبات در تأمین مستمر بار"
+    ],
+    "recommended_tone_fa": "شفاف و پاسخ‌گو در خصوص عدم امکان اجرای طرح فنی، همراه با مذاکره ساختاریافته برای ساماندهی حساب و اعتبارات",
+    "watch_items_fa": [
+      "افزایش ریسک اعتباری و دیرکرد در تسویه حساب‌ها",
+      "واکنش مشتری پس از اطلاع‌رسانی نتیجه منفی درخواست فنی",
+      "سرنوشت پیشنهادهای تجاری معلق"
+    ],
+    "summary_fa": "با وجود استمرار خریدهای مشتری، فشار مانده اعتباری و بی‌پاسخ ماندن نتیجه بررسی فنی، رابطه تجاری را با چالش مواجه کرده است. مدیر فروش باید ابتدا تکلیف درخواست فنی را شفاف کند و سپس وارد توافق برای مدیریت مانده حساب شود.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "dev_rejected_uncommunicated",
+    "late_interest_drag",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

@@ -1,0 +1,79 @@
+{
+  "customer_id": "C_593639",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_593639",
+    "rank": 16,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "تعیین تکلیف شکایت باز CMP-0046 و بازنگری سقف اعتباری",
+    "rationale_fa": "با وجود رشد ۶۱.۵ درصدی حجم خرید [EV-C_593639-volume-001]، مانده باز ۷.۸M ریال ۳۲۷ درصد سقف اعتبار را اشغال کرده [EV-C_593639-exposure-001] و ۱ فقره چک برگشتی ثبت شده است [EV-C_593639-bounce-001]. همچنین پرونده شکایت CMP-0046 پس از ۳۳۰ روز همچنان منتظر نمونه یا آزمون تکمیلی است [EV-C_593639-resolution-pending-001] و ۶ پیشنهاد فروش بی‌پاسخ و منقضی مانده‌اند [EV-C_593639-loop-offer-001].",
+    "recommended_step_fa": "پیگیری فوری از واحد کیفیت برای نهایی‌سازی آزمون و بستن پرونده شکایت CMP-0046، و سپس هماهنگی با واحد مالی جهت تعیین تکلیف چک برگشتی و بازنگری سقف اعتبار پیش از ثبت سفارش‌های جدید.",
+    "owner": "کارشناس فروش با همکاری واحد مالی و کنترل کیفیت",
+    "evidence_ids": [
+      "EV-C_593639-volume-001",
+      "EV-C_593639-exposure-001",
+      "EV-C_593639-bounce-001",
+      "EV-C_593639-resolution-pending-001",
+      "EV-C_593639-loop-offer-001"
+    ],
+    "signals": [
+      "offer_negotiation_stalled",
+      "credit_exposure",
+      "bounced_cheque",
+      "volume_surge",
+      "unresolved_aging",
+      "dev_request_stalled",
+      "mix_downgrade",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 17326850.59,
+    "source": "cached",
+    "detail": {
+      "priority_score": 247.21,
+      "credit_room": "exhausted",
+      "open_investigation": "pending",
+      "relationship_stance": "unsubstantiated"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "مالی و ریسک اعتباری در کنار مسائل کیفی حل‌نشده",
+    "unmet_promises_fa": [
+      "تعیین تکلیف درخواست‌های توسعه محصول معوق و بلاتکلیف",
+      "رسیدگی و پاسخ‌دهی به پرونده‌های شکایت کیفی باز و قدیمی",
+      "پیگیری و شفاف‌سازی پیشنهادهای فروش و آفرهای معلق"
+    ],
+    "customer_priorities_fa": [
+      "خرید پیوسته با اتکا به اعتبار و مهلت پرداخت باز",
+      "تامین محصولات اقتصادی‌تر و مدیریت هزینه‌های خرید",
+      "کیفیت مناسب خواص مکانیکی و بسته‌بندی سالم مرسوله‌ها"
+    ],
+    "recommended_tone_fa": "قاطع و شفاف در زمینه وصول چک و ساماندهی اعتبار، همراه با ارائه راهکار مشخص برای بستن شکایت‌های فنی باز",
+    "watch_items_fa": [
+      "وضعیت نقدشوندگی مطالبات و ریسک چک برگشتی",
+      "تداوم افزایش تقاضا بدون پوشش اعتباری کافی",
+      "جابه‌جایی سبد خرید به سمت محصولات با حاشیه سود کمتر"
+    ],
+    "summary_fa": "رشد تقاضای خرید مشتری در شرایط افزایش بدهی و چک برگشتی، ضرورت بازنگری فوری در سازوکار اعتباری را ایجاب می‌کند. هم‌زمان، برای پایدار ماندن همکاری تجاری باید شکایت‌های فنی کهنه و درخواست‌های معطل توسعه محصول سریعاً تعیین تکلیف شوند.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "offer_negotiation_stalled",
+    "credit_exposure",
+    "bounced_cheque",
+    "volume_surge",
+    "unresolved_aging",
+    "dev_request_stalled",
+    "mix_downgrade",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}

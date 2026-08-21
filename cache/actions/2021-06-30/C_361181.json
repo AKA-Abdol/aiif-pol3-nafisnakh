@@ -1,0 +1,74 @@
+{
+  "customer_id": "C_361181",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:09:55+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_361181",
+    "rank": 13,
+    "priority": "فوری",
+    "bucket": "protect",
+    "title_fa": "پیگیری فوری درخواست توسعه معطل و تجدید ارتباط فروش",
+    "rationale_fa": "مشتری با ریتم ۷ روزه [EV-C_361181-cadence-median-001] به مدت ۵۸ روز بدون خرید مانده (نسبت ۸.۲۹ برابر) [EV-C_361181-cadence-last-001] [EV-C_361181-cadence-ratio-001] و حجم خرید ماهانه ۱۹.۸- درصد تغییر کرده است [EV-C_361181-volume-001]. ۱ درخواست توسعه ۲۳ روز بدون تصمیم مانده [EV-C_361181-devreq-001] و ۲ آفر بی‌پاسخ از مهلت اعتبار گذشته دارند [EV-C_361181-loop-offer-001]. با توجه به آزاد بودن ۴۲ درصد سقف اعتبار [EV-C_361181-credit-room-001] و ثبت قصور نفیس نخ در شکایات گذشته [EV-C_361181-resolution-fault-001] [EV-C_361181-resolution-fault-002] [EV-C_361181-resolution-fault-003]، رفع موانع فنی و تجدید پیشنهاد الزامی است.",
+    "recommended_step_fa": "تماس با مشتری برای ارائه نتیجه و تعیین‌تکلیف ۱ درخواست توسعه باز و بازبینی ۲ پیشنهاد قیمتی منقضی‌شده با اتکا به ۴۲ درصد اعتبار آزاد.",
+    "owner": "کارشناس فروش",
+    "evidence_ids": [
+      "EV-C_361181-cadence-median-001",
+      "EV-C_361181-cadence-last-001",
+      "EV-C_361181-cadence-ratio-001",
+      "EV-C_361181-volume-001",
+      "EV-C_361181-devreq-001",
+      "EV-C_361181-loop-offer-001",
+      "EV-C_361181-credit-room-001",
+      "EV-C_361181-resolution-fault-001",
+      "EV-C_361181-resolution-fault-002",
+      "EV-C_361181-resolution-fault-003"
+    ],
+    "signals": [
+      "cadence_breach",
+      "offer_negotiation_stalled",
+      "discount_without_return",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 13710721.560000002,
+    "source": "cached",
+    "detail": {
+      "priority_score": 268.86,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "apologise"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "قیمت و توسعه فنی",
+    "unmet_promises_fa": [
+      "درخواست توسعه محصول معطل مانده و بدون پاسخ نهایی"
+    ],
+    "customer_priorities_fa": [
+      "دریافت قیمت‌های رقابتی متناسب با بازار",
+      "رسیدگی سریع به نیازهای توسعه فنی",
+      "کیفیت بسته‌بندی و عدم آسیب‌دیدگی در حمل"
+    ],
+    "recommended_tone_fa": "پیگیری همدلانه و تسریع در تعیین‌تکلیف درخواست فنی، سپس بازنگری در پیشنهادهای قیمتی راکد",
+    "watch_items_fa": [
+      "توقف کامل سفارش‌گذاری با وجود دریافت تخفیف‌های قیمتی",
+      "بلاتکلیف ماندن پیشنهادهای فروش ارائه‌شده",
+      "افزایش فاصله زمانی در تسویه حساب‌ها"
+    ],
+    "summary_fa": "مشتری با وجود دریافت آفرها و امتیازهای قیمتی، خرید خود را متوقف کرده و منتظر تعیین‌تکلیف درخواست توسعه معطل‌مانده است. پیگیری فوری نیاز فنی و بازبینی پیشنهادهای گذشته، کلید بازگرداندن این مشتری به چرخه منظم سفارش‌گذاری است.",
+    "synthesis_source": "cached"
+  },
+  "dropped": [],
+  "signals": [
+    "cadence_breach",
+    "offer_negotiation_stalled",
+    "discount_without_return",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 0,
+  "call_sources": []
+}
