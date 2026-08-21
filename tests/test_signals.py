@@ -29,8 +29,8 @@ def run(ctx):
 
 def test_every_registered_detector_is_accounted_for():
     dets = all_detectors()
-    assert len(dets) == 27
-    assert len({d.name for d in dets}) == 27
+    assert len(dets) == 28
+    assert len({d.name for d in dets}) == 28
     assert {d.category for d in dets} <= {"risk", "opportunity", "efficiency"}
 
 
@@ -150,7 +150,7 @@ def test_calibration_passes_for_every_detector(run, ctx):
     it could possibly fire on. Detectors that are rare by design are exempt
     from the lower bound only."""
     report = calibrate(run, ctx)
-    assert len(report.rows) == 27
+    assert len(report.rows) == 28
     assert report.failures.empty, f"\n{report.failures.to_string(index=False)}"
 
 
@@ -262,3 +262,49 @@ def test_resolution_is_gated_on_its_own_availability_stamp(ctx):
     stamp = pd.to_datetime(rows[S.K_RESOLUTION_AVAILABLE_AT], errors="coerce")
     assert stamp.notna().all()
     assert (stamp <= pd.Timestamp(ctx.as_of)).all()
+
+
+# --------------------------------------------------- detector #28 (lab escape)
+def test_lab_escape_is_silent_at_the_demo_anchor(run):
+    """All 12 lab-rejected lots in the book are dated 2025–2026. Firing at the
+    2021 anchor would mean the detector is reading rows it cannot see."""
+    assert not [s for s in run.signals if s.detector == "lab_rejected_lot_shipped"]
+
+
+def test_lab_escape_fires_preemptively_mid_horizon(ds):
+    """At 2025-09-01 four customers have been shipped a failed lot and two of
+    them have not complained yet — the window where a call still prevents it."""
+    from nafisnakh.metrics.base import build_metrics, make_context
+
+    ctx = build_metrics(make_context(ds, as_of=date(2025, 9, 1)))
+    run = run_detectors(ctx)
+    hits = [s for s in run.signals if s.detector == "lab_rejected_lot_shipped"]
+    assert len(hits) == 4
+    preemptive = [s for s in hits if s.detail["preemptive"]]
+    assert len(preemptive) == 2
+    for s in preemptive:
+        # a call to make, not a dispute to settle
+        assert "پیشدستانه" in s.headline_fa
+        assert s.severity >= 70
+        assert s.suggested_bucket == "protect"
+
+
+def test_lab_escape_requires_the_test_to_predate_the_shipment(ds):
+    """A lot tested *after* shipment is a discovery, not something we could have
+    stopped — and the detector's whole claim is that we could have."""
+    import pandas as pd
+
+    from nafisnakh.io import schema as S
+    from nafisnakh.metrics.base import build_metrics, make_context
+
+    ctx = build_metrics(make_context(ds, as_of=date(2026, 12, 31)))
+    q = ctx.table("quality")
+    cited = [i for ids in q["lab_escape_line_ids"] for i in ids]
+    assert len(cited) == 12
+
+    lab = ds.lot_quality.set_index(S.SALES_LINE_ID)
+    lines = ctx.spine.lines.drop_duplicates(S.SALES_LINE_ID).set_index(S.SALES_LINE_ID)
+    for line_id in cited:
+        assert lab.loc[line_id, S.Q_RESULT] == S.Q_RESULT_REJECTED
+        measured = pd.to_datetime(lab.loc[line_id, S.Q_MEASURED_AT])
+        assert measured <= pd.to_datetime(lines.loc[line_id, S.F_DATE]), line_id

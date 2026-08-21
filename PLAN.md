@@ -306,6 +306,11 @@ nafisnakh/
   tools/
     base.py            ToolResult + registry — claims and ids out, never numbers
     customer.py        ★ the 8 customer tools (§3.9)
+  agents/
+    base.py            AgentSpec/AgentFinding + the two-phase runner (§3.10)
+    roster.py          ★ the 7 agents and the conditions that wake them
+    router.py          ★ deterministic routing — no model decides who runs
+    meeting.py         the agenda they produce
   feedback.py          ★ manager decisions → detector ranking weights
   customer360.py       ★ one account, every claim expandable to its source rows
   report.py            self-contained RTL HTML artifact for the sales manager
@@ -378,7 +383,7 @@ class Detector(Protocol):
     def detect(self, ctx: MetricContext) -> list[Signal]: ...
 ```
 
-### 3.4 The 27 detectors
+### 3.4 The 28 detectors
 
 Thresholds are **starting defaults**; all live in `config.py` and must be calibrated
 (§4, Phase 1b) so that no detector fires on >60% or <2% of the book at `as_of=2021-06-30`.
@@ -460,9 +465,37 @@ what same-segment peers spend on the stalled sample's family), `own_family_reven
 what was promised: جلسه قیمت 0.20 · ارسال نمونه 0.15 · بازدید فنی 0.10 ·
 پیگیری تلفنی 0.05).
 
-**Detector #18 is the differentiator.** When one customer complains about a همبافت,
-every other customer shipped that همبافت is a complaint *in flight*. Nobody asked for
-this; it is unique to this domain (§5, integration rule #7) and is the strongest demo.
+**Preventable escapes** (added 2026-08-21)
+| # | Name | Rule | Notes |
+|---|---|---|---|
+| 28 | `lab_rejected_lot_shipped` | `Lab_Result = رد` **and** `Measured_At ≤ line date` on a lot this customer was shipped | `rare_by_design` · 12 records in the whole book |
+
+**Detector #18 is the differentiator, and #28 is the sharper version of the same
+idea.** When one customer complains about a همبافت, every other customer shipped that
+همبافت is a complaint *in flight* — that one takes an inference. #28 takes none: the lab
+wrote `رد` on a specific lot, and we shipped it to a named customer anyway. Measured
+across the workbook, **all 12** such records were stamped **4–13 days before the
+purchase**, shipped regardless, and every one drew a complaint 11–35 days later that was
+**upheld** (`پذیرفته‌شده`) — against a **1.2%** base rate of any line drawing a
+complaint at all.
+
+The `Measured_At ≤ line date` condition is the detector's whole claim: a lot tested
+*after* shipment is a discovery, not something we could have stopped.
+
+Two states, calling for opposite things — the same split as #18's "exclude the
+complainant":
+
+* **preemptive** (customer has not filed yet) — a call to make today, severity floors at
+  70.
+* **already filed** — nothing to preempt; a release-process failure to put in front of
+  whoever owns quality, severity floors at 40, `preemptive: false`.
+
+Fires **zero times at the demo anchor** (all 12 are dated 2025–2026), 4 customers at
+`as_of=2025-09-01` of which **2 preemptively**, 8 at the full horizon. Rarity is the
+point: an escape detector that fired often would be describing a broken factory rather
+than finding an exception.
+
+Neither #18 nor #28 was asked for; both come out of the integration rules (§5).
 
 ### 3.9 The tool layer — what an agent may reach the data through
 
@@ -493,6 +526,74 @@ Three further rules:
 
 Verified on 40 random customers × 8 tools: **886 cited evidence, 0 unresolvable,
 0 empty, 0 rows dated after `as_of`**, and tools idempotent.
+
+### 3.10 The seven agents and the deterministic router
+
+Seven analysts, divided by **question**, not by data source:
+
+| agent | question | tools | woken when |
+|---|---|---|---|
+| `open_loops` | چه چیزی از سمت ما نیمه‌کاره مانده؟ | dev · crm · offers | any open loop or #24–#27, #20 |
+| `risk` | چه چیزی همین حالا تهدید می‌کند؟ | complaints · lab · crm | any `risk` signal, or an exposed lot |
+| `opportunity` | کجا جای رشد دارد؟ | peers · offers · dev | any `opportunity` signal, or an approved sample never priced |
+| `financial` | می‌شود جلو رفت، با چه شرطی؟ | payment | credit not simply open · payment signal · heavy exposure · negative finance effect |
+| `relationship` | با چه لحنی وارد شویم؟ | complaints · crm | open, rejected or repeat complaint · pending investigation · non-neutral stance |
+| `pricing` | قیمت کجای دفتر ایستاده؟ | peers · offers · market | any price/margin signal, or an abandoned offer |
+| `supply_feasibility` | آنچه خواسته شدنی است؟ | dev · lab | any development request |
+
+The questions overlap in their inputs on purpose. The complaints sheet feeds both
+`risk` and `relationship` because "what threatens this account" and "what tone do we
+walk in with" are different questions with different answers, and one analyst covering
+both would collapse them.
+
+**Every trigger is pure Python over metric tables and the signal run.** No model decides
+whether an agent runs, and `nafisnakh meeting <id> --plan-only` prints, for all seven,
+either the sentence that woke it or the sentence saying why it stayed asleep — at zero
+model cost. Three things follow: the cost of a meeting is knowable before it is paid
+(two calls per woken agent), "why did it look at that?" is a decision to read rather
+than a transcript to reconstruct, and a quiet account produces a short meeting.
+
+Measured across the book at the demo anchor: **4.08 agents woken per customer**,
+distribution 1–7, and no agent collapsed into "always" or "never" —
+`open_loops` 81% · `risk` 80% · `opportunity` 77% · `financial` 67% · `pricing` 52% ·
+`supply_feasibility` 30% · `relationship` 20%.
+
+Two triggers were deliberately loosened *away* from the obvious version, and the reason
+is the same in both cases — **do not re-test what a calibrated detector already tests,
+and do not trigger on "data exists"**:
+
+* `opportunity` does **not** trigger on raw `headroom_value`. That is a peer-capacity
+  estimate, positive for nearly the whole book; `wallet_headroom` is the calibrated form
+  of the same question and fires on 38%.
+* `financial` does **not** trigger on "has a payment row" (100% of the book) and
+  `relationship` does **not** trigger on "has ever had a CRM call" (96%). Both wake on
+  a decision in their lane, which took `financial` to 67% and `relationship` to 20%.
+
+**Two phases per agent, not a free-running tool loop.** An unbounded loop costs an
+unpredictable number of paid calls, its cache key grows with the conversation so re-runs
+stop being free, and its reasoning becomes a transcript rather than a decision:
+
+1. **plan** — the agent sees the tools it *may* use with their Persian descriptions and
+   the router's reason for waking it, and answers which ones it wants and why. This is
+   where "the agent decides what to look at" actually happens, and the answer is printed
+   in the brief (`چه دید: … — …`). The roster, not the model, is the authority: a tool
+   named that the agent was not given is dropped.
+2. **answer** — the agent gets the output of exactly those tools, as claims and evidence
+   ids, and returns its finding.
+
+Offline both phases degrade explicitly (plan → all of the agent's tools, answer → a
+deterministic composer built only from claims that already exist) and the finding is
+tagged `source="rules"`.
+
+**Gates travel with the plan as constraints**, appended to every woken agent's prompt,
+with the open investigation ahead of the credit gate for the reason the aggregator
+already encodes. The prompt also tells the agent *not to restate them*: without that
+line all seven analysts close with the same two caveats and the agenda reads as one
+paragraph copied seven times. They are printed once, at the top.
+
+**Every finding goes through the aggregator's validator.** A numeral absent from the
+cited evidence empties the finding — it is not softened or re-prompted — and what was
+dropped is recorded on it, so the brief can show that the system chose to say nothing.
 
 ### 3.5 Key metric definitions
 
@@ -1230,6 +1331,58 @@ random_state        = 42
 ---
 
 ## 11. CHANGELOG
+
+- **2026-08-21 (step 5/5 — seven agents, a deterministic router, `nafisnakh meeting`)** —
+  `nafisnakh/agents/`, contract in §3.10. `nafisnakh meeting <id>` produces an
+  **agenda**, not a summary: what to do first, second and third, and what may not be
+  offered until something else is settled. `--plan-only` shows the routing and what it
+  would cost, without spending it.
+
+  Live on C_126481 (exhausted credit, pending investigation, all four loops open): 7
+  agents, 14 calls, ~85s, **0 findings dropped by the validator, 0 agent errors**, every
+  finding citing only evidence its own tools returned.
+
+  Three things this shaped:
+
+  * **The router had to be tightened twice.** The first version woke 5.5 of 7 agents on
+    average, with `financial` at 100% and `relationship` at 96% — both triggering on
+    *data exists* rather than *a decision exists*. A router that wakes everyone for
+    everybody is not routing. After rewriting those triggers around the decision in each
+    lane, 4.08 average, spread 1–7, no agent stuck at always or never.
+  * **`opportunity` must not re-test `wallet_headroom`.** Raw `headroom_value` is
+    positive for nearly the whole book; the calibrated detector fires on 38%. Duplicating
+    a calibrated test with an uncalibrated threshold is how a system quietly stops
+    agreeing with itself.
+  * **Constraints bind the agent; they are not its output.** Every analyst was closing
+    with the same credit and investigation caveats — one paragraph, seven times. The
+    prompt now says to respect them without restating them, and they are printed once at
+    the top of the brief.
+
+  15 new tests in `tests/test_agents.py` plus 2 in `test_cli.py`; the suite proves the
+  wiring through the offline path and never needs a key; 209 passing.
+
+- **2026-08-21 (detector #28 — the lab escape)** — Built out of the finding the tool
+  layer turned up. `quality` gained the escape columns (`lab_escape_lines`,
+  `lab_escape_unflagged`, ids for both) and `signals/detectors/quality.py` gained
+  `lab_rejected_lot_shipped`. Detector count 27 → 28; calibration `ok` at every anchor
+  tested, and it stays correctly **silent at the demo anchor**.
+
+  What makes it worth having is that it needs no inference at all. #18 reasons from one
+  customer's complaint to another customer's exposure; #28 reads a lab verdict written
+  on a specific lot before a specific customer bought it. `Measured_At ≤ line date` is
+  the load-bearing condition — a lot tested after shipment is a discovery, and firing on
+  it would be claiming we could have stopped something we could not.
+
+  Measured at three anchors: 0 signals at 2021-06-30 · 4 at 2025-09-01, **2 of them
+  preemptive** (shipped, failed, no complaint filed yet) · 8 at 2026-12-31, none
+  preemptive because by then every one has become a complaint. The preemptive window is
+  11–35 days wide in this book, which is exactly the interval a phone call fits into.
+
+  Fixture grew 20 → 21. FIX-021 is an ordinary healthy buyer whose most recent line came
+  from a lot the lab failed six days before the purchase, with no complaint against it —
+  the preemptive case. `کیفیت_لات` in the fixture went from an empty frame to 105 rows,
+  which also gives `get_lab_band_position` a distribution to rank against. All 28
+  detectors fire; all four buckets still covered. 4 new tests; 192 passing.
 
 - **2026-08-21 (step 4/5 — the evidence-minting tool layer)** — `nafisnakh/tools/`,
   eight tools, contract in §3.9. `nafisnakh tools <id> [--tool NAME]` prints exactly

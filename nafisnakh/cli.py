@@ -1,4 +1,4 @@
-"""Command line: ``build · signals · brief · customer · tools · evidence · eval · label · fixture · calibrate``.
+"""Command line: ``build · signals · brief · customer · meeting · tools · evidence · eval · label · fixture · calibrate``.
 
 Q2 fixed the deliverable shape: a modular Python service with a CLI, JSON output,
 no UI, convertible to an API later. Every command is a thin wrapper over the same
@@ -121,7 +121,7 @@ def signals(
     sample: int = typer.Option(0, help="فقط روی N مشتری تصادفی اجرا کن"),
     customers: Optional[str] = typer.Option(None, help="شناسه مشتریان با کاما"),
 ):
-    """Run the 27 detectors and write the ranked signal file."""
+    """Run the 28 detectors and write the ranked signal file."""
     from .io.loader import load_dataset
     from .llm.graph import run_pipeline
 
@@ -310,6 +310,63 @@ def customer(
     if not actions:
         _echo("(بدون --actions اقدام پیشنهادی نوشته نمی‌شود)")
     _echo(f"صفحه نوشته شد: {path}")
+
+
+@app.command()
+def meeting(
+    customer_id: str = typer.Argument(..., help="شناسه مشتری، مثلاً C_126481"),
+    as_of: Optional[str] = typer.Option(None),
+    dataset: Optional[Path] = typer.Option(None),
+    profile: Optional[str] = typer.Option(None, help="پروفایل مدل"),
+    agents: Optional[str] = typer.Option(
+        None, help="فقط این تحلیل‌گرها اجرا شوند (با کاما)"
+    ),
+    plan_only: bool = typer.Option(
+        False, "--plan-only", help="فقط تصمیم روتر را نشان بده؛ هیچ فراخوان مدلی نزن"
+    ),
+    output: Optional[Path] = typer.Option(None, help="مسیر فایل خروجی"),
+):
+    """Seven analysts, a deterministic router, one meeting agenda.
+
+    ``--plan-only`` prints the routing decision and the number of model calls it
+    would cost, without making any — the cost of a meeting is knowable before it
+    is paid.
+    """
+    from .agents import hold_meeting, route, write_meeting
+    from .customer360 import build_state
+
+    st = _settings(as_of, dataset, profile)
+    state = build_state(st, with_actions=False)
+    ctx = state["ctx"]
+    if customer_id not in set(ctx.population):
+        raise typer.BadParameter(
+            f"{customer_id} در تاریخ {st.as_of.isoformat()} ردیف فروش قابل‌مشاهده ندارد",
+            param_hint="customer_id",
+        )
+    only = [a.strip() for a in agents.split(",")] if agents else None
+
+    if plan_only:
+        plan = route(ctx, customer_id, state["signals"].signals)
+        _echo(f"مشتری {customer_id} · تاریخ مبنا {st.as_of.isoformat()}")
+        _echo(f"گیت‌ها: {plan.gates}")
+        for r in plan.routed:
+            mark = "⛔" if r.trigger.blocking else "✓"
+            _echo(f"  {mark} {r.spec.name} (وزن {r.trigger.weight}) — {r.trigger.reason_fa}")
+        for name, why in plan.skipped:
+            _echo(f"  · {name} — {why}")
+        _echo("")
+        _echo(f"هزینه: {plan.n_llm_calls} فراخوان مدل "
+              f"({len(plan.routed)} تحلیل‌گر × ۲ فاز)")
+        return
+
+    meet = hold_meeting(ctx, customer_id, state["signals"].signals, only_agents=only)
+    path = write_meeting(meet, settings=st, path=output)
+    _echo(meet.to_brief_fa())
+    _echo("")
+    if meet.errors:
+        _echo(f"⚠️ تحلیل‌گرهای خطادار: {meet.errors}")
+    _echo(f"نوشته شد: {path}")
+    _echo(f"و: {path.with_suffix('.json')}")
 
 
 @app.command("tools")

@@ -21,7 +21,7 @@ def test_help_lists_every_command():
 def test_fixture_command_reports_full_detector_coverage():
     result = runner.invoke(app, ["fixture"])
     assert result.exit_code == 0, result.stdout
-    assert "27 از 27" in result.stdout
+    assert "28 از 28" in result.stdout
     assert "فعال نشد" not in result.stdout
 
 
@@ -76,4 +76,16 @@ def test_tools_command_prints_claims_and_ids_only():
 
 def test_tools_command_rejects_an_unknown_tool():
     result = runner.invoke(app, ["tools", "C_126481", "--tool", "get_nothing"])
+    assert result.exit_code != 0
+
+
+def test_meeting_plan_only_costs_nothing_and_shows_the_routing():
+    result = runner.invoke(app, ["meeting", "C_126481", "--plan-only"])
+    assert result.exit_code == 0, result.stdout
+    assert "فراخوان مدل" in result.stdout
+    assert "⛔ financial" in result.stdout
+
+
+def test_meeting_rejects_an_unknown_customer():
+    result = runner.invoke(app, ["meeting", "C_NOPE", "--plan-only"])
     assert result.exit_code != 0

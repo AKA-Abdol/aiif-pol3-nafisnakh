@@ -161,6 +161,7 @@ Q_EVENNESS = "Evenness_CV_Pct"        # stored as FRACTION
 Q_OIL = "Oil_Pickup_Pct"              # stored as FRACTION
 Q_SAMPLE_COUNT = "Sample_Count"
 Q_RESULT = "Lab_Result"
+Q_RESULT_REJECTED = "رد"          # 12 of 13,865 — every one shipped anyway (§3.4 #28)
 FRACTION_PCT_COLUMNS = [Q_ELONGATION, Q_EVENNESS, Q_OIL]
 
 # ------------------------------------------------------------ همبافت_لات

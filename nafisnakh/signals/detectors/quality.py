@@ -192,6 +192,80 @@ class HembaftBlastRadius(BaseDetector):
 
 
 @register
+class LabRejectedLotShipped(BaseDetector):
+    """#28 — we tested the lot, failed it, and shipped it to this customer anyway.
+
+    The second preventable-escape chain in this book, and a sharper one than #18
+    because there is no inference at all: the lab wrote ``رد`` on a specific lot
+    before the customer bought it, and we shipped it. Measured across the whole
+    workbook, all 12 such records were stamped **4–13 days before the purchase**
+    and every one drew a complaint 11–35 days later that was **upheld** — against
+    a 1.2% base rate of any line drawing a complaint.
+
+    Two states, and they call for opposite things:
+
+    * **preemptive** — the customer has not filed yet. This is a call to make
+      today, before the complaint exists. Severity floors high for the same
+      reason #18 does.
+    * **already filed** — the complaint is on the record. Nothing to preempt; what
+      is left is a process failure that should be visible to whoever owns quality,
+      so it still fires, at lower severity, marked ``preemptive: false``.
+
+    ``rare_by_design``: it fires **zero times at the demo anchor** because all 12
+    escapes are dated 2025–2026. At ``as_of=2025-09-01`` four customers fire, two
+    of them preemptively. Rarity is the point — an escape detector that fired
+    often would be describing a broken factory, not finding an exception.
+    """
+
+    name = "lab_rejected_lot_shipped"
+    category = "risk"
+    requires = ["quality", "economics"]
+    rare_by_design = True
+
+    def eligible(self, ctx: MetricContext) -> pd.Index:
+        """Everyone: any customer could have been shipped a failed lot."""
+        return pd.Index(ctx.population)
+
+    def detect(self, ctx: MetricContext) -> list[Signal]:
+        q = self.frame(ctx)
+        hits = q.loc[q["lab_escape_lines"] > 0]
+        out = []
+        for cid, r in hits.iterrows():
+            silent = float(r.lab_escape_unflagged or 0.0)
+            preemptive = silent > 0
+            if preemptive:
+                headline = (
+                    f"{num(silent)} ردیف از لاتی به این مشتری ارسال شده که پیش از خرید "
+                    f"در آزمایشگاه «رد» شده بود و هنوز شکایتی روی آن ثبت نشده است — "
+                    f"تماس پیشدستانه پیش از رسیدن شکایت."
+                )
+            else:
+                headline = (
+                    f"{num(r.lab_escape_lines)} ردیف از لات «رد»شده در آزمایشگاه به این "
+                    f"مشتری ارسال شده و به شکایت رسیده است — نقص فرآیند ترخیص، نه "
+                    f"اختلاف با مشتری."
+                )
+            out.append(self.signal(
+                ctx, cid,
+                severity=scale(r.lab_escape_qty, 100, 20_000,
+                               floor=70.0 if preemptive else 40.0),
+                headline_fa=headline,
+                evidence_ids=ctx.ev(cid, "lab-escape", "complaints"),
+                value_at_stake=float(
+                    (r.lab_escape_unflagged_value if preemptive else r.lab_escape_value)
+                    or 0.0
+                ),
+                suggested_bucket="protect",
+                preemptive=preemptive,
+                escaped_lines=int(r.lab_escape_lines),
+                unflagged_lines=int(silent),
+                record_ids=list(r.lab_escape_record_ids),
+                line_ids=list(r.lab_escape_line_ids),
+            ))
+        return out
+
+
+@register
 class ReturnRateSpike(BaseDetector):
     """#19 — returned weight against shipped weight, above the book's p90."""
 

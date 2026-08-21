@@ -160,6 +160,47 @@ def build(ctx: MetricContext) -> pd.DataFrame:
         .reindex(index).apply(lambda v: v if isinstance(v, list) else [])
     )
 
+    # ---- lab-rejected lots that shipped anyway (detector #28)
+    # The second preventable-escape chain in this book, and the sharper one.
+    # `Lab_Result = رد` occurs on 12 of 13,865 records; every one was measured
+    # 4–13 days BEFORE the customer bought the line, shipped regardless, and drew
+    # a complaint 11–35 days later that was upheld — against a 1.2% base rate of a
+    # line drawing any complaint at all. The escape test is therefore
+    # `Measured_At <= line date`: a lot tested after shipment is a discovery, not
+    # something we could have stopped.
+    lab = visible(ctx.ds.lot_quality, ctx.as_of)
+    lab = lab.loc[lab[S.Q_RESULT] == S.Q_RESULT_REJECTED]
+    sold = ctx.spine.lines[
+        [S.SALES_LINE_ID, S.CUSTOMER_ID, S.F_DATE, S.F_QTY, S.D_REVENUE]
+    ]
+    escapes = lab.merge(sold, on=S.SALES_LINE_ID, how="inner")
+    escapes = escapes.loc[
+        pd.to_datetime(escapes[S.Q_MEASURED_AT], errors="coerce")
+        <= pd.to_datetime(escapes[S.F_DATE])
+    ].copy()
+    # Whether the customer has already filed on that line decides what to do
+    # about it: an escape nobody has complained about yet is a call to make
+    # today, one that is already a complaint is a process failure to record.
+    escapes["_flagged"] = escapes[S.SALES_LINE_ID].isin(set(link[S.SALES_LINE_ID].dropna()))
+    escapes["_age_days"] = (as_of - pd.to_datetime(escapes[S.F_DATE])).dt.days
+    silent = escapes.loc[~escapes["_flagged"]]
+
+    eg = escapes.groupby(S.CUSTOMER_ID)
+    df["lab_escape_lines"] = eg[S.SALES_LINE_ID].nunique().reindex(index).fillna(0.0)
+    df["lab_escape_qty"] = eg[S.F_QTY].sum().reindex(index).fillna(0.0)
+    df["lab_escape_value"] = eg[S.D_REVENUE].sum().reindex(index).fillna(0.0)
+    df["lab_escape_days_max"] = eg["_age_days"].max().reindex(index)
+    df["lab_escape_record_ids"] = _id_lists(escapes, S.Q_ID, index)
+    df["lab_escape_line_ids"] = _id_lists(escapes, S.SALES_LINE_ID, index)
+    sg = silent.groupby(S.CUSTOMER_ID) if len(silent) else None
+    df["lab_escape_unflagged"] = (
+        sg[S.SALES_LINE_ID].nunique().reindex(index).fillna(0.0) if sg is not None else 0.0
+    )
+    df["lab_escape_unflagged_value"] = (
+        sg[S.D_REVENUE].sum().reindex(index).fillna(0.0) if sg is not None else 0.0
+    )
+    df["lab_escape_unflagged_ids"] = _id_lists(silent, S.Q_ID, index)
+
     # ---- `ردشده` split out from "resolved" (PLAN §2, proposal 4).
     # A rejected complaint carries a Resolved_At like any other, but it means we
     # told the customer they were wrong. That is the highest-tension state a
@@ -225,4 +266,34 @@ def build(ctx: MetricContext) -> pd.DataFrame:
                 formula="complaint → Hembaft_ID → همبافت_لات → Lot_ID → فروش [rule #7]",
                 hembaft_ids=ids,
             )
+        if r.lab_escape_lines > 0:
+            silent_note = (
+                f" — {num(r.lab_escape_unflagged)} مورد از آنها هنوز به شکایت تبدیل نشده"
+                if r.lab_escape_unflagged > 0 else " و همه به شکایت رسیده‌اند"
+            )
+            ctx.emit(
+                cid, "lab-escape",
+                f"{num(r.lab_escape_lines)} ردیف فروش به این مشتری از لاتی ارسال شده که "
+                f"پیش از خرید در آزمون آزمایشگاهی «رد» شده بود "
+                f"({num(r.lab_escape_qty)} کیلوگرم){silent_note}.",
+                float(r.lab_escape_lines), unit="ردیف", kind="event",
+                window=window,
+                source_rows=rows_ref(S.S_LOT_QUALITY, r.lab_escape_record_ids, key=S.Q_ID),
+                formula="Lab_Result = رد AND Measured_At ≤ تاریخ فروش [rule #4 on Available_At]",
+                record_ids=list(r.lab_escape_record_ids),
+                line_ids=list(r.lab_escape_line_ids),
+                unflagged=int(r.lab_escape_unflagged),
+            )
     return df
+
+
+def _id_lists(frame: pd.DataFrame, column: str, index: pd.Index) -> pd.Series:
+    """Per-customer id list, empty list where the customer has no rows.
+
+    The ids have to survive the groupby rather than being recomputed later from a
+    different filter — that is how a citation and the number it supports drift.
+    """
+    if not len(frame):
+        return pd.Series([[] for _ in index], index=index)
+    agg = frame.groupby(S.CUSTOMER_ID)[column].apply(lambda x: sorted(set(x.dropna())))
+    return agg.reindex(index).apply(lambda v: v if isinstance(v, list) else [])

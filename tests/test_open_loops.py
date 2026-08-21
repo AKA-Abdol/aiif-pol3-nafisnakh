@@ -224,3 +224,25 @@ def test_open_loop_stakes_declare_where_the_money_came_from(run):
     for s in run.signals:
         if s.detector in NEW_DETECTORS:
             assert s.detail["stake_basis"] in allowed, s.id
+
+
+# ------------------------------------------------ detector #28 fixture coverage
+def test_fixture_lab_escape_is_preemptive_and_alone(ds):
+    """FIX-021 proves the preemptive half of #28: the lab failed the lot six days
+    before the purchase, we shipped it, and nobody has complained yet."""
+    from nafisnakh.eval.fixture import LAB_REJECTED_LOT, build_fixture
+    from nafisnakh.metrics.base import build_metrics, make_context
+
+    fx = build_fixture()
+    ctx = build_metrics(make_context(fx.dataset, as_of=fx.as_of))
+    hits = [s for s in run_detectors(ctx).signals
+            if s.detector == "lab_rejected_lot_shipped"]
+    assert len(hits) == 1
+    s = hits[0]
+    assert s.customer_id == "FIX-021"
+    assert s.detail["preemptive"] is True and s.detail["unflagged_lines"] == 1
+
+    lab = fx.dataset.frames[S.S_LOT_QUALITY]
+    rejected = lab.loc[lab[S.Q_RESULT] == S.Q_RESULT_REJECTED]
+    assert len(rejected) == 1
+    assert rejected.iloc[0][S.LOT_ID] == LAB_REJECTED_LOT

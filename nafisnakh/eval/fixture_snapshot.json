@@ -20,7 +20,8 @@
     "FIX-017",
     "FIX-018",
     "FIX-019",
-    "FIX-020"
+    "FIX-020",
+    "FIX-021"
   ],
   "detectors_fired": [
     "bounced_cheque",
@@ -37,6 +38,7 @@
     "dso_slippage",
     "first_order_no_repeat",
     "hembaft_blast_radius",
+    "lab_rejected_lot_shipped",
     "late_interest_drag",
     "margin_below_peer_cohort",
     "mix_downgrade",
@@ -136,22 +138,30 @@
     "FIX-017": [
       "cadence_breach",
       "dev_sample_ready_no_offer",
+      "margin_below_peer_cohort",
       "volume_decline"
     ],
     "FIX-018": [
       "cadence_breach",
       "dev_rejected_uncommunicated",
+      "margin_below_peer_cohort",
       "volume_decline"
     ],
     "FIX-019": [
       "cadence_breach",
       "crm_promise_outstanding",
+      "margin_below_peer_cohort",
       "volume_decline"
     ],
     "FIX-020": [
       "cadence_breach",
+      "margin_below_peer_cohort",
       "offer_negotiation_stalled",
       "volume_decline"
+    ],
+    "FIX-021": [
+      "lab_rejected_lot_shipped",
+      "margin_below_peer_cohort"
     ]
   },
   "buckets": {
@@ -174,7 +184,8 @@
     "FIX-017": "protect",
     "FIX-018": "protect",
     "FIX-019": "protect",
-    "FIX-020": "protect"
+    "FIX-020": "protect",
+    "FIX-021": "protect"
   },
   "actions": [
     {
@@ -192,7 +203,7 @@
     {
       "customer_id": "FIX-002",
       "bucket": "fix",
-      "priority": "بالا",
+      "priority": "فوری",
       "n_evidence": 9
     },
     {
@@ -228,7 +239,7 @@
     {
       "customer_id": "FIX-014",
       "bucket": "protect",
-      "priority": "متوسط",
+      "priority": "بالا",
       "n_evidence": 6
     },
     {
@@ -264,7 +275,7 @@
     {
       "customer_id": "FIX-003",
       "bucket": "protect",
-      "priority": "پایین",
+      "priority": "متوسط",
       "n_evidence": 8
     },
     {
@@ -278,6 +289,12 @@
       "bucket": "protect",
       "priority": "پایین",
       "n_evidence": 8
+    },
+    {
+      "customer_id": "FIX-021",
+      "bucket": "protect",
+      "priority": "پایین",
+      "n_evidence": 4
     },
     {
       "customer_id": "FIX-004",

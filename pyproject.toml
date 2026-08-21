@@ -24,7 +24,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+# `nafisnakh/api.py` imports these; the package has to declare what it imports,
+# and `nafisnakh serve` fails with an ImportError otherwise.
+api = ["fastapi>=0.115", "uvicorn[standard]>=0.30"]
 
 [project.scripts]
 nafisnakh = "nafisnakh.cli:app"

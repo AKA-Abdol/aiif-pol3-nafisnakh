@@ -3,7 +3,7 @@
 Per Q6: *«یک نمونه طلایی هم برای تست آماده کنی»*. A small, fixed, composed sample
 that exercises **every block end-to-end** — loader → metrics → detectors →
 complaint block → quadrant → aggregator → validator — and, per §6, fires **all
-27 detectors at least once**, without depending on which universe a real
+28 detectors at least once**, without depending on which universe a real
 customer happens to fall in.
 
 It is a **test fixture, not a claim about reality.** Every row carries
@@ -41,6 +41,7 @@ CHURN_TEXT = (
 
 SHARED_HEMBAFT = "9900000001"
 SHARED_LOT = "LOT-FIX-9001"
+LAB_REJECTED_LOT = "LOT-FIX-9002"
 
 F03 = "Product_Family_03"
 F04 = "Product_Family_04"
@@ -69,6 +70,9 @@ FIXTURE_CUSTOMERS: dict[str, tuple[str, int, int, str]] = {
     "FIX-018": ("B", 3_000_000, 30, "technically rejected, never communicated (#25)"),
     "FIX-019": ("B", 3_000_000, 30, "a written next action left undone (#26)"),
     "FIX-020": ("B", 3_000_000, 30, "offers abandoned past their own validity (#27)"),
+    # a lot the lab failed before the customer bought it, shipped anyway, no
+    # complaint filed yet — the preemptive half of #28
+    "FIX-021": ("B", 3_000_000, 30, "lab-rejected lot shipped, complaint not yet filed (#28)"),
 }
 
 
@@ -211,8 +215,14 @@ def _build_sales() -> pd.DataFrame:
     # that `cross_sell_peer_gap` is calibrated on — four extra members there
     # would push the Family_05 adoption rate under the threshold and silence a
     # detector that has nothing to do with open loops.
-    for cid in ("FIX-017", "FIX-018", "FIX-019", "FIX-020"):
+    for cid in ("FIX-017", "FIX-018", "FIX-019", "FIX-020", "FIX-021"):
         b.add(cid, _series(300, 12, 22), qty=600, price=255, cost=205, family=F04)
+
+    # FIX-021's most recent line carries the lot the lab failed (see
+    # `_build_lot_quality`). It is a normal line in every other respect — the
+    # escape is ours, not a property of the customer.
+    b.add("FIX-021", [_d(40)], qty=900, price=255, cost=205, family=F04,
+          lot=LAB_REJECTED_LOT)
 
     return b.frame()
 
@@ -408,6 +418,47 @@ def _build_crm() -> pd.DataFrame:
     return pd.DataFrame(rows).assign(_universe="fixture")
 
 
+def _build_lot_quality(sales: pd.DataFrame) -> pd.DataFrame:
+    """Lab records for the fixture's lots.
+
+    One of them matters: the line FIX-021 bought from ``LAB_REJECTED_LOT`` was
+    measured ``رد`` **before** the purchase date and shipped anyway, with no
+    complaint filed against it. That is detector #28's preemptive case, and the
+    ordering is the whole point — a lot tested *after* shipment is a discovery,
+    not an escape, and must not fire.
+
+    The rest are ``قبول`` so the sheet has a distribution to place a customer
+    against; without at least `min_percentile_observations` rows per family the
+    lab band tool correctly declines to rank anyone.
+    """
+    rows = []
+    for i, (_, line) in enumerate(sales.iterrows()):
+        if i % 3 and line[S.LOT_ID] != LAB_REJECTED_LOT:
+            continue
+        rejected = line[S.LOT_ID] == LAB_REJECTED_LOT
+        measured = line[S.F_DATE] - timedelta(days=6)
+        rows.append({
+            S.Q_ID: f"QLT-FIX-{len(rows):04d}",
+            S.SALES_LINE_ID: line[S.SALES_LINE_ID],
+            S.LOT_ID: line[S.LOT_ID],
+            S.HEMBAFT_ID: line[S.HEMBAFT_ID],
+            S.HEMBAFT_LOT_KEY: line[S.HEMBAFT_LOT_KEY],
+            S.PRODUCT_ID: line[S.PRODUCT_ID],
+            S.Q_PRODUCTION_DATE: measured,
+            S.Q_MEASURED_AT: measured,
+            S.AVAILABLE_AT: measured,
+            S.Q_TENSILE: 2.90 if rejected else 3.60 + (i % 7) * 0.10,
+            S.Q_ELONGATION: 19.0 if rejected else 24.0 + (i % 5) * 1.0,
+            S.Q_EVENNESS: 2.35 if rejected else 1.40 + (i % 4) * 0.10,
+            S.Q_OIL: 0.36 if rejected else 0.70 + (i % 3) * 0.05,
+            S.Q_SAMPLE_COUNT: 8,
+            S.Q_RESULT: S.Q_RESULT_REJECTED if rejected else "قبول",
+            S.SOURCE_SYSTEM: "QMS_LAB",
+            FIXTURE_FLAG: True,
+        })
+    return pd.DataFrame(rows).assign(_universe="fixture")
+
+
 def build_fixture(settings: Settings | None = None) -> Fixture:
     """Compose the fixture dataset from scratch — it never touches DATASET.xlsx."""
     st = settings or get_settings()
@@ -501,7 +552,7 @@ def build_fixture(settings: Settings | None = None) -> Fixture:
         S.S_COMPLAINT_LINK: links,
         S.S_CRM: _build_crm(),
         S.S_DEV_REQUESTS: _build_dev_requests(),
-        S.S_LOT_QUALITY: empty([S.Q_ID, S.LOT_ID, S.AVAILABLE_AT]),
+        S.S_LOT_QUALITY: _build_lot_quality(sales),
         S.S_HEMBAFT_LOT: pd.DataFrame([{
             S.HEMBAFT_LOT_KEY: f"{SHARED_HEMBAFT}|{SHARED_LOT}",
             S.HEMBAFT_ID: SHARED_HEMBAFT, S.LOT_ID: SHARED_LOT, S.PRODUCT_ID: "P-03",
