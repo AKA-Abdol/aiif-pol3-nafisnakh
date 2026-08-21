@@ -1,0 +1,16 @@
+{
+  "title_fa": "تعیین تکلیف پرونده شکایت فنی معوق و پیگیری سفارش جدید",
+  "rationale_fa": "مشتری با وجود ۱۰۰ درصد سقف اعتبار آزاد [EV-FIX-005-credit-room-001]، به دلیل بلاتکلیف ماندن پرونده شکایت CMPFIX-007 [EV-FIX-005-resolution-pending-001] با قدمت 60 روز [EV-FIX-005-complaint-age-001] دچار توقف سفارش شده است؛ به طوری که سکوت خرید به 4 برابر ریتم شخصی (40 روز در برابر 10 روز) رسیده [EV-FIX-005-cadence-ratio-001] [EV-FIX-005-cadence-last-001] [EV-FIX-005-cadence-median-001]، حجم خرید ماهانه -30.4 درصد افت کرده [EV-FIX-005-volume-001] و رابطه در معرض خطر ارزیابی شده است [EV-FIX-005-relationship-001].",
+  "recommended_step_fa": "نهایی‌سازی آزمون تکمیلی و بستن قطعی شکایت پرونده CMPFIX-007 با واحد کیفیت، و سپس تماس فوری کارشناس فروش با مشتری برای دریافت سفارش جدید با تکیه بر اعتبار آزاد.",
+  "owner": "واحد خدمات فنی و کارشناس فروش",
+  "evidence_ids": [
+    "EV-FIX-005-credit-room-001",
+    "EV-FIX-005-resolution-pending-001",
+    "EV-FIX-005-complaint-age-001",
+    "EV-FIX-005-cadence-ratio-001",
+    "EV-FIX-005-cadence-last-001",
+    "EV-FIX-005-cadence-median-001",
+    "EV-FIX-005-volume-001",
+    "EV-FIX-005-relationship-001"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "title_fa": "جلسه حضوری رفع نقص کیفی آسیب فیلامنت و بستن پرونده شکایت",
+  "rationale_fa": "مشتری صراحتاً اعلام کرده «درصورت تکرار قطع همکاری میکند» [EV-FIX-001-llm-churn-001] و ۱ شکایت باز ۲۰۰ روزه دارد [EV-FIX-001-complaints-001] [EV-FIX-001-complaint-age-001]. با توجه به ثبت ۱ شکایت تکراری در بازه ۱۸۰ روزه با مکانیزم آسیب فیلامنت [EV-FIX-001-complaint-repeat-001] [EV-FIX-001-llm-mechanism-001] و پذیرش قصور از سوی نفیس‌نخ [EV-FIX-001-resolution-fault-001]، حجم خرید مشتری ۲۷.۳- درصد افت کرده است [EV-FIX-001-volume-001]. با وجود اینکه ۱۰۰ درصد سقف اعتبار آزاد است [EV-FIX-001-credit-room-001]، هرگونه توسعه فروش منوط به حل فوری این بحران کیفی است [EV-FIX-001-relationship-001].",
+  "recommended_step_fa": "تنظیم جلسه حضوری فوری با مدیران فنی مشتری به همراه کارشناس کنترل کیفیت جهت ارائه گزارش اقدام اصلاحیِ آسیب فیلامنت و تعیین تکلیف قطعی شکایت باز ۲۰۰ روزه.",
+  "owner": "مدیر فروش به همراه سرپرست خدمات فنی / تضمین کیفیت",
+  "evidence_ids": [
+    "EV-FIX-001-llm-churn-001",
+    "EV-FIX-001-complaints-001",
+    "EV-FIX-001-complaint-age-001",
+    "EV-FIX-001-complaint-repeat-001",
+    "EV-FIX-001-llm-mechanism-001",
+    "EV-FIX-001-resolution-fault-001",
+    "EV-FIX-001-volume-001",
+    "EV-FIX-001-credit-room-001",
+    "EV-FIX-001-relationship-001"
+  ]
+}

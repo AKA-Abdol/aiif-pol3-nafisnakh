@@ -94,6 +94,24 @@ def _ctx(as_of: date | None, customer_id: str | None = None):
     return state
 
 
+def _relationship_row(as_of: date, customer_id: str) -> dict | None:
+    """The relationship synthesis for one customer, if it has already been paid for.
+
+    The dossier runs on the ``quadrant`` stage, and the relationship node runs
+    *after* it — so the dossier's own state never carries the table. A full run
+    does, under a different cache key. Read it from there when one is present,
+    and never start one: a page load must not silently become a queue build.
+    """
+    prefix = f"{as_of.isoformat()}|full|"
+    with _LOCK:
+        states = [v for k, v in _CACHE.items() if k.startswith(prefix)]
+    for state in states:
+        table = state["ctx"].tables.get("relationship")
+        if table is not None and len(table) and customer_id in table.index:
+            return {k: _jsonable(v) for k, v in table.loc[customer_id].to_dict().items()}
+    return None
+
+
 def _jsonable(value: Any) -> Any:
     """pandas/numpy scalars and NaN out of a metric row, into JSON."""
     import numpy as np
@@ -267,6 +285,8 @@ def customer(customer_id: str, as_of: date | None = None) -> dict:
     rel = None
     if relationship is not None and len(relationship) and customer_id in relationship.index:
         rel = {k: _jsonable(v) for k, v in relationship.loc[customer_id].to_dict().items()}
+    if rel is None:
+        rel = _relationship_row(state["as_of"], customer_id)
     return {
         "customer_id": customer_id,
         "as_of": state["as_of"].isoformat(),

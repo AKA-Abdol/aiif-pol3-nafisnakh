@@ -1,0 +1,17 @@
+{
+  "title_fa": "جلسه حضوری جهت بازیابی سفارش و معرفی Product_Family_05",
+  "rationale_fa": "سکوت خرید به 40 روز رسیده که 2 برابر ریتم معمول 20 روز است [EV-FIX-003-cadence-last-001] [EV-FIX-003-cadence-ratio-001] و حجم خرید ماهانه -30.6 درصد کاهش یافته است [EV-FIX-003-volume-001]. حاشیه سود مشتری در صدک 0 همتایان قرار دارد [EV-FIX-003-margin-cohort-001]. با توجه به آزاد بودن 100 درصد سقف اعتبار [EV-FIX-003-credit-room-001] و اثبات عدم قصور شرکت در شکایات قبلی [EV-FIX-003-resolution-unsubstantiated-001] [EV-FIX-003-resolution-unsubstantiated-002]، پتانسیل رشد 0.6M ریال [EV-FIX-003-headroom-001] از طریق معرفی Product_Family_05 [EV-FIX-003-crosssell-001] و اصلاح قیمت‌گذاری فراهم است.",
+  "recommended_step_fa": "برگزاری جلسه حضوری با مدیر خرید جهت شفاف‌سازی فنی شکایات مختومه، معرفی سبد جدید Product_Family_05 و ثبت سفارش جدید با اتکا به اعتبار آزاد.",
+  "owner": "مدیر فروش",
+  "evidence_ids": [
+    "EV-FIX-003-cadence-last-001",
+    "EV-FIX-003-cadence-ratio-001",
+    "EV-FIX-003-volume-001",
+    "EV-FIX-003-margin-cohort-001",
+    "EV-FIX-003-credit-room-001",
+    "EV-FIX-003-resolution-unsubstantiated-001",
+    "EV-FIX-003-resolution-unsubstantiated-002",
+    "EV-FIX-003-headroom-001",
+    "EV-FIX-003-crosssell-001"
+  ]
+}
