@@ -1,0 +1,76 @@
+{
+  "customer_id": "C_070220",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T11:32:27+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_070220",
+    "rank": 276,
+    "priority": "متوسط",
+    "bucket": "grow",
+    "title_fa": "انجام بازدید فنی معوق و توسعه سبد محصول با معرفی Product_Family_03",
+    "rationale_fa": "مشتری دارای ۷۱ درصد سقف اعتبار آزاد [EV-C_070220-credit-room-001] و ظرفیت رشد برآوردی 0.7M ریال [EV-C_070220-headroom-001] است، اما آخرین خرید ۸۶ روز پیش ثبت شده [EV-C_070220-cadence-last-001] در حالی که میانه فاصله خرید ۱۴ روز است [EV-C_070220-cadence-median-001]. همچنین تنوع کالا -70.0 درصد افت کرده (۳ در برابر ۱۰) [EV-C_070220-sku-breadth-001] و اقدام CRM برای بازدید فنی ۳۸ روز معوق مانده است [EV-C_070220-loop-nextaction-001]. ضمناً کالای Product_Family_03 فرصت فروش متقابل دارد [EV-C_070220-crosssell-001].",
+    "recommended_step_fa": "هماهنگی و اجرای فوری بازدید فنی معوق از خطوط مشتری جهت بررسی علت کاهش تنوع کدها و ارائه نمونه آزمایشی خانواده کالای Product_Family_03.",
+    "owner": "مهندسی فروش و کارشناس فروش",
+    "evidence_ids": [
+      "EV-C_070220-credit-room-001",
+      "EV-C_070220-headroom-001",
+      "EV-C_070220-cadence-last-001",
+      "EV-C_070220-cadence-median-001",
+      "EV-C_070220-sku-breadth-001",
+      "EV-C_070220-loop-nextaction-001",
+      "EV-C_070220-crosssell-001"
+    ],
+    "signals": [
+      "wallet_headroom",
+      "volume_surge",
+      "sku_narrowing",
+      "price_erosion",
+      "cross_sell_peer_gap",
+      "mix_downgrade"
+    ],
+    "value_at_stake": 685026.956,
+    "source": "live",
+    "detail": {
+      "priority_score": 41.2,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "قیمت و سبد کالا",
+    "unmet_promises_fa": [],
+    "customer_priorities_fa": [
+      "خرید اقتصادی با قیمت پایین‌تر",
+      "تأمین نیاز کدهای خاص و اصلی",
+      "انعطاف در شرایط پرداخت اعتباری"
+    ],
+    "recommended_tone_fa": "مشاوره‌ای و پیگیر، تمرکز بر ارزیابی خطوط تولید مشتری و پیشنهاد سبدهای جایگزین",
+    "watch_items_fa": [
+      "وقفه طولانی در ثبت سفارش نسبت به روال گذشته",
+      "محدود شدن تنوع اقلام خریداری‌شده و افت سطح کیفی سبد",
+      "افزایش فاصله زمانی در تسویه حساب‌ها"
+    ],
+    "summary_fa": "مشتری علیرغم پتانسیل بالا، خریدهای خود را به کدهای ارزان‌تر و محدود محدود کرده و مدتی است خریدی ثبت نکرده است. ضروری است با تماس فعال علت تغییر الگوی مصرف بررسی شده و پیشنهادهای متنوع‌تری متناسب با نیاز خطوط مشتری ارائه شود.",
+    "synthesis_source": "live"
+  },
+  "dropped": [],
+  "signals": [
+    "wallet_headroom",
+    "volume_surge",
+    "sku_narrowing",
+    "price_erosion",
+    "cross_sell_peer_gap",
+    "mix_downgrade"
+  ],
+  "n_llm_calls": 2,
+  "call_sources": [
+    "live",
+    "live"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "customer_id": "C_401016",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T11:27:37+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_401016",
+    "rank": 70,
+    "priority": "بالا",
+    "bucket": "reduce",
+    "title_fa": "تعیین تکلیف سقف اعتبار و بازنگری شرایط مالی قرارداد",
+    "rationale_fa": "مانده باز مشتری ۲۶۰ درصد سقف اعتبار را اشغال کرده است [EV-C_401016-exposure-001] و حاشیه سود ریسک‌تعدیل‌شده به -51.0 درصد رسیده است [EV-C_401016-riskadj-001]. با توجه به افت -82.5 درصدی حجم خرید [EV-C_401016-volume-001] و ۳۷ روز سکوت خرید [EV-C_401016-cadence-last-001]، هرگونه توسعه سفارش پیش از حل محدودیت اعتباری در مالی متوقف خواهد شد.",
+    "recommended_step_fa": "برگزاری جلسه با واحد مالی برای تعیین تکلیف مانده باز و سقف اعتبار [EV-C_401016-exposure-001] و بازنگری شروط تسویه قرارداد [EV-C_401016-riskadj-001] پیش از ارائه هر آفر جدید.",
+    "owner": "مدیر فروش با همکاری واحد مالی",
+    "evidence_ids": [
+      "EV-C_401016-exposure-001",
+      "EV-C_401016-riskadj-001",
+      "EV-C_401016-volume-001",
+      "EV-C_401016-cadence-last-001"
+    ],
+    "signals": [
+      "wallet_headroom",
+      "volume_decline",
+      "negative_risk_adj_margin",
+      "offer_negotiation_stalled",
+      "cadence_breach",
+      "credit_exposure",
+      "late_interest_drag",
+      "discount_without_return"
+    ],
+    "value_at_stake": 4389865.905,
+    "source": "live",
+    "detail": {
+      "priority_score": 134.31,
+      "credit_room": "exhausted",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.9,
+    "dominant_theme_fa": "کیفیت و پیگیری تعهدات معوق",
+    "unmet_promises_fa": [
+      "شکایت‌های باز و بلاتکلیف در خصوص آسیب فیلامنت و بسته‌بندی",
+      "درخواست توسعه محصول معطل‌مانده و بدون پاسخ",
+      "آفر قیمتی منقضی‌شده و رهاشده بدون پیگیری نهایی"
+    ],
+    "customer_priorities_fa": [
+      "سلامت فیزیکی بوبین‌ها و کیفیت بسته‌بندی",
+      "پاسخگویی سریع به نیازهای توسعه محصول",
+      "تعهد به زمان‌بندی و تحویل به‌موقع بار",
+      "تسهیل شرایط اعتباری و تسویه"
+    ],
+    "recommended_tone_fa": "دلجویانه بابت تأخیر طولانی در پاسخ به شکایت‌ها و درخواست توسعه، با رویکرد حل سریع موانع پیش از پیشنهاد فروش جدید",
+    "watch_items_fa": [
+      "خطر توقف کامل خرید و ریزش قطعی مشتری به دلیل رهاشدگی مطالبات فنی",
+      "رسوب اعتباری و عدول از سقف تعیین‌شده",
+      "بی‌اثر بودن تخفیف‌ها در بازگرداندن ریتم خرید قبلی"
+    ],
+    "summary_fa": "انباشت شکایات کیفی و بلاتکلیف ماندن درخواست توسعه در کنار افت شدید سفارش‌ها، رابطه با این مشتری را وارد مرحله پرریسکی کرده است. اولویت مدیر فروش باید شفاف‌سازی وضعیت بدهی و بستن پرونده‌های فنی باز قبل از هرگونه مذاکره برای افزایش حجم باشد.",
+    "synthesis_source": "live"
+  },
+  "dropped": [],
+  "signals": [
+    "wallet_headroom",
+    "volume_decline",
+    "negative_risk_adj_margin",
+    "offer_negotiation_stalled",
+    "cadence_breach",
+    "credit_exposure",
+    "late_interest_drag",
+    "discount_without_return"
+  ],
+  "n_llm_calls": 2,
+  "call_sources": [
+    "live",
+    "live"
+  ]
+}
