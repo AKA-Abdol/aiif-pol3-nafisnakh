@@ -267,15 +267,24 @@ def _section_action(ctx, cid, action, quad, signals) -> str:
     chips = []
     if d.get("credit_room"):
         chips.append(f'<span class="tag">اعتبار: {_e(CREDIT_STATE_FA.get(d["credit_room"], d["credit_room"]))}</span>')
-    if d.get("open_investigation") and d["open_investigation"] != "clear":
-        chips.append('<span class="tag p-high">پرونده بررسی باز</span>')
+    if d.get("open_investigation"):
+        from .aggregate.aggregator import gate_label_fa
+
+        pending = d["open_investigation"] == "pending"
+        # Shown in both states, unlike the stance chip below: "no open complaint"
+        # is itself the answer to the question the reader is asking — may I take
+        # this step today? Silence would read as "not checked".
+        chips.append(
+            f'<span class="tag{" p-high" if pending else ""}">'
+            f'{_e(gate_label_fa("open_investigation", d["open_investigation"]))}</span>'
+        )
     stance = d.get("relationship_stance")
     stance_note = ""
     if stance and stance != "neutral":
         from .llm.blocks.resolution import RELATIONSHIP_STANCE_FA
 
         chips.append(
-            f'<span class="tag">لحن: {_e(STANCE_LABEL_FA.get(stance, stance))}</span>'
+            f'<span class="tag">سابقه: {_e(STANCE_LABEL_FA.get(stance, stance))}</span>'
         )
         if RELATIONSHIP_STANCE_FA.get(stance):
             stance_note = (f'<div class="sig-meta">{_e(RELATIONSHIP_STANCE_FA[stance])}'

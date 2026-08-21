@@ -1,0 +1,74 @@
+{
+  "customer_id": "C_708199",
+  "as_of": "2021-06-30",
+  "fingerprint": "caa98920ed0c5d19",
+  "cache_version": "1",
+  "computed_at": "2026-08-21T08:45:04+00:00",
+  "model": "google/gemini-3.7-flash",
+  "action": {
+    "customer_id": "C_708199",
+    "rank": 273,
+    "priority": "متوسط",
+    "bucket": "protect",
+    "title_fa": "برگزاری جلسه قیمت معوق و ارائه پیشنهاد فروش Product_Family_03",
+    "rationale_fa": "آخرین خرید مشتری 184 روز پیش بوده [EV-C_708199-cadence-last-001] و حجم خرید ماهانه -100.0 درصد افت داشته است [EV-C_708199-volume-001]. اقدام ثبت‌شده در CRM تحت عنوان «جلسه قیمت» 112 روز معلق مانده است [EV-C_708199-loop-nextaction-001]. از سویی 100 درصد سقف اعتبار مشتری آزاد است [EV-C_708199-credit-room-001] و امکان فروش متقابل Product_Family_03 وجود دارد [EV-C_708199-crosssell-001].",
+    "recommended_step_fa": "تماس فوری با مشتری جهت هماهنگی جلسه قیمت معوق و ارائه آفر فروش سبد Product_Family_03 بر بستر سقف اعتبار آزاد.",
+    "owner": "کارشناس فروش",
+    "evidence_ids": [
+      "EV-C_708199-cadence-last-001",
+      "EV-C_708199-volume-001",
+      "EV-C_708199-loop-nextaction-001",
+      "EV-C_708199-credit-room-001",
+      "EV-C_708199-crosssell-001"
+    ],
+    "signals": [
+      "volume_decline",
+      "first_order_no_repeat",
+      "margin_below_peer_cohort",
+      "crm_promise_outstanding",
+      "cross_sell_peer_gap"
+    ],
+    "value_at_stake": 534593.76,
+    "source": "live",
+    "detail": {
+      "priority_score": 42.83,
+      "credit_room": "open",
+      "open_investigation": "clear",
+      "relationship_stance": "neutral"
+    }
+  },
+  "relationship": {
+    "health": "در معرض خطر",
+    "health_confidence": 0.85,
+    "dominant_theme_fa": "قیمت و بلاتکلیفی پس از اولین خرید",
+    "unmet_promises_fa": [
+      "عدم برگزاری جلسه مذاکره قیمتی و عدم ارسال پیشنهاد جدید پس از توافق اولیه"
+    ],
+    "customer_priorities_fa": [
+      "بررسی شرایط قیمتی رقابتی",
+      "تنوع سبد محصولات متناسب با نیاز تولید",
+      "تداوم و تثبیت فرآیند خرید"
+    ],
+    "recommended_tone_fa": "پیگیرانه و عذرخواهی بابت تأخیر طولانی در هماهنگی جلسه قیمت، سپس معرفی محصولات جدید و سنجش تمایل به فعال‌سازی مجدد حساب",
+    "watch_items_fa": [
+      "ریزش کامل مشتری و از دست رفتن فرصت بازگشت پس از اولین خرید",
+      "عدم پاسخگویی به پیگیری‌های جدید به دلیل وقفه طولانی در ارتباط",
+      "پایین بودن سودآوری سفارش‌های اولیه در صورت فعال‌سازی مجدد"
+    ],
+    "summary_fa": "این مشتری پس از ثبت نخستین سفارش به دلیل عدم پیگیری جلسه قیمت دچار وقفه کامل در خرید شده و فرآیند جذب آن متوقف مانده است. برای احیای این حساب، لازم است ضمن جبران تأخیر در پیگیری تعهدات تجاری، سبد محصولات مرتبط با تخفیف اولیه به مشتری پیشنهاد شود.",
+    "synthesis_source": "live"
+  },
+  "dropped": [],
+  "signals": [
+    "volume_decline",
+    "first_order_no_repeat",
+    "margin_below_peer_cohort",
+    "crm_promise_outstanding",
+    "cross_sell_peer_gap"
+  ],
+  "n_llm_calls": 2,
+  "call_sources": [
+    "live",
+    "live"
+  ]
+}

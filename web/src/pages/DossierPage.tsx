@@ -61,12 +61,13 @@ export default function DossierPage() {
           <div className="rowsplit">
             <h1 className="mono">{d.customer_id}</h1>
             <BucketPill bucket={d.bucket} title />
-            <GateBadge
-              gates={{
-                credit_room: (d.payment.credit_room_state as never) ?? undefined,
-                open_investigation: (num(d.quality, "complaints_open") ?? 0) > 0 ? "pending" : "clear",
-              }}
-            />
+            {/* Credit only. The investigation gate is not "has an open complaint"
+                — it is "a complaint is waiting on a sample or a test", which the
+                dossier payload cannot tell us; deriving it from complaints_open
+                would put a claim on screen the data does not support. The open
+                count has its own tile below, and the real gate rides along with
+                the action on the queue and meeting pages. */}
+            <GateBadge gates={{ credit_room: (d.payment.credit_room_state as never) ?? undefined }} />
           </div>
           <div className="sub" style={{ maxWidth: "72ch" }}>{d.bucket_reason_fa || BUCKET_MEANING_FA[d.bucket]}</div>
         </div>

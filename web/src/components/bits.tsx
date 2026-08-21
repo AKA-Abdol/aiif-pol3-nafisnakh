@@ -21,20 +21,28 @@ export const CATEGORY_FA: Record<SignalCategory, string> = {
   efficiency: "کارایی",
 };
 
-const CREDIT_FA: Record<string, string> = {
-  open: "سقف اعتبار باز",
-  exhausted: "سقف اعتبار پر",
-  unknown: "سقف اعتبار نامشخص",
+/**
+ * The three gate chips answer three *different* questions, and the wording keeps
+ * them apart on purpose: credit and investigation describe the state right now
+ * ("can we act today?"), while stance describes what already happened ("how did
+ * past complaints end?"). Every stance label therefore carries the «سابقه»
+ * prefix — without it the reader merges it with the investigation chip, since
+ * both are about complaints. Second element of each pair is the tooltip.
+ */
+const CREDIT_FA: Record<string, [string, string]> = {
+  open: ["سقف اعتبار باز", "فضای اعتباری باقی مانده؛ پیشنهاد افزایش حجم قابل اجراست."],
+  exhausted: ["سقف اعتبار پر", "سقف عملاً پر شده؛ هر پیشنهاد رشد باید مشروط به بازنگری سقف باشد، وگرنه سفارش در واحد مالی متوقف می‌شود."],
+  unknown: ["سقف اعتبار نامشخص", "دادهٔ سقف اعتبار برای این مشتری قابل اتکا نیست؛ روی آن حساب نکن."],
 };
-const INVESTIGATION_FA: Record<string, string> = {
-  clear: "پروندهٔ کیفی بسته",
-  pending: "پروندهٔ کیفی باز",
+const INVESTIGATION_FA: Record<string, [string, string]> = {
+  clear: ["بدون شکایت باز", "شکایت بازی که مانع جلسه یا پیشنهاد باشد وجود ندارد."],
+  pending: ["شکایت باز — منتظر آزمون", "پروندهٔ شکایت هنوز بسته نشده و منتظر نمونه یا آزمون تکمیلی است؛ جلسه یا پیشنهاد باید *بعد از* تعیین تکلیف آن انجام شود."],
 };
-const STANCE_FA: Record<string, string> = {
-  neutral: "موضع خنثی",
-  apologise: "تقصیر با ما",
-  unsubstantiated: "ادعا وارد نبود",
-  mixed: "موضع ترکیبی",
+const STANCE_FA: Record<string, [string, string]> = {
+  neutral: ["سابقه: بدون تقصیر محرز", "در شکایات گذشتهٔ این مشتری تقصیر محرزی برای هیچ طرف ثبت نشده؛ لحن خاصی لازم نیست."],
+  apologise: ["سابقه: تقصیر با ما", "در شکایات گذشته قصور متوجه نفیس‌نخ بوده؛ گفتگو با پذیرش مسئولیت شروع شود."],
+  unsubstantiated: ["سابقه: ادعا وارد نبود", "شکایات گذشته بررسی و رد شده‌اند؛ لازم نیست عذرخواهانه وارد شوی."],
+  mixed: ["سابقه: دوگانه", "سابقهٔ شکایات هر دو حالت را دارد؛ پیش از موضع‌گیری پرونده‌به‌پرونده مرور کن."],
 };
 
 export function BucketPill({ bucket, title }: { bucket: Bucket; title?: boolean }) {
@@ -67,18 +75,26 @@ export function SeverityBar({ severity, category }: { severity: number; category
 }
 
 export function GateBadge({ gates }: { gates: Partial<Gates> }) {
-  const out: Array<[string, string]> = [];
-  if (gates.credit_room)
-    out.push([gates.credit_room === "exhausted" ? "danger" : gates.credit_room === "open" ? "ok" : "neutral", CREDIT_FA[gates.credit_room] ?? gates.credit_room]);
-  if (gates.open_investigation)
-    out.push([gates.open_investigation === "pending" ? "fix" : "ok", INVESTIGATION_FA[gates.open_investigation] ?? gates.open_investigation]);
-  if (gates.relationship_stance)
-    out.push([gates.relationship_stance === "apologise" ? "fix" : "neutral", STANCE_FA[gates.relationship_stance] ?? gates.relationship_stance]);
+  const out: Array<[string, string, string | undefined]> = [];
+  const pick = (map: Record<string, [string, string]>, key: string): [string, string | undefined] =>
+    map[key] ? map[key] : [key, undefined];
+  if (gates.credit_room) {
+    const [label, tip] = pick(CREDIT_FA, gates.credit_room);
+    out.push([gates.credit_room === "exhausted" ? "danger" : gates.credit_room === "open" ? "ok" : "neutral", label, tip]);
+  }
+  if (gates.open_investigation) {
+    const [label, tip] = pick(INVESTIGATION_FA, gates.open_investigation);
+    out.push([gates.open_investigation === "pending" ? "fix" : "ok", label, tip]);
+  }
+  if (gates.relationship_stance) {
+    const [label, tip] = pick(STANCE_FA, gates.relationship_stance);
+    out.push([gates.relationship_stance === "apologise" ? "fix" : "neutral", label, tip]);
+  }
   if (!out.length) return null;
   return (
     <span className="rowsplit" style={{ gap: 5 }}>
-      {out.map(([cls, label]) => (
-        <span key={label} className={`pill ${cls}`}>{label}</span>
+      {out.map(([cls, label, tip]) => (
+        <span key={label} className={`pill ${cls}`} title={tip}>{label}</span>
       ))}
     </span>
   );

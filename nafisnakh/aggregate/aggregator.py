@@ -198,6 +198,37 @@ INVESTIGATION_NOTE_FA = {
     "clear": "پروندهٔ شکایت بازی که مانع گفتگو باشد وجود ندارد.",
 }
 
+# Short labels for the same three fields, for anywhere a *human* reads the gate:
+# the web chips, the server-rendered 360 page, the meeting brief. The long notes
+# above are written for the model; these are written for a sales manager, so they
+# name the thing ("شکایت باز") instead of the internal key ("pending"). The stance
+# labels all carry the «سابقه» prefix on purpose — stance and the investigation
+# gate are both about complaints, and without the prefix a reader merges them,
+# when in fact one is today's blocker and the other is how past files ended.
+GATE_LABEL_FA: dict[str, dict[str, str]] = {
+    "credit_room": {
+        "open": "سقف اعتبار باز",
+        "exhausted": "سقف اعتبار پر",
+        "unknown": "سقف اعتبار نامشخص",
+    },
+    "open_investigation": {
+        "clear": "بدون شکایت باز",
+        "pending": "شکایت باز — منتظر آزمون",
+    },
+    "relationship_stance": {
+        "neutral": "سابقه: بدون تقصیر محرز",
+        "apologise": "سابقه: تقصیر با ما",
+        "unsubstantiated": "سابقه: ادعا وارد نبود",
+        "mixed": "سابقه: دوگانه",
+    },
+}
+
+
+def gate_label_fa(field: str, value: str | None) -> str:
+    """Human label for one gate value; falls back to the raw value, never blank."""
+    return GATE_LABEL_FA.get(field, {}).get(value or "", value or "—")
+
+
 INVESTIGATION_BLOCKED_STEP_FA = (
     "ابتدا پروندهٔ شکایت {ids} که {days} روز منتظر نمونه یا آزمون تکمیلی مانده با "
     "کنترل کیفیت تعیین تکلیف شود؛ جلسه یا پیشنهاد بعدی پس از بستن آن پرونده."

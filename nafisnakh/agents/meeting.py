@@ -64,12 +64,13 @@ class Meeting:
             f"تاریخ مبنا: {self.as_of.isoformat()}",
             "=" * 66,
         ]
+        from ..aggregate.aggregator import gate_label_fa
+
         gates = self.plan.gates
-        lines.append(
-            f"اعتبار: {gates.get('credit_room', '—')} · "
-            f"پرونده بررسی باز: {gates.get('open_investigation', '—')} · "
-            f"لحن: {gates.get('relationship_stance', '—')}"
-        )
+        lines.append(" · ".join(
+            gate_label_fa(f, gates.get(f))
+            for f in ("credit_room", "open_investigation", "relationship_stance")
+        ))
         if self.plan.constraints:
             lines.append("")
             lines.append("قیدهایی که به همه تحلیل‌گران داده شد:")
