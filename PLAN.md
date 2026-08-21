@@ -311,6 +311,7 @@ nafisnakh/
     roster.py          ★ the 7 agents and the conditions that wake them
     router.py          ★ deterministic routing — no model decides who runs
     meeting.py         the agenda they produce
+  api.py               FastAPI surface — a projection of the library, no logic of its own
   feedback.py          ★ manager decisions → detector ranking weights
   customer360.py       ★ one account, every claim expandable to its source rows
   report.py            self-contained RTL HTML artifact for the sales manager
@@ -1014,6 +1015,16 @@ nafisnakh calibrate --as-of 2021-12-31     # do the thresholds still hold?
 nafisnakh brief --as-of 2022-03-31 --top 10
 ```
 
+### Serve it
+
+```bash
+uv pip install -e '.[api]'     # fastapi + uvicorn are an optional extra
+nafisnakh serve --port 8000    # prints the main routes, then starts uvicorn
+```
+
+`GET /docs` is the interactive catalogue. The API is a projection of the library and
+holds no logic of its own, so nothing is reachable over HTTP that the CLI cannot do.
+
 ### The test suite
 
 ```bash
@@ -1331,6 +1342,35 @@ random_state        = 42
 ---
 
 ## 11. CHANGELOG
+
+- **2026-08-21 (the HTTP surface)** — `nafisnakh serve` works. FastAPI was **not
+  installed on any interpreter** on this machine and, more to the point, was **never
+  declared**: `nafisnakh/api.py` imported it while `pyproject.toml` listed neither it nor
+  uvicorn. Added as an `api` extra (`uv pip install -e '.[api]'`), and `serve` now fails
+  with an instruction rather than an `ImportError` when it is missing.
+
+  `api.py` had gone stale — it predated steps 1–5 and served none of them. Rewritten
+  around four points:
+
+  * **Runs are cached per `(as_of, stage)`.** Stopping at `quadrant` costs seconds and no
+    model calls; running to `aggregate` costs one drafting call per action. `/calibration`
+    should not pay for the action queue, so the stage is part of the key and each endpoint
+    asks for the least it needs. The old version ran the whole pipeline for everything.
+  * **Nothing that spends money is a GET.** `/customers/{id}/meeting/plan` is free and
+    refreshable; holding the meeting is a `POST`. A browser reload must not bill the user.
+  * **Concurrency.** FastAPI runs sync handlers in a threadpool, so two requests for a
+    cold `as_of` would both compute the same pipeline. A lock around the miss makes the
+    second wait for the first.
+  * **`GET /evidence/{id}/rows`** — the step-1 resolver over HTTP, and the endpoint the
+    whole evidence contract exists for: a claim opens onto the real workbook records,
+    gated at `as_of` by rule #4 exactly as the calculation was.
+
+  New: `/customers` (book list with bucket, RFM and open-loop count), `/customers/{id}`
+  (now carrying rfm · open_loops · payment · quality), `/customers/{id}/page` (the 360°
+  page inline), `/tools`, `/customers/{id}/tools`, `/agents`, the two meeting routes, and
+  `insufficient` on `/calibration`. Verified against a live uvicorn process, not only the
+  test client. 16 new tests in `tests/test_api.py` (skipped cleanly when the extra is
+  absent); 225 passing.
 
 - **2026-08-21 (step 5/5 — seven agents, a deterministic router, `nafisnakh meeting`)** —
   `nafisnakh/agents/`, contract in §3.10. `nafisnakh meeting <id>` produces an

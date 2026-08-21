@@ -525,10 +525,38 @@ def serve(
     port: int = typer.Option(8000),
     reload: bool = typer.Option(False),
 ):
-    """Serve the HTTP API (Q2: convertible to an API later)."""
-    import uvicorn
+    """Serve the HTTP API (Q2: convertible to an API later).
 
-    _echo(f"http://{host}:{port}/docs")
+    The API adds no logic of its own — every endpoint is a projection of what the
+    CLI already computes, so the two cannot drift.
+    """
+    try:
+        import uvicorn
+    except ModuleNotFoundError:
+        raise typer.BadParameter(
+            "بستهٔ سرور نصب نیست. با «uv pip install -e '.[api]'» یا "
+            "«pip install 'nafisnakh[api]'» نصبش کنید.",
+            param_hint="serve",
+        ) from None
+
+    st = _settings(None, None)
+    _echo(f"مستندات تعاملی: http://{host}:{port}/docs")
+    _echo(f"تاریخ مبنا: {st.as_of.isoformat()}")
+    _echo("")
+    _echo("مسیرهای اصلی:")
+    for path, note in (
+        ("/summary", "یک نگاه به کل دفتر"),
+        ("/customers", "فهرست مشتریان با سطل، RFM و تعداد حلقه باز"),
+        ("/customers/{id}", "پروندهٔ کامل به شکل JSON"),
+        ("/customers/{id}/page", "صفحهٔ ۳۶۰ — هر ادعا باز می‌شود روی ردیف واقعی"),
+        ("/evidence/{id}/rows", "ردیف‌های واقعی پشت یک شاهد"),
+        ("/customers/{id}/tools", "همان چیزی که به یک تحلیل‌گر داده می‌شود"),
+        ("/customers/{id}/meeting/plan", "تصمیم روتر و هزینه‌اش — رایگان"),
+        ("POST /customers/{id}/meeting", "اجرای تحلیل‌گرها و دستور جلسه"),
+        ("/actions", "صف اقدام (هزینهٔ مدل دارد)"),
+        ("/report", "همان گزارش HTML که CLI می‌نویسد"),
+    ):
+        _echo(f"  {path:34s} {note}")
     uvicorn.run("nafisnakh.api:app", host=host, port=port, reload=reload)
 
 
