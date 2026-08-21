@@ -1,0 +1,17 @@
+{
+  "mechanism": "M05_intermingling",
+  "mechanism_confidence": 0.95,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "پیگیری",
+  "attributed_fault": "تولید",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [
+    "1330201548"
+  ],
+  "affected_quantity_kg": null,
+  "summary_fa": "گزارش وجود گره‌های میکرو زیاد (مینگل بیش از حد) در همبافت 1330201548 که موجب خشن شدن زیردست پارچه شده است."
+}

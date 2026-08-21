@@ -1,0 +1,15 @@
+{
+  "mechanism": "UNKNOWN",
+  "mechanism_confidence": 0.4,
+  "proposed_new_category_fa": "کارکرد و راندمان نامناسب",
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "نامشخص",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری از کارکرد نامناسب نخ درجات بدون ارائه جزئیات فنی شکایت کرده است."
+}

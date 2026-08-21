@@ -1,0 +1,13 @@
+{
+  "title_fa": "جلسه حضوری ریشه‌یابی افت خرید و معرفی خانواده کالایی Product_Family_05",
+  "rationale_fa": "حجم خرید ماهانه مشتری در 3 ماه اخیر -52.9 درصد افت داشته [EV-FIX-008-volume-001] و آخرین خرید 40 روز پیش ثبت شده که نسبت به ریتم 20 روزه، سکوت 2 برابری را نشان می‌دهد [EV-FIX-008-cadence-last-001] [EV-FIX-008-cadence-ratio-001]. همچنین مشتری تاکنون از Product_Family_05 که همتایانش مصرف می‌کنند خریدی نداشته است [EV-FIX-008-crosssell-001] و رابطه در معرض خطر ارزیابی شده است [EV-FIX-008-relationship-001].",
+  "recommended_step_fa": "هماهنگی جلسه حضوری با واحد خرید مشتری جهت ریشه‌یابی کاهش سفارش‌ها و ارائه کاتالوگ و نمونه محصول Product_Family_05.",
+  "owner": "کارشناس فروش حساب‌های کلیدی",
+  "evidence_ids": [
+    "EV-FIX-008-volume-001",
+    "EV-FIX-008-cadence-last-001",
+    "EV-FIX-008-cadence-ratio-001",
+    "EV-FIX-008-crosssell-001",
+    "EV-FIX-008-relationship-001"
+  ]
+}

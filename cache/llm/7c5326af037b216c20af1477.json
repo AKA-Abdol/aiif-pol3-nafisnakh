@@ -1,0 +1,13 @@
+{
+  "title_fa": "معرفی محصول Product_Family_05 و افزایش حجم سفارش",
+  "rationale_fa": "مشتری با حاشیه سود ناخالص 29.6 درصد [EV-FIX-004-margin-001] و حاشیه سود ریسک‌تعدیل‌شده 26.9 درصد [EV-FIX-004-riskadj-001] سودده است و 99 درصد سقف اعتبار آن آزاد است [EV-FIX-004-credit-room-001]. همچنین با خرید 0.14 برابر همتایان [EV-FIX-004-headroom-001]، ظرفیت رشد 0.3M ریال داشته و تاکنون محصول Product_Family_05 را خریداری نکرده است [EV-FIX-004-crosssell-001].",
+  "recommended_step_fa": "برقراری تماس فروش و ارسال نمونه محصول Product_Family_05 به مشتری به همراه پیشنهاد پیش‌فاکتور برای افزایش حجم خرید.",
+  "owner": "کارشناس فروش",
+  "evidence_ids": [
+    "EV-FIX-004-margin-001",
+    "EV-FIX-004-riskadj-001",
+    "EV-FIX-004-credit-room-001",
+    "EV-FIX-004-headroom-001",
+    "EV-FIX-004-crosssell-001"
+  ]
+}

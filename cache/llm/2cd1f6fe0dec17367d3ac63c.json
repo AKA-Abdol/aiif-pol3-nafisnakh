@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "بدون اقدام",
+  "systemic_fix": false,
+  "escalation_body_fa": "هیچ",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "به دلیل عدم ارسال نمونه توسط مشتری و عدم مشاهده مغایرت در مستندات همبافت، ادعای نوسان نمره تایید نشد."
+}

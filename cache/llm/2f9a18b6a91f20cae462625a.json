@@ -1,0 +1,15 @@
+{
+  "mechanism": "M02_filament_damage",
+  "mechanism_confidence": 0.9,
+  "proposed_new_category_fa": null,
+  "churn_threat": true,
+  "churn_threat_quote_fa": "درصورت تکرار قطع همکاری میکند",
+  "repeat_claim": true,
+  "financial_demand": false,
+  "escalation_level": "تشدید",
+  "attributed_fault": "تولید",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشکل تکراری سیمی بودن و پرز نخ باعث تهدید به قطع همکاری مشتری شده است."
+}

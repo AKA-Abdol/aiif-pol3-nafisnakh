@@ -1,0 +1,319 @@
+{
+  "as_of": "2021-06-30",
+  "customers": [
+    "FIX-001",
+    "FIX-002",
+    "FIX-003",
+    "FIX-004",
+    "FIX-005",
+    "FIX-006",
+    "FIX-007",
+    "FIX-008",
+    "FIX-009",
+    "FIX-010",
+    "FIX-011",
+    "FIX-012",
+    "FIX-013",
+    "FIX-014",
+    "FIX-015",
+    "FIX-016",
+    "FIX-017",
+    "FIX-018",
+    "FIX-019",
+    "FIX-020",
+    "FIX-021"
+  ],
+  "detectors_fired": [
+    "bounced_cheque",
+    "cadence_breach",
+    "churn_threat_language",
+    "complaint_recurrence",
+    "credit_exposure",
+    "crm_promise_outstanding",
+    "cross_sell_peer_gap",
+    "dev_rejected_uncommunicated",
+    "dev_request_stalled",
+    "dev_sample_ready_no_offer",
+    "discount_without_return",
+    "dso_slippage",
+    "first_order_no_repeat",
+    "hembaft_blast_radius",
+    "lab_rejected_lot_shipped",
+    "late_interest_drag",
+    "margin_below_peer_cohort",
+    "mix_downgrade",
+    "negative_risk_adj_margin",
+    "offer_negotiation_stalled",
+    "price_erosion",
+    "return_rate_spike",
+    "sku_narrowing",
+    "unresolved_aging",
+    "unsubstantiated_complaint_load",
+    "volume_decline",
+    "volume_surge",
+    "wallet_headroom"
+  ],
+  "signals_per_customer": {
+    "FIX-001": [
+      "churn_threat_language",
+      "complaint_recurrence",
+      "cross_sell_peer_gap",
+      "unresolved_aging"
+    ],
+    "FIX-002": [
+      "cadence_breach",
+      "margin_below_peer_cohort",
+      "negative_risk_adj_margin"
+    ],
+    "FIX-003": [
+      "cross_sell_peer_gap",
+      "margin_below_peer_cohort",
+      "unsubstantiated_complaint_load",
+      "volume_decline"
+    ],
+    "FIX-004": [
+      "cross_sell_peer_gap",
+      "wallet_headroom"
+    ],
+    "FIX-005": [
+      "cadence_breach",
+      "mix_downgrade",
+      "unresolved_aging",
+      "volume_decline"
+    ],
+    "FIX-006": [
+      "cadence_breach",
+      "cross_sell_peer_gap",
+      "hembaft_blast_radius"
+    ],
+    "FIX-007": [
+      "cadence_breach",
+      "cross_sell_peer_gap",
+      "hembaft_blast_radius"
+    ],
+    "FIX-008": [
+      "cross_sell_peer_gap",
+      "volume_decline"
+    ],
+    "FIX-009": [
+      "first_order_no_repeat"
+    ],
+    "FIX-010": [
+      "bounced_cheque",
+      "cadence_breach",
+      "credit_exposure",
+      "late_interest_drag",
+      "margin_below_peer_cohort",
+      "negative_risk_adj_margin",
+      "volume_decline"
+    ],
+    "FIX-011": [
+      "volume_surge"
+    ],
+    "FIX-012": [
+      "cadence_breach",
+      "mix_downgrade",
+      "price_erosion",
+      "sku_narrowing"
+    ],
+    "FIX-013": [
+      "price_erosion"
+    ],
+    "FIX-014": [
+      "discount_without_return",
+      "margin_below_peer_cohort",
+      "volume_decline"
+    ],
+    "FIX-015": [
+      "dso_slippage",
+      "margin_below_peer_cohort",
+      "mix_downgrade",
+      "volume_surge"
+    ],
+    "FIX-016": [
+      "dev_request_stalled",
+      "return_rate_spike",
+      "unresolved_aging"
+    ],
+    "FIX-017": [
+      "cadence_breach",
+      "dev_sample_ready_no_offer",
+      "margin_below_peer_cohort",
+      "volume_decline"
+    ],
+    "FIX-018": [
+      "cadence_breach",
+      "dev_rejected_uncommunicated",
+      "margin_below_peer_cohort",
+      "volume_decline"
+    ],
+    "FIX-019": [
+      "cadence_breach",
+      "crm_promise_outstanding",
+      "margin_below_peer_cohort",
+      "volume_decline"
+    ],
+    "FIX-020": [
+      "cadence_breach",
+      "margin_below_peer_cohort",
+      "offer_negotiation_stalled",
+      "volume_decline"
+    ],
+    "FIX-021": [
+      "lab_rejected_lot_shipped",
+      "margin_below_peer_cohort"
+    ]
+  },
+  "buckets": {
+    "FIX-001": "protect",
+    "FIX-002": "fix",
+    "FIX-003": "protect",
+    "FIX-004": "grow",
+    "FIX-005": "protect",
+    "FIX-006": "protect",
+    "FIX-007": "protect",
+    "FIX-008": "protect",
+    "FIX-009": "protect",
+    "FIX-010": "fix",
+    "FIX-011": "protect",
+    "FIX-012": "protect",
+    "FIX-013": "protect",
+    "FIX-014": "protect",
+    "FIX-015": "protect",
+    "FIX-016": "reduce",
+    "FIX-017": "protect",
+    "FIX-018": "protect",
+    "FIX-019": "protect",
+    "FIX-020": "protect",
+    "FIX-021": "protect"
+  },
+  "actions": [
+    {
+      "customer_id": "FIX-011",
+      "bucket": "protect",
+      "priority": "فوری",
+      "n_evidence": 3
+    },
+    {
+      "customer_id": "FIX-001",
+      "bucket": "protect",
+      "priority": "فوری",
+      "n_evidence": 6
+    },
+    {
+      "customer_id": "FIX-002",
+      "bucket": "fix",
+      "priority": "فوری",
+      "n_evidence": 9
+    },
+    {
+      "customer_id": "FIX-010",
+      "bucket": "fix",
+      "priority": "بالا",
+      "n_evidence": 5
+    },
+    {
+      "customer_id": "FIX-017",
+      "bucket": "protect",
+      "priority": "بالا",
+      "n_evidence": 7
+    },
+    {
+      "customer_id": "FIX-005",
+      "bucket": "protect",
+      "priority": "بالا",
+      "n_evidence": 8
+    },
+    {
+      "customer_id": "FIX-006",
+      "bucket": "protect",
+      "priority": "بالا",
+      "n_evidence": 7
+    },
+    {
+      "customer_id": "FIX-007",
+      "bucket": "protect",
+      "priority": "بالا",
+      "n_evidence": 7
+    },
+    {
+      "customer_id": "FIX-014",
+      "bucket": "protect",
+      "priority": "بالا",
+      "n_evidence": 6
+    },
+    {
+      "customer_id": "FIX-020",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 8
+    },
+    {
+      "customer_id": "FIX-013",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 3
+    },
+    {
+      "customer_id": "FIX-008",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 4
+    },
+    {
+      "customer_id": "FIX-018",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 7
+    },
+    {
+      "customer_id": "FIX-019",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 7
+    },
+    {
+      "customer_id": "FIX-003",
+      "bucket": "protect",
+      "priority": "متوسط",
+      "n_evidence": 8
+    },
+    {
+      "customer_id": "FIX-012",
+      "bucket": "protect",
+      "priority": "پایین",
+      "n_evidence": 8
+    },
+    {
+      "customer_id": "FIX-015",
+      "bucket": "protect",
+      "priority": "پایین",
+      "n_evidence": 8
+    },
+    {
+      "customer_id": "FIX-021",
+      "bucket": "protect",
+      "priority": "پایین",
+      "n_evidence": 4
+    },
+    {
+      "customer_id": "FIX-004",
+      "bucket": "grow",
+      "priority": "پایین",
+      "n_evidence": 4
+    },
+    {
+      "customer_id": "FIX-016",
+      "bucket": "reduce",
+      "priority": "پایین",
+      "n_evidence": 4
+    },
+    {
+      "customer_id": "FIX-009",
+      "bucket": "protect",
+      "priority": "پایین",
+      "n_evidence": 2
+    }
+  ],
+  "dropped": 0
+}

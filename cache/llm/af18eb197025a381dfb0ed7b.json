@@ -1,0 +1,15 @@
+{
+  "title_fa": "بازنگری فوری شرایط قیمتی و بررسی وقفه خرید مشتری",
+  "rationale_fa": "حاشیه سود ناخالص مشتری -28.9 درصد [EV-FIX-002-margin-001] و حاشیه سود ریسک‌تعدیل‌شده -31.0 درصد [EV-FIX-002-riskadj-001] بوده و در صدک 0 همتایان قرار دارد [EV-FIX-002-margin-cohort-001]، چرا که موقعیت قیمتی آن 0.76 برابر میانگین بازار است [EV-FIX-002-price-pos-001]. از سوی دیگر، آخرین خرید 25 روز پیش بوده [EV-FIX-002-cadence-last-001] که در مقایسه با میانه 11 روزه [EV-FIX-002-cadence-median-001]، نسبت سکوت 2.27 برابری را نشان می‌دهد [EV-FIX-002-cadence-ratio-001].",
+  "recommended_step_fa": "برگزاری جلسه حضوری با مشتری پیش از تایید هرگونه سفارش جدید برای اصلاح قیمت‌گذاری و بررسی علت توقف خرید اخیر.",
+  "owner": "مدیر فروش",
+  "evidence_ids": [
+    "EV-FIX-002-margin-001",
+    "EV-FIX-002-riskadj-001",
+    "EV-FIX-002-margin-cohort-001",
+    "EV-FIX-002-price-pos-001",
+    "EV-FIX-002-cadence-last-001",
+    "EV-FIX-002-cadence-median-001",
+    "EV-FIX-002-cadence-ratio-001"
+  ]
+}

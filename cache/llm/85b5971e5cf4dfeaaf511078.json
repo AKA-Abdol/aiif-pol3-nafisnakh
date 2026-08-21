@@ -1,0 +1,15 @@
+{
+  "mechanism": "M03_mass_count_deviation",
+  "mechanism_confidence": 0.9,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "نامشخص",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری به وجود اختلاف در تناژ و وزن بار ارسالی اشاره کرده است."
+}

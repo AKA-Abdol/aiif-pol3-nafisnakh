@@ -1,0 +1,14 @@
+{
+  "title_fa": "معرفی محصول Product_Family_05 و افزایش سهم خرید مشتری",
+  "rationale_fa": "مشتری دارای رابطه سالم، حاشیه سود ناخالص 29.6 درصد [EV-FIX-004-margin-001] و حاشیه سود ریسک‌تعدیل‌شده 26.9 درصد [EV-FIX-004-riskadj-001] است، اما تنها 0.14 برابر همتایان خرید دارد و ظرفیت رشد برآوردی آن 0.3M ریال است [EV-FIX-004-headroom-001]. علاوه بر این، محصول Product_Family_05 را هرگز نخریده است [EV-FIX-004-crosssell-001] و آخرین خرید وی 35 روز پیش بوده که از میانه 25 روز بیشتر است [EV-FIX-004-cadence-last-001] [EV-FIX-004-cadence-median-001].",
+  "recommended_step_fa": "برگزاری جلسه حضوری یا تماس با مسئول خرید برای ارائه نمونه فنی Product_Family_05 و ثبت سفارش جدید جهت فعال‌سازی ظرفیت رشد.",
+  "owner": "کارشناس فروش بخش مربوطه",
+  "evidence_ids": [
+    "EV-FIX-004-margin-001",
+    "EV-FIX-004-riskadj-001",
+    "EV-FIX-004-headroom-001",
+    "EV-FIX-004-crosssell-001",
+    "EV-FIX-004-cadence-last-001",
+    "EV-FIX-004-cadence-median-001"
+  ]
+}

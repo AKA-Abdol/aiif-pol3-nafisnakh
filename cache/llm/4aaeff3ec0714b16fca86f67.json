@@ -1,0 +1,14 @@
+{
+  "title_fa": "تماس فوری جهت فعال‌سازی مجدد و معرفی سبد محصولات مکمل",
+  "rationale_fa": "مشتری با ریتم خرید ۱۴ روزه [EV-C_969707-cadence-median-001] به مدت ۱۸۴ روز خرید نداشته [EV-C_969707-cadence-last-001] و حجم خریدش ۱۰۰.۰- درصد افت کرده است [EV-C_969707-volume-001]. آخرین ارتباط CRM مربوط به ۳۳۰ روز پیش بوده [EV-C_969707-crm-001]، در حالی که ۶۸ درصد سقف اعتبار آزاد دارد [EV-C_969707-credit-room-001] و امکان عرضه اقلام Product_Family_01, Product_Family_03, Product_Family_04 فراهم است [EV-C_969707-crosssell-001].",
+  "recommended_step_fa": "برقراری تماس مستقیم و ترتیب دادن جلسه با مشتری برای ریشه‌یابی توقف خرید ۱۸۴ روزه و ارائه پیشنهاد فروش برای خانواده‌های کالایی Product_Family_01, Product_Family_03, Product_Family_04 بر بستر ۶۸ درصد اعتبار آزاد.",
+  "owner": "کارشناس فروش",
+  "evidence_ids": [
+    "EV-C_969707-cadence-median-001",
+    "EV-C_969707-cadence-last-001",
+    "EV-C_969707-volume-001",
+    "EV-C_969707-crm-001",
+    "EV-C_969707-credit-room-001",
+    "EV-C_969707-crosssell-001"
+  ]
+}

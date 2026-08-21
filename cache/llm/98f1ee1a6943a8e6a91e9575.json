@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "investigation_state": "منتظر نمونه یا آزمون",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "اصلاح فرآیند تولید",
+  "systemic_fix": true,
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "escalation_body_fa": "هیچ",
+  "summary_fa": "مقرر شد نمونه‌ها جهت بررسی تکمیلی ارسال شوند و اقدامات اصلاحی و کنترلی در واحد تولید POY تدوین و ابلاغ گردید."
+}

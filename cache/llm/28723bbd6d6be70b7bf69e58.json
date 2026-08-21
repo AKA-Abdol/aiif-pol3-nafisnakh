@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نامشخص",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "بدون اقدام",
+  "systemic_fix": false,
+  "escalation_body_fa": "هیچ",
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "پس از بررسی نمونه، مشکل جابجایی فیلامنت و کم شدن لای نخ به صورت موردی تأیید شد و با توجه به عدم تکرار، موضوع مرتفع گردید."
+}

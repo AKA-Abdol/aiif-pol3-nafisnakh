@@ -1,0 +1,11 @@
+════════════════════════════════════════════════════════════════════
+TEST   : Signal engine, full book
+COMMAND: .venv/bin/nafisnakh signals
+WHEN   : 2026-08-20 11:58:55
+════════════════════════════════════════════════════════════════════
+
+سیگنال‌ها: 1663 روی 518 مشتری
+نوشته شد: /Users/mehdi/Documents/project/POL-3/aiif-pol3-nafisnakh/outputs/signals_2021-06-30.json
+
+────────────────────────────────────────────────────────────────────
+EXIT CODE: 0   ELAPSED: 4.9s

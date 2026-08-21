@@ -1,0 +1,15 @@
+{
+  "mechanism": "M02_filament_damage",
+  "mechanism_confidence": 0.85,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "بسته‌بندی",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "اعلام بدپیچی، پرز و پارگی فیلامنت در نخ‌های مات همراه با اشاره به آسیب ناشی از شیرینگ و بسته‌بندی."
+}

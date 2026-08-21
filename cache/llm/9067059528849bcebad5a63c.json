@@ -1,0 +1,15 @@
+{
+  "mechanism": "M01_package_formation",
+  "mechanism_confidence": 0.95,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "عادی",
+  "attributed_fault": "تولید",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "مشتری با ارسال تصاویر، به نوسان سفتی بسته‌ها و دشواری در باز شدن نخ در انتهای دوک اعتراض کرده است."
+}

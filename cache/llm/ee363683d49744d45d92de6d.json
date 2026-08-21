@@ -1,0 +1,15 @@
+{
+  "mechanism": "M02_filament_damage",
+  "mechanism_confidence": 0.9,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "پیگیری",
+  "attributed_fault": "تولید",
+  "evidence_supplied": true,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "نخ در قسمت تار با سرعت بالا پارگی مکرر داشته است. عکس ارسال شده است."
+}

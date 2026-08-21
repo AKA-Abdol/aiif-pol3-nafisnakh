@@ -2,3 +2,9 @@
 .env
 /outputs
 *.xlsx
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.mplconfig
+learn

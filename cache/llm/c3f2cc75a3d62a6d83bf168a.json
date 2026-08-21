@@ -1,0 +1,14 @@
+{
+  "title_fa": "تماس فوری جهت احیای خرید و معرفی محصولات جدید",
+  "rationale_fa": "خرید مشتری پس از ۱۹۱ روز توقف [EV-C_565612-cadence-last-001] و افت ۱۰۰.۰- درصدی حجم ماهانه [EV-C_565612-volume-001] نسبت به ریتم میانه ۷ روز [EV-C_565612-cadence-median-001] دچار وقفه کامل شده و آخرین تماس ثبت‌شده ۲۹۲ روز پیش بوده است [EV-C_565612-crm-001]. با توجه به اینکه ۷۲ درصد سقف اعتبار هنوز آزاد است [EV-C_565612-credit-room-001]، فرصت احیا و فروش خانواده‌های Product_Family_01، Product_Family_03 و Product_Family_04 فراهم است [EV-C_565612-crosssell-001].",
+  "recommended_step_fa": "برقراری تماس تلفنی و برگزاری جلسه فوری با مشتری برای بررسی دلایل توقف خرید و ارائه پیشنهاد روی سبد Product_Family_01، Product_Family_03 و Product_Family_04 با اتکا به اعتبار آزاد.",
+  "owner": "کارشناس فروش",
+  "evidence_ids": [
+    "EV-C_565612-cadence-last-001",
+    "EV-C_565612-volume-001",
+    "EV-C_565612-cadence-median-001",
+    "EV-C_565612-crm-001",
+    "EV-C_565612-credit-room-001",
+    "EV-C_565612-crosssell-001"
+  ]
+}

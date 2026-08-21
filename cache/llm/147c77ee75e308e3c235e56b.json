@@ -1,0 +1,12 @@
+{
+  "fault_verdict": "نفیس‌نخ",
+  "initial_claim_overturned": false,
+  "corrected_mechanism_fa": null,
+  "remedy_type": "اصلاح فرآیند تولید",
+  "systemic_fix": false,
+  "escalation_body_fa": "هیچ",
+  "resolution_confirmed": true,
+  "compensation_given": false,
+  "spawned_complaint_ids": [],
+  "summary_fa": "با بررسی خط تولید مشخص شد تفاوت در تنظیمات وایندر عامل سفتی نخ رزرو بوده که اصلاح شد و رفع مشکل توسط مشتری تأیید گردید."
+}

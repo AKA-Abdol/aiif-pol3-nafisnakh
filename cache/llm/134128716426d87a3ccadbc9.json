@@ -1,0 +1,15 @@
+{
+  "mechanism": "M08_tube_packaging",
+  "mechanism_confidence": 1.0,
+  "proposed_new_category_fa": null,
+  "churn_threat": false,
+  "churn_threat_quote_fa": null,
+  "repeat_claim": false,
+  "financial_demand": false,
+  "escalation_level": "پیگیری",
+  "attributed_fault": "تولید",
+  "evidence_supplied": false,
+  "hembaft_mentioned": [],
+  "affected_quantity_kg": null,
+  "summary_fa": "دوک‌های دست دوم و تیغ خورده با رزرو و کثیفی تحویل مشتری شده است."
+}

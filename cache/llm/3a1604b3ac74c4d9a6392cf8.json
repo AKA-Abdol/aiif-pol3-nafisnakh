@@ -1,0 +1,13 @@
+{
+  "title_fa": "برقراری تماس جهت ریشه‌یابی افت خرید و معرفی Product_Family_05",
+  "rationale_fa": "فاصله آخرین خرید مشتری به 40 روز رسیده که 2 برابر ریتم میانه 20 روز است [EV-FIX-003-cadence-last-001] [EV-FIX-003-cadence-ratio-001]. همچنین حجم خرید ماهانه 30.6- درصد کاهش داشته [EV-FIX-003-volume-001]، حاشیه سود در صدک 0 همتایان است [EV-FIX-003-margin-cohort-001] و پتانسیل معرفی خانواده کالای Product_Family_05 وجود دارد [EV-FIX-003-crosssell-001].",
+  "recommended_step_fa": "تماس تلفنی با مشتری برای ریشه‌یابی توقف خرید و ارائه پیشنهاد فروش برای خانواده کالای Product_Family_05.",
+  "owner": "مدیر فروش",
+  "evidence_ids": [
+    "EV-FIX-003-cadence-last-001",
+    "EV-FIX-003-cadence-ratio-001",
+    "EV-FIX-003-volume-001",
+    "EV-FIX-003-margin-cohort-001",
+    "EV-FIX-003-crosssell-001"
+  ]
+}

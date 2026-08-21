@@ -1,0 +1,15 @@
+{
+  "fault_verdict": "نامشخص",
+  "initial_claim_overturned": true,
+  "corrected_mechanism_fa": "آسیب‌دیدگی نخ حین جابه‌جایی و لا دادن نخ",
+  "remedy_type": "نامشخص",
+  "systemic_fix": false,
+  "escalation_body_fa": "بازدید میدانی",
+  "resolution_confirmed": false,
+  "compensation_given": false,
+  "spawned_complaint_ids": [
+    "۱۴۱۸",
+    "۱۴۱۹"
+  ],
+  "summary_fa": "ادعای خرابی دوک در بازدید میدانی منتفی شد و مشکلات به صورت دو شکایت جدید با شماره‌های ۱۴۱۸ و ۱۴۱۹ (آسیب‌دیدگی حین جابه‌جایی و لا دادن نخ) ثبت گردید."
+}
